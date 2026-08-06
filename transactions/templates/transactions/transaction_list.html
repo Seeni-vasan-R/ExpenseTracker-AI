@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Transactions</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="mb-3">
+
+        <a href="{% url 'transactions:transaction_add' %}"
+           class="btn btn-primary">
+
+            Add Transaction
+
+        </a>
+
+    </div>
+
+    <form method="GET" class="row mb-3">
+
+        <div class="col-md-5">
+
+            <input
+                type="text"
+                name="search"
+                class="form-control"
+                placeholder="Search..."
+                value="{{ search }}">
+
+        </div>
+
+        <div class="col-md-4">
+
+            <select
+                name="type"
+                class="form-select">
+
+                <option value="">All</option>
+
+                <option value="Income"
+                    {% if selected_type == "Income" %}selected{% endif %}>
+                    Income
+                </option>
+
+                <option value="Expense"
+                    {% if selected_type == "Expense" %}selected{% endif %}>
+                    Expense
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <button
+                class="btn btn-success w-100"
+                type="submit">
+
+                Search
+
+            </button>
+
+        </div>
+
+    </form>
+
+    <table class="table table-bordered table-hover">
+
+        <thead class="table-dark">
+
+            <tr>
+
+                <th>Date</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Payment</th>
+                <th>Actions</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for transaction in transactions %}
+
+            <tr>
+
+                <td>{{ transaction.transaction_date }}</td>
+
+                <td>{{ transaction.transaction_type }}</td>
+
+                <td>{{ transaction.category }}</td>
+
+                <td>₹ {{ transaction.amount }}</td>
+
+                <td>{{ transaction.payment_method }}</td>
+
+                <td>
+
+                    <a
+                        href="{% url 'transactions:transaction_detail' transaction.pk %}"
+                        class="btn btn-info btn-sm">
+
+                        View
+
+                    </a>
+
+                    <a
+                        href="{% url 'transactions:transaction_update' transaction.pk %}"
+                        class="btn btn-warning btn-sm">
+
+                        Edit
+
+                    </a>
+
+                    <form
+                        method="POST"
+                        action="{% url 'transactions:transaction_delete' transaction.pk %}"
+                        style="display:inline;">
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger btn-sm"
+                            onclick="return confirm('Delete this transaction?');">
+
+                            Delete
+
+                        </button>
+
+                    </form>
+
+                </td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+
+                <td colspan="6" class="text-center">
+
+                    No transactions found.
+
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    {% if is_paginated %}
+
+        <nav>
+
+            <ul class="pagination">
+
+                {% if page_obj.has_previous %}
+
+                    <li class="page-item">
+
+                        <a
+                            class="page-link"
+                            href="?page={{ page_obj.previous_page_number }}">
+
+                            Previous
+
+                        </a>
+
+                    </li>
+
+                {% endif %}
+
+                <li class="page-item active">
+
+                    <span class="page-link">
+
+                        {{ page_obj.number }}
+
+                    </span>
+
+                </li>
+
+                {% if page_obj.has_next %}
+
+                    <li class="page-item">
+
+                        <a
+                            class="page-link"
+                            href="?page={{ page_obj.next_page_number }}">
+
+                            Next
+
+                        </a>
+
+                    </li>
+
+                {% endif %}
+
+            </ul>
+
+        </nav>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

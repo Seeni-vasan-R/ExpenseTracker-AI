@@ -1,0 +1,45 @@
+<nav class="top-navbar">
+
+    <div class="search-box">
+
+        <input
+            type="text"
+            placeholder="Search transactions...">
+
+        <button>
+
+            <i class="fas fa-search"></i>
+
+        </button>
+
+    </div>
+
+    <div class="navbar-right">
+
+        <div class="notification">
+
+            <i class="fas fa-bell"></i>
+
+            <span class="badge">3</span>
+
+        </div>
+
+        <div class="profile">
+
+            <img
+                src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=4F46E5&color=fff"
+                alt="Profile">
+
+            <div>
+
+                <h6>{{ request.user.username }}</h6>
+
+                <small>Welcome Back</small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>

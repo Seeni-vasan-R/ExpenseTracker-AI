@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}
+Budgets
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between mb-3">
+
+        <h2>Budgets</h2>
+
+        <a
+            href="{% url 'budgets:budget_add' %}"
+            class="btn btn-primary">
+
+            Add Budget
+
+        </a>
+
+    </div>
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+    <h5 class="mb-3">
+
+        Total Budget :
+        ₹ {{ total_budget }}
+
+    </h5>
+
+    <table class="table table-bordered table-hover">
+
+        <thead class="table-dark">
+
+            <tr>
+
+                <th>Category</th>
+                <th>Budget</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Status</th>
+                <th>Actions</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for budget in budgets %}
+
+            <tr>
+
+                <td>
+
+                    {% if budget.category %}
+
+                        {{ budget.category }}
+
+                    {% else %}
+
+                        Overall Budget
+
+                    {% endif %}
+
+                </td>
+
+                <td>
+
+                    ₹ {{ budget.budget_limit }}
+
+                </td>
+
+                <td>
+
+                    {{ budget.start_date }}
+
+                </td>
+
+                <td>
+
+                    {{ budget.end_date }}
+
+                </td>
+
+                <td>
+
+                    {% if budget.is_active %}
+
+                        Active
+
+                    {% else %}
+
+                        Inactive
+
+                    {% endif %}
+
+                </td>
+
+                <td>
+
+                    <a
+                        href="{% url 'budgets:budget_update' budget.pk %}"
+                        class="btn btn-warning btn-sm">
+
+                        Edit
+
+                    </a>
+
+                    <form
+                        method="POST"
+                        action="{% url 'budgets:budget_delete' budget.pk %}"
+                        style="display:inline;">
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger btn-sm">
+
+                            Delete
+
+                        </button>
+
+                    </form>
+
+                </td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+
+                <td colspan="6" class="text-center">
+
+                    No Budgets Found
+
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

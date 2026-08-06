@@ -1,0 +1,59 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'dashboard/css/sidebar.css' %}">
+    <link rel="stylesheet" href="{% static 'dashboard/css/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'dashboard/css/cards.css' %}">
+
+</head>
+
+<body style="background:#F5F7FB;">
+
+    <!-- Sidebar -->
+    {% include "dashboard/components/sidebar.html" %}
+
+    <!-- Main Content -->
+    <div style="margin-left:260px; padding:30px;">
+
+        <!-- Navbar -->
+        {% include "dashboard/components/navbar.html" %}
+
+        <!-- Summary Cards -->
+        <div class="mt-4">
+
+            {% include "dashboard/components/cards.html" %}
+
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="mt-4">
+
+            {% include "dashboard/components/recent_transactions.html" %}
+
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

@@ -69,14 +69,14 @@ class Budget(models.Model):
 
         constraints = [
             models.CheckConstraint(
-                condition=Q(
+                check=Q(
                     budget_limit__gt=0
                 ),
                 name="budget_limit_gt_zero",
             ),
 
             models.CheckConstraint(
-                condition=Q(
+                check=Q(
                     end_date__gte=F("start_date")
                 ),
                 name="budget_end_date_gte_start_date",
@@ -90,9 +90,7 @@ class Budget(models.Model):
 
         errors = {}
 
-        # ---------------------------------
         # Category Ownership Validation
-        # ---------------------------------
         if (
             self.category
             and self.category.user is not None
@@ -102,9 +100,7 @@ class Budget(models.Model):
                 "Selected category does not belong to this user."
             )
 
-        # ---------------------------------
         # Prevent Income Categories
-        # ---------------------------------
         if (
             self.category
             and self.category.category_type == "Income"
@@ -113,19 +109,15 @@ class Budget(models.Model):
                 "Income categories cannot be used for budgets."
             )
 
-        # ---------------------------------
-        # Overlapping Active Budgets
-        # ---------------------------------
+        # Prevent Overlapping Active Budgets
         overlapping_budgets = (
-            Budget.objects
-            .filter(
+            Budget.objects.filter(
                 user=self.user,
                 category=self.category,
                 is_active=True,
                 start_date__lte=self.end_date,
                 end_date__gte=self.start_date,
-            )
-            .exclude(pk=self.pk)
+            ).exclude(pk=self.pk)
         )
 
         if overlapping_budgets.exists():
@@ -145,9 +137,6 @@ class Budget(models.Model):
             raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
-        """
-        Run model validation before saving.
-        """
         self.full_clean()
         super().save(*args, **kwargs)
 

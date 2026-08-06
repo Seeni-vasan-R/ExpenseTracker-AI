@@ -1,0 +1,73 @@
+.dashboard-card{
+
+    border-radius:18px;
+
+    padding:25px;
+
+    color:white;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    box-shadow:0 12px 25px rgba(0,0,0,.08);
+
+    transition:.3s;
+
+    min-height:150px;
+
+}
+
+.dashboard-card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.dashboard-card h6{
+
+    opacity:.9;
+
+    margin-bottom:10px;
+
+}
+
+.dashboard-card h2{
+
+    font-weight:700;
+
+}
+
+.dashboard-card i{
+
+    font-size:45px;
+
+    opacity:.85;
+
+}
+
+.balance-card{
+
+    background:linear-gradient(135deg,#4F46E5,#6366F1);
+
+}
+
+.income-card{
+
+    background:linear-gradient(135deg,#10B981,#34D399);
+
+}
+
+.expense-card{
+
+    background:linear-gradient(135deg,#EF4444,#F87171);
+
+}
+
+.budget-card{
+
+    background:linear-gradient(135deg,#F59E0B,#FBBF24);
+
+}

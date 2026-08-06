@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">Reports Dashboard</h2>
+
+    <!-- Filter Form -->
+    <form method="get" class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            {{ filter_form.filter_type }}
+        </div>
+
+        <div class="col-md-3">
+            {{ filter_form.start_date }}
+        </div>
+
+        <div class="col-md-3">
+            {{ filter_form.end_date }}
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                Filter
+            </button>
+        </div>
+
+    </form>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-success">
+                <div class="card-body text-center">
+                    <h6>Total Income</h6>
+                    <h3 class="text-success">
+                        ₹ {{ summary.income }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-danger">
+                <div class="card-body text-center">
+                    <h6>Total Expense</h6>
+                    <h3 class="text-danger">
+                        ₹ {{ summary.expense }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-primary">
+                <div class="card-body text-center">
+                    <h6>Balance</h6>
+                    <h3 class="text-primary">
+                        ₹ {{ summary.balance }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-dark">
+                <div class="card-body text-center">
+                    <h6>Total Transactions</h6>
+                    <h3>
+                        {{ summary.transactions }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Monthly Report -->
+    <div class="card mb-4">
+
+        <div class="card-header">
+            <h4>Monthly Report</h4>
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-light">
+
+                    <tr>
+                        <th>Month</th>
+                        <th>Income</th>
+                        <th>Expense</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for item in monthly_report %}
+
+                    <tr>
+
+                        <td>{{ item.month|date:"F Y" }}</td>
+
+                        <td class="text-success">
+                            ₹ {{ item.income|default:0 }}
+                        </td>
+
+                        <td class="text-danger">
+                            ₹ {{ item.expense|default:0 }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="3" class="text-center">
+                            No Data Found
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Category Report -->
+    <div class="card mb-4">
+
+        <div class="card-header">
+            <h4>Category Report</h4>
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-striped">
+
+                <thead>
+
+                    <tr>
+                        <th>Category</th>
+                        <th>Total Expense</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for item in category_report %}
+
+                    <tr>
+
+                        <td>{{ item.category__name }}</td>
+
+                        <td>
+                            ₹ {{ item.total }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="2">
+                            No Data Found
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Payment Method Report -->
+    <div class="card mb-4">
+
+        <div class="card-header">
+            <h4>Payment Method Report</h4>
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-striped">
+
+                <thead>
+
+                    <tr>
+                        <th>Payment Method</th>
+                        <th>Total Amount</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for item in payment_report %}
+
+                    <tr>
+
+                        <td>{{ item.payment_method }}</td>
+
+                        <td>
+                            ₹ {{ item.total }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="2">
+                            No Data Found
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card">
+
+        <div class="card-header">
+            <h4>Recent Transactions</h4>
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-hover">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Payment</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for transaction in recent_transactions %}
+
+                    <tr>
+
+                        <td>{{ transaction.transaction_date }}</td>
+
+                        <td>{{ transaction.category.name }}</td>
+
+                        <td>{{ transaction.transaction_type }}</td>
+
+                        <td>₹ {{ transaction.amount }}</td>
+
+                        <td>{{ transaction.payment_method }}</td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="5" class="text-center">
+
+                            No Transactions Found
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

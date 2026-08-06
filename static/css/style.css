@@ -1,0 +1,19 @@
+/* Global base styles — extended per phase as UI work progresses */
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: #f4f6f9;
+}
+
+.auth-wrapper {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    padding: 2rem 1rem;
+}
+
+.auth-card {
+    border-radius: 1rem;
+}
+
+.card {
+    border-radius: 0.75rem;
+}

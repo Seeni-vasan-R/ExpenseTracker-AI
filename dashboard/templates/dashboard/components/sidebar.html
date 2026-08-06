@@ -1,0 +1,83 @@
+{% load static %}
+
+<div class="sidebar">
+
+    <div class="logo">
+
+        <h2>ExpenseTracker</h2>
+
+    </div>
+
+    <ul class="sidebar-menu">
+
+        <li>
+            <a href="{% url 'dashboard:dashboard' %}" class="active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'transactions:transaction_list' %}">
+                <i class="fas fa-wallet"></i>
+                <span>Transactions</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'transactions:category_list' %}">
+                <i class="fas fa-list"></i>
+                <span>Categories</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'budgets:budget_list' %}">
+                <i class="fas fa-piggy-bank"></i>
+                <span>Budgets</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="#">
+                <i class="fas fa-sync-alt"></i>
+                <span>Recurring</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'reports:dashboard' %}">
+    <i class="fas fa-chart-line"></i>
+    <span>Reports</span>
+</a>
+        </li>
+
+        <li>
+            <a href="#">
+                <i class="fas fa-robot"></i>
+                <span>AI Insights</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="#">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+
+    </ul>
+
+    <div class="sidebar-footer">
+
+        <a href="{% url 'accounts:logout' %}">
+
+            <i class="fas fa-sign-out-alt"></i>
+
+            Logout
+
+        </a>
+
+    </div>
+
+</div>

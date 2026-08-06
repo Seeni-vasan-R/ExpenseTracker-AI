@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if object %}
+Edit Transaction
+{% else %}
+Add Transaction
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    {% if object %}
+        <h2>Edit Transaction</h2>
+    {% else %}
+        <h2>Add Transaction</h2>
+    {% endif %}
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button
+            type="submit"
+            class="btn btn-success">
+
+            Save
+
+        </button>
+
+        <a
+            href="{% url 'transactions:transaction_list' %}"
+            class="btn btn-secondary">
+
+            Cancel
+
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

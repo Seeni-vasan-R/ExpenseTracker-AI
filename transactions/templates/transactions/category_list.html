@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between mb-3">
+
+        <h2>Categories</h2>
+
+        <a href="{% url 'transactions:category_add' %}"
+           class="btn btn-primary">
+
+            Add Category
+
+        </a>
+
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <table class="table table-bordered table-hover">
+
+        <thead class="table-dark">
+
+            <tr>
+
+                <th>Name</th>
+                <th>Type</th>
+                <th>Default</th>
+                <th>Actions</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for category in categories %}
+
+            <tr>
+
+                <td>{{ category.name }}</td>
+
+                <td>{{ category.category_type }}</td>
+
+                <td>
+
+                    {% if category.is_default %}
+                        Yes
+                    {% else %}
+                        No
+                    {% endif %}
+
+                </td>
+
+                <td>
+
+                    {% if not category.is_default %}
+
+                        <a
+                            href="{% url 'transactions:category_update' category.pk %}"
+                            class="btn btn-warning btn-sm">
+
+                            Edit
+
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{% url 'transactions:category_delete' category.pk %}"
+                            style="display:inline;">
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="btn btn-danger btn-sm"
+                                onclick="return confirm('Delete category?');">
+
+                                Delete
+
+                            </button>
+
+                        </form>
+
+                    {% else %}
+
+                        <span class="badge bg-secondary">
+                            Default
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+
+                <td colspan="4" class="text-center">
+
+                    No Categories Found
+
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
