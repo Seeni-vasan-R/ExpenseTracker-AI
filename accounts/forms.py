@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import UploadedFile
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AbstractUser
@@ -367,15 +368,13 @@ class UserProfileForm(forms.ModelForm):
         return (self.cleaned_data.get("country") or "").strip()
 
     def clean_profile_picture(self):
-        """
-        Validate uploaded image size and actual image format.
-
-        Browser-supplied content_type values are not trusted by themselves,
-        so Pillow verifies that the file is a real supported image.
-        """
         picture = self.cleaned_data.get("profile_picture")
 
         if not picture:
+            return picture
+
+        # Existing stored image: do not validate it as a new upload.
+        if not isinstance(picture, UploadedFile):
             return picture
 
         allowed_formats = {"JPEG", "PNG", "WEBP"}
