@@ -1,0 +1,89 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="{% block meta_description %}Expense Tracker application{% endblock %}"
+    >
+
+    <meta
+        name="theme-color"
+        content="#0d6efd"
+    >
+
+    <title>
+        {% block title %}Expense Tracker{% endblock %}
+    </title>
+
+    {% block favicon %}
+        <link
+            rel="icon"
+            type="image/x-icon"
+            href="{% static 'images/favicon.ico' %}"
+        >
+    {% endblock %}
+
+    <!-- Bootstrap 5 CSS -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    >
+
+    <!-- Custom CSS -->
+    <link
+        rel="stylesheet"
+        href="{% static 'css/style.css' %}"
+    >
+
+    {% block extra_css %}{% endblock %}
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <noscript>
+        <div class="alert alert-warning text-center rounded-0 mb-0">
+            JavaScript is disabled in your browser.
+            Some Expense Tracker features may not work correctly.
+        </div>
+    </noscript>
+
+    <!-- Bootstrap 5 JavaScript Bundle -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        defer
+    ></script>
+
+    <!-- Chart.js -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+        defer
+    ></script>
+
+    <!-- Custom JavaScript -->
+    <script
+        src="{% static 'js/main.js' %}"
+        defer
+    ></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,77 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Dashboard</title>
+
+    <meta
+        name="description"
+        content="Personal expense tracking dashboard"
+    >
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'dashboard/css/sidebar.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'dashboard/css/navbar.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'dashboard/css/cards.css' %}"
+    >
+</head>
+
+<body class="dashboard-body">
+    <div class="dashboard-layout">
+
+        <aside class="dashboard-sidebar">
+            {% include "dashboard/components/sidebar.html" %}
+        </aside>
+
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                {% include "dashboard/components/navbar.html" %}
+            </header>
+
+            <section
+                class="dashboard-content container-fluid"
+                aria-label="Dashboard summary"
+            >
+                <div class="mt-4">
+                    {% include "dashboard/components/cards.html" %}
+                </div>
+
+                <div class="mt-4">
+                    {% include "dashboard/components/recent_transactions.html" %}
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+    ></script>
+</body>
+</html>

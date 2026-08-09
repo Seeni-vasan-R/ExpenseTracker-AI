@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Edit Profile | Expense Tracker
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    {% if messages %}
+        {% for message in messages %}
+            <div
+                class="alert alert-{{ message.tags }} alert-dismissible fade show"
+                role="alert"
+            >
+                {{ message }}
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"
+                ></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">Edit Profile</h1>
+                    <p class="text-muted mb-0">
+                        Update your account details and preferences.
+                    </p>
+                </div>
+
+                <a
+                    href="{% url 'accounts:profile' %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 p-md-5">
+                    <form
+                        method="post"
+                        enctype="multipart/form-data"
+                    >
+                        {% csrf_token %}
+
+                        {% if user_form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in user_form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {% if profile_form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in profile_form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <h2 class="h5 border-bottom pb-2 mb-4">
+                            Account Information
+                        </h2>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ user_form.first_name.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    First Name
+                                </label>
+
+                                {{ user_form.first_name }}
+
+                                {% if user_form.first_name.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in user_form.first_name.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ user_form.last_name.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Last Name
+                                </label>
+
+                                {{ user_form.last_name }}
+
+                                {% if user_form.last_name.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in user_form.last_name.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-12">
+                                <label
+                                    for="{{ user_form.email.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Email Address
+                                </label>
+
+                                {{ user_form.email }}
+
+                                {% if user_form.email.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in user_form.email.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <h2 class="h5 border-bottom pb-2 mb-4 mt-5">
+                            Profile Information
+                        </h2>
+
+                        <div class="mb-4">
+                            <label
+                                for="{{ profile_form.profile_picture.id_for_label }}"
+                                class="form-label"
+                            >
+                                Profile Picture
+                            </label>
+
+                            {% if profile_form.instance.profile_picture %}
+                                <div class="mb-3">
+                                    <img
+                                        src="{{ profile_form.instance.profile_picture.url }}"
+                                        alt="Current profile picture"
+                                        class="rounded-circle"
+                                        style="width: 110px; height: 110px; object-fit: cover;"
+                                    >
+                                </div>
+                            {% endif %}
+
+                            {{ profile_form.profile_picture }}
+
+                            {% if profile_form.profile_picture.help_text %}
+                                <div class="form-text">
+                                    {{ profile_form.profile_picture.help_text }}
+                                </div>
+                            {% endif %}
+
+                            {% if profile_form.profile_picture.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in profile_form.profile_picture.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ profile_form.phone_number.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Phone Number
+                                </label>
+
+                                {{ profile_form.phone_number }}
+
+                                {% if profile_form.phone_number.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in profile_form.phone_number.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ profile_form.country.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Country
+                                </label>
+
+                                {{ profile_form.country }}
+
+                                {% if profile_form.country.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in profile_form.country.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ profile_form.currency.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Currency
+                                </label>
+
+                                {{ profile_form.currency }}
+
+                                {% if profile_form.currency.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in profile_form.currency.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ profile_form.theme.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Theme
+                                </label>
+
+                                {{ profile_form.theme }}
+
+                                {% if profile_form.theme.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in profile_form.theme.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 mt-5">
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                            >
+                                Save Changes
+                            </button>
+
+                            <a
+                                href="{% url 'accounts:profile' %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

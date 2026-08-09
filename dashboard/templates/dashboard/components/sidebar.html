@@ -1,0 +1,102 @@
+{% load static %}
+
+<div class="sidebar">
+    <div class="logo">
+        <h2>ExpenseTracker</h2>
+    </div>
+
+    <nav aria-label="Main navigation">
+        <ul class="sidebar-menu">
+            <li>
+                <a
+                    href="{% url 'dashboard:dashboard' %}"
+                    class="{% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}"
+                >
+                    <i class="fas fa-home" aria-hidden="true"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li>
+                <a
+                    href="{% url 'transactions:transaction_list' %}"
+                    class="{% if request.resolver_match.namespace == 'transactions' and 'transaction' in request.resolver_match.url_name %}active{% endif %}"
+                >
+                    <i class="fas fa-wallet" aria-hidden="true"></i>
+                    <span>Transactions</span>
+                </a>
+            </li>
+
+            <li>
+                <a
+                    href="{% url 'transactions:category_list' %}"
+                    class="{% if request.resolver_match.url_name == 'category_list' %}active{% endif %}"
+                >
+                    <i class="fas fa-list" aria-hidden="true"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+
+            <li>
+                <a
+                    href="{% url 'budget:budget_list' %}"
+                    class="{% if request.resolver_match.namespace == 'budget' %}active{% endif %}"
+                >
+                    <i class="fas fa-piggy-bank" aria-hidden="true"></i>
+                    <span>Budgets</span>
+                </a>
+            </li>
+
+            <li>
+                <a
+                    href="#"
+                    aria-disabled="true"
+                    title="Recurring transactions are not available yet"
+                >
+                    <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                    <span>Recurring</span>
+                </a>
+            </li>
+
+            <li>
+                <a
+                    href="#"
+                    aria-disabled="true"
+                    title="Analytics page is not available yet"
+                >
+                    <i class="fas fa-chart-line" aria-hidden="true"></i>
+                    <span>Analytics</span>
+                </a>
+            </li>
+
+            <li>
+                <a
+                    href="#"
+                    aria-disabled="true"
+                    title="AI insights are not available yet"
+                >
+                    <i class="fas fa-robot" aria-hidden="true"></i>
+                    <span>AI Insights</span>
+                </a>
+            </li>
+
+            <li>
+                <a
+                    href="#"
+                    aria-disabled="true"
+                    title="Settings are not available yet"
+                >
+                    <i class="fas fa-cog" aria-hidden="true"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="{% url 'accounts:logout' %}">
+            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+</div>

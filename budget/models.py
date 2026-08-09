@@ -8,6 +8,12 @@ from django.db.models import F, Q
 class Budget(models.Model):
     """
     Stores overall or category-based budgets.
+
+    If category is NULL:
+        The budget applies to all expenses for the user.
+
+    If category is set:
+        The budget applies only to that category.
     """
 
     user = models.ForeignKey(
@@ -28,7 +34,7 @@ class Budget(models.Model):
         max_digits=10,
         decimal_places=2,
         validators=[
-            MinValueValidator(0.01)
+            MinValueValidator(0.01),
         ],
     )
 
@@ -53,111 +59,120 @@ class Budget(models.Model):
 
         indexes = [
             models.Index(
-                fields=[
-                    "user",
-                    "is_active",
-                ]
+                fields=["user", "is_active"],
+                name="budget_user_active_idx",
             ),
             models.Index(
-                fields=[
-                    "user",
-                    "start_date",
-                    "end_date",
-                ]
+                fields=["user", "start_date", "end_date"],
+                name="budget_user_dates_idx",
+            ),
+            models.Index(
+                fields=["user", "category", "is_active"],
+                name="budget_user_category_idx",
             ),
         ]
 
         constraints = [
             models.CheckConstraint(
-                condition=Q(
-                    budget_limit__gt=0
-                ),
+                condition=Q(budget_limit__gt=0),
                 name="budget_limit_gt_zero",
             ),
-
             models.CheckConstraint(
-                condition=Q(
-                    end_date__gte=F("start_date")
-                ),
+                condition=Q(end_date__gte=F("start_date")),
                 name="budget_end_date_gte_start_date",
             ),
         ]
 
     def clean(self):
-        """
-        Model-level validation.
-        """
-
         errors = {}
 
-        # ---------------------------------
-        # Category Ownership Validation
-        # ---------------------------------
+        if self.user_id is None:
+            errors["__all__"] = "A budget must belong to a user."
+
+        if self.budget_limit is not None and self.budget_limit <= 0:
+            errors["budget_limit"] = (
+                "Budget limit must be greater than zero."
+            )
+
+        if self.start_date is None:
+            errors["start_date"] = "Start date is required."
+
+        if self.end_date is None:
+            errors["end_date"] = "End date is required."
+
         if (
-            self.category
-            and self.category.user is not None
-            and self.category.user != self.user
+            self.start_date
+            and self.end_date
+            and self.end_date < self.start_date
         ):
-            errors["category"] = (
-                "Selected category does not belong to this user."
+            errors["end_date"] = (
+                "End date cannot be before the start date."
             )
 
-        # ---------------------------------
-        # Prevent Income Categories
-        # ---------------------------------
+        category = None
+
+        if self.category_id:
+            try:
+                category = self.category
+            except self.category.RelatedObjectDoesNotExist:
+                errors["category"] = (
+                    "The selected category does not exist."
+                )
+
+        if category:
+            if (
+                category.user_id is not None
+                and category.user_id != self.user_id
+            ):
+                errors["category"] = (
+                    "Selected category does not belong to this user."
+                )
+
+            if category.category_type == "Income":
+                errors["category"] = (
+                    "Income categories cannot be used for budgets."
+                )
+
         if (
-            self.category
-            and self.category.category_type == "Income"
+            self.user_id
+            and self.start_date
+            and self.end_date
         ):
-            errors["category"] = (
-                "Income categories cannot be used for budgets."
+            overlapping_budgets = (
+                Budget.objects.filter(
+                    user_id=self.user_id,
+                    category_id=self.category_id,
+                    is_active=True,
+                    start_date__lte=self.end_date,
+                    end_date__gte=self.start_date,
+                )
+                .exclude(pk=self.pk)
             )
 
-        # ---------------------------------
-        # Overlapping Active Budgets
-        # ---------------------------------
-        overlapping_budgets = (
-            Budget.objects
-            .filter(
-                user=self.user,
-                category=self.category,
-                is_active=True,
-                start_date__lte=self.end_date,
-                end_date__gte=self.start_date,
-            )
-            .exclude(pk=self.pk)
-        )
-
-        if overlapping_budgets.exists():
-
-            if self.category:
-                errors["category"] = (
-                    "An active budget for this category "
-                    "already exists in the selected date range."
-                )
-            else:
-                errors["category"] = (
-                    "An active overall budget already exists "
-                    "in the selected date range."
-                )
+            if overlapping_budgets.exists():
+                if self.category_id:
+                    errors["category"] = (
+                        "An active budget for this category already "
+                        "exists during the selected date range."
+                    )
+                else:
+                    errors["__all__"] = (
+                        "An active overall budget already exists "
+                        "during the selected date range."
+                    )
 
         if errors:
             raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
-        """
-        Run model validation before saving.
-        """
         self.full_clean()
-        super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def __str__(self):
-        if self.category:
+        if self.category_id:
             return (
                 f"{self.user.username} - "
                 f"{self.category.name} Budget"
             )
 
-        return (
-            f"{self.user.username} - Overall Budget"
-        )
+        return f"{self.user.username} - Overall Budget"

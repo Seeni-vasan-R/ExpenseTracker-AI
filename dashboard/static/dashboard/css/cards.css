@@ -1,0 +1,89 @@
+.dashboard-card {
+    min-height: 150px;
+    padding: 25px;
+    border-radius: 18px;
+    color: #ffffff;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.14);
+}
+
+.dashboard-card h6 {
+    margin: 0 0 10px;
+    opacity: 0.9;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.dashboard-card h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.dashboard-card i {
+    flex-shrink: 0;
+    margin-left: 15px;
+    font-size: 45px;
+    opacity: 0.85;
+}
+
+.balance-card {
+    background: linear-gradient(
+        135deg,
+        #4f46e5,
+        #6366f1
+    );
+}
+
+.income-card {
+    background: linear-gradient(
+        135deg,
+        #10b981,
+        #34d399
+    );
+}
+
+.expense-card {
+    background: linear-gradient(
+        135deg,
+        #ef4444,
+        #f87171
+    );
+}
+
+.budget-card {
+    background: linear-gradient(
+        135deg,
+        #f59e0b,
+        #fbbf24
+    );
+}
+
+@media (max-width: 575.98px) {
+    .dashboard-card {
+        min-height: 125px;
+        padding: 20px;
+    }
+
+    .dashboard-card h2 {
+        font-size: 1.35rem;
+    }
+
+    .dashboard-card i {
+        font-size: 32px;
+    }
+}
