@@ -1,0 +1,88 @@
+{% extends "dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Delete budget | Expense Tracker
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'budgets/css/budgets.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<section class="page-wrapper budgets-page budget-delete-page">
+
+    <section class="delete-card">
+
+        <div class="delete-icon">
+            <i class="fa-regular fa-trash-can"></i>
+        </div>
+
+        <span class="section-kicker">
+            Delete budget
+        </span>
+
+        <h1>Delete this budget?</h1>
+
+        <p>
+            This action cannot be undone. The budget record will be
+            permanently removed.
+        </p>
+
+        <div class="delete-budget-preview">
+            <span class="preview-icon">
+                {% if object.category %}
+                    <i class="fa-solid fa-tag"></i>
+                {% else %}
+                    <i class="fa-solid fa-globe"></i>
+                {% endif %}
+            </span>
+
+            <div>
+                <strong>
+                    {% if object.category %}
+                        {{ object.category.name }}
+                    {% else %}
+                        Overall budget
+                    {% endif %}
+                </strong>
+
+                <small>
+                    ₹{{ object.budget_limit|floatformat:2 }}
+                    ·
+                    {{ object.start_date|date:"d M Y" }}
+                    –
+                    {{ object.end_date|date:"d M Y" }}
+                </small>
+            </div>
+        </div>
+
+        <form method="post" class="delete-form">
+            {% csrf_token %}
+
+            <a
+                href="{% url 'budget:budget_list' %}"
+                class="button button-secondary"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="button button-danger"
+            >
+                <i class="fa-regular fa-trash-can"></i>
+                Delete budget
+            </button>
+        </form>
+
+    </section>
+
+</section>
+
+{% endblock %}

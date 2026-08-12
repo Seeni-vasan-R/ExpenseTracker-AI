@@ -5,16 +5,12 @@ from django.utils import timezone
 
 from .models import (
     Category,
-    Transaction,
     RecurringTransaction,
+    Transaction,
 )
 
 
 class StyledModelForm(forms.ModelForm):
-    """
-    Base ModelForm that applies Bootstrap classes automatically.
-    """
-
     DATE_FIELDS = {
         "transaction_date",
         "start_date",
@@ -26,31 +22,36 @@ class StyledModelForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         for name, field in self.fields.items():
-            if isinstance(field.widget, forms.CheckboxInput):
-                field.widget.attrs["class"] = "form-check-input"
+            widget = field.widget
+
+            if isinstance(widget, forms.CheckboxInput):
+                widget.attrs.setdefault(
+                    "class",
+                    "form-check-input",
+                )
                 continue
 
             if isinstance(
-                field.widget,
-                (forms.Select, forms.SelectMultiple),
+                widget,
+                (
+                    forms.Select,
+                    forms.SelectMultiple,
+                    forms.RadioSelect,
+                ),
             ):
                 css_class = "form-select"
             else:
                 css_class = "form-control"
 
-            field.widget.attrs.setdefault("class", css_class)
+            widget.attrs.setdefault("class", css_class)
 
             if name in self.DATE_FIELDS:
-                field.widget.input_type = "date"
-                field.widget.format = "%Y-%m-%d"
+                widget.input_type = "date"
+                widget.format = "%Y-%m-%d"
                 field.input_formats = ["%Y-%m-%d"]
 
 
 class UserOwnedFormMixin:
-    """
-    Provides common user validation for user-owned forms.
-    """
-
     user = None
 
     def validate_user(self):
@@ -59,18 +60,12 @@ class UserOwnedFormMixin:
                 "An authenticated user is required."
             )
 
-        if not getattr(self.user, "is_authenticated", False):
+        if not self.user.is_authenticated:
             raise ValidationError(
                 "An authenticated user is required."
             )
 
     def validate_existing_object_owner(self):
-        """
-        Prevents a user from editing another user's object.
-
-        The view should still query objects using the current user.
-        This provides an additional form-level protection.
-        """
         instance = getattr(self, "instance", None)
 
         if (
@@ -85,10 +80,6 @@ class UserOwnedFormMixin:
 
 
 class CategoryForm(UserOwnedFormMixin, StyledModelForm):
-    """
-    Form for creating and editing user-specific categories.
-    """
-
     class Meta:
         model = Category
         fields = [
@@ -101,7 +92,9 @@ class CategoryForm(UserOwnedFormMixin, StyledModelForm):
         super().__init__(*args, **kwargs)
 
     def clean_name(self):
-        name = " ".join(self.cleaned_data["name"].split())
+        name = " ".join(
+            self.cleaned_data["name"].split()
+        )
 
         if not name:
             raise ValidationError(
@@ -118,7 +111,7 @@ class CategoryForm(UserOwnedFormMixin, StyledModelForm):
 
         name = cleaned_data.get("name")
 
-        if name and self.user is not None:
+        if name and self.user:
             duplicate_categories = Category.objects.filter(
                 user=self.user,
                 name__iexact=name,
@@ -126,8 +119,10 @@ class CategoryForm(UserOwnedFormMixin, StyledModelForm):
             )
 
             if self.instance and self.instance.pk:
-                duplicate_categories = duplicate_categories.exclude(
-                    pk=self.instance.pk
+                duplicate_categories = (
+                    duplicate_categories.exclude(
+                        pk=self.instance.pk
+                    )
                 )
 
             if duplicate_categories.exists():
@@ -152,12 +147,9 @@ class CategoryForm(UserOwnedFormMixin, StyledModelForm):
 
 
 class TransactionForm(UserOwnedFormMixin, StyledModelForm):
-    """
-    Form for creating and editing transactions.
-    """
-
     class Meta:
         model = Transaction
+
         fields = [
             "transaction_type",
             "category",
@@ -167,17 +159,29 @@ class TransactionForm(UserOwnedFormMixin, StyledModelForm):
             "description",
             "receipt",
         ]
+
         widgets = {
-            "description": forms.Textarea(
+            "transaction_type": forms.RadioSelect(
                 attrs={
-                    "rows": 3,
-                    "placeholder": "Optional description",
+                    "class": "transaction-type-radio",
                 }
             ),
             "amount": forms.NumberInput(
                 attrs={
                     "min": "0.01",
                     "step": "0.01",
+                    "placeholder": "0.00",
+                }
+            ),
+            "description": forms.Textarea(
+                attrs={
+                    "rows": 3,
+                    "placeholder": "Optional description",
+                }
+            ),
+            "receipt": forms.ClearableFileInput(
+                attrs={
+                    "accept": "image/*,.pdf",
                 }
             ),
         }
@@ -185,23 +189,45 @@ class TransactionForm(UserOwnedFormMixin, StyledModelForm):
     def __init__(self, *args, user=None, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
+        
+        self.fields["transaction_type"].choices = [
+            ("Income", "Income"),
+            ("Expense", "Expense"),
+        ]
 
-        if self.user is not None and self.user.is_authenticated:
-            if self.instance and self.instance.pk:
-                self.instance.user = self.instance.user
+        self.fields["transaction_type"].label = (
+            "Transaction type"
+        )
 
+        self.fields["category"].label = "Category"
+        self.fields["amount"].label = "Amount"
+        self.fields["payment_method"].label = (
+            "Payment method"
+        )
+        self.fields["transaction_date"].label = "Date"
+        self.fields["description"].label = "Description"
+        self.fields["receipt"].label = "Receipt"
+
+        if self.user and self.user.is_authenticated:
             self.fields["category"].queryset = (
                 Category.objects.filter(
                     Q(user=self.user)
-                    | Q(user__isnull=True, is_default=True)
+                    | Q(
+                        user__isnull=True,
+                        is_default=True,
+                    )
                 )
-                .order_by("name")
+                .order_by("category_type", "name")
             )
         else:
-            self.fields["category"].queryset = Category.objects.none()
+            self.fields["category"].queryset = (
+                Category.objects.none()
+            )
 
     def clean_transaction_date(self):
-        transaction_date = self.cleaned_data.get("transaction_date")
+        transaction_date = self.cleaned_data.get(
+            "transaction_date"
+        )
 
         if (
             transaction_date
@@ -237,21 +263,29 @@ class TransactionForm(UserOwnedFormMixin, StyledModelForm):
         self.validate_user()
         self.validate_existing_object_owner()
 
-        transaction_type = cleaned_data.get("transaction_type")
+        transaction_type = cleaned_data.get(
+            "transaction_type"
+        )
         category = cleaned_data.get("category")
 
         if category and transaction_type == "Income":
             if category.category_type != "Income":
                 self.add_error(
                     "category",
-                    "Income transactions must use an Income category.",
+                    (
+                        "Income transactions must use "
+                        "an Income category."
+                    ),
                 )
 
         if category and transaction_type == "Expense":
             if category.category_type == "Income":
                 self.add_error(
                     "category",
-                    "Expense transactions cannot use an Income category.",
+                    (
+                        "Expense transactions cannot use "
+                        "an Income category."
+                    ),
                 )
 
         return cleaned_data
@@ -268,13 +302,13 @@ class TransactionForm(UserOwnedFormMixin, StyledModelForm):
         return transaction
 
 
-class RecurringTransactionForm(UserOwnedFormMixin, StyledModelForm):
-    """
-    Form for creating and editing recurring transactions.
-    """
-
+class RecurringTransactionForm(
+    UserOwnedFormMixin,
+    StyledModelForm,
+):
     class Meta:
         model = RecurringTransaction
+
         fields = [
             "transaction_type",
             "category",
@@ -286,11 +320,11 @@ class RecurringTransactionForm(UserOwnedFormMixin, StyledModelForm):
             "end_date",
             "is_active",
         ]
+
         widgets = {
-            "description": forms.Textarea(
+            "transaction_type": forms.RadioSelect(
                 attrs={
-                    "rows": 3,
-                    "placeholder": "Optional description",
+                    "class": "transaction-type-radio",
                 }
             ),
             "amount": forms.NumberInput(
@@ -299,22 +333,33 @@ class RecurringTransactionForm(UserOwnedFormMixin, StyledModelForm):
                     "step": "0.01",
                 }
             ),
+            "description": forms.Textarea(
+                attrs={
+                    "rows": 3,
+                    "placeholder": "Optional description",
+                }
+            ),
         }
 
     def __init__(self, *args, user=None, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
 
-        if self.user is not None and self.user.is_authenticated:
+        if self.user and self.user.is_authenticated:
             self.fields["category"].queryset = (
                 Category.objects.filter(
                     Q(user=self.user)
-                    | Q(user__isnull=True, is_default=True)
+                    | Q(
+                        user__isnull=True,
+                        is_default=True,
+                    )
                 )
-                .order_by("name")
+                .order_by("category_type", "name")
             )
         else:
-            self.fields["category"].queryset = Category.objects.none()
+            self.fields["category"].queryset = (
+                Category.objects.none()
+            )
 
     def clean_category(self):
         category = self.cleaned_data.get("category")
@@ -340,7 +385,9 @@ class RecurringTransactionForm(UserOwnedFormMixin, StyledModelForm):
         self.validate_user()
         self.validate_existing_object_owner()
 
-        transaction_type = cleaned_data.get("transaction_type")
+        transaction_type = cleaned_data.get(
+            "transaction_type"
+        )
         category = cleaned_data.get("category")
         start_date = cleaned_data.get("start_date")
         end_date = cleaned_data.get("end_date")
@@ -359,16 +406,20 @@ class RecurringTransactionForm(UserOwnedFormMixin, StyledModelForm):
             if category.category_type != "Income":
                 self.add_error(
                     "category",
-                    "Income recurring transactions must use "
-                    "an Income category.",
+                    (
+                        "Income recurring transactions must use "
+                        "an Income category."
+                    ),
                 )
 
         if category and transaction_type == "Expense":
             if category.category_type == "Income":
                 self.add_error(
                     "category",
-                    "Expense recurring transactions cannot use "
-                    "an Income category.",
+                    (
+                        "Expense recurring transactions cannot use "
+                        "an Income category."
+                    ),
                 )
 
         return cleaned_data

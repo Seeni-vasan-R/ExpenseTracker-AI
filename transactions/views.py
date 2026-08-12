@@ -5,6 +5,7 @@ from django.db.models import Q, Sum
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from decimal import Decimal, InvalidOperation
 from django.views import View
 from django.views.generic import (
     CreateView,
@@ -27,10 +28,6 @@ from .models import (
 
 
 class TransactionListView(LoginRequiredMixin, ListView):
-    """
-    Display the authenticated user's active transactions.
-    """
-
     model = Transaction
     template_name = "transactions/transaction_list.html"
     context_object_name = "transactions"
@@ -42,11 +39,51 @@ class TransactionListView(LoginRequiredMixin, ListView):
             Transaction.objects.active()
             .for_user(self.request.user)
             .select_related("category")
-            .order_by("-transaction_date", "-created_at")
+            .order_by(
+                "-transaction_date",
+                "-created_at",
+            )
         )
 
-        search = self.request.GET.get("search", "").strip()
-        transaction_type = self.request.GET.get("type", "").strip()
+        search = self.request.GET.get(
+            "search",
+            "",
+        ).strip()
+
+        transaction_type = self.request.GET.get(
+            "type",
+            "",
+        ).strip()
+
+        category_id = self.request.GET.get(
+            "category",
+            "",
+        ).strip()
+
+        payment_method = self.request.GET.get(
+            "payment_method",
+            "",
+        ).strip()
+
+        date_from = self.request.GET.get(
+            "date_from",
+            "",
+        ).strip()
+
+        date_to = self.request.GET.get(
+            "date_to",
+            "",
+        ).strip()
+
+        min_amount = self.request.GET.get(
+            "min_amount",
+            "",
+        ).strip()
+
+        max_amount = self.request.GET.get(
+            "max_amount",
+            "",
+        ).strip()
 
         if search:
             queryset = queryset.filter(
@@ -56,12 +93,69 @@ class TransactionListView(LoginRequiredMixin, ListView):
                 | Q(transaction_type__icontains=search)
             )
 
-        if transaction_type in {"Income", "Expense"}:
+        if transaction_type in {
+            "Income",
+            "Expense",
+        }:
             queryset = queryset.filter(
                 transaction_type=transaction_type
             )
 
+        if category_id.isdigit():
+            queryset = queryset.filter(
+                category_id=int(category_id)
+            )
+
+        if payment_method:
+            queryset = queryset.filter(
+                payment_method=payment_method
+            )
+
+        if date_from:
+            queryset = queryset.filter(
+                transaction_date__gte=date_from
+            )
+
+        if date_to:
+            queryset = queryset.filter(
+                transaction_date__lte=date_to
+            )
+
+        min_amount_value = self.parse_decimal(
+            min_amount
+        )
+
+        if min_amount_value is not None:
+            queryset = queryset.filter(
+                amount__gte=min_amount_value
+            )
+
+        max_amount_value = self.parse_decimal(
+            max_amount
+        )
+
+        if max_amount_value is not None:
+            queryset = queryset.filter(
+                amount__lte=max_amount_value
+            )
+
         return queryset
+
+    @staticmethod
+    def parse_decimal(value):
+        if not value:
+            return None
+
+        try:
+            number = Decimal(value)
+
+            if number < 0:
+                return None
+
+            return number
+
+        except (InvalidOperation, ValueError):
+            return None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -73,7 +167,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
             .filter(transaction_type="Income")
             .aggregate(total=Sum("amount"))
             .get("total")
-            or 0
+            or Decimal("0.00")
         )
 
         total_expense = (
@@ -81,13 +175,66 @@ class TransactionListView(LoginRequiredMixin, ListView):
             .filter(transaction_type="Expense")
             .aggregate(total=Sum("amount"))
             .get("total")
-            or 0
+            or Decimal("0.00")
+        )
+
+        categories = Category.objects.filter(
+            Q(user=self.request.user)
+            | Q(
+                user__isnull=True,
+                is_default=True,
+            )
+        ).order_by(
+            "category_type",
+            "name",
         )
 
         context.update(
             {
-                "search": self.request.GET.get("search", ""),
-                "selected_type": self.request.GET.get("type", ""),
+                "search": self.request.GET.get(
+                    "search",
+                    "",
+                ),
+                "selected_type": self.request.GET.get(
+                    "type",
+                    "",
+                ),
+                "selected_category": self.request.GET.get(
+                    "category",
+                    "",
+                ),
+                "selected_payment_method": (
+                    self.request.GET.get(
+                        "payment_method",
+                        "",
+                    )
+                ),
+                "selected_date_from": (
+                    self.request.GET.get(
+                        "date_from",
+                        "",
+                    )
+                ),
+                "selected_date_to": (
+                    self.request.GET.get(
+                        "date_to",
+                        "",
+                    )
+                ),
+                "selected_min_amount": (
+                    self.request.GET.get(
+                        "min_amount",
+                        "",
+                    )
+                ),
+                "selected_max_amount": (
+                    self.request.GET.get(
+                        "max_amount",
+                        "",
+                    )
+                ),
+                "categories": categories,
+                "payment_methods": Transaction.PAYMENT_METHODS,
                 "total_income": total_income,
                 "total_expense": total_expense,
                 "balance": total_income - total_expense,

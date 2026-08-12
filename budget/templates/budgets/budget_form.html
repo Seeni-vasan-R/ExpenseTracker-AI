@@ -1,0 +1,216 @@
+{% extends "dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    {% if object %}
+        Edit budget | Expense Tracker
+    {% else %}
+        Create budget | Expense Tracker
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'budgets/css/budgets.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<section class="page-wrapper budgets-page budget-form-page">
+
+    <header class="module-header">
+        <div>
+            <span class="section-kicker">
+                Financial planning
+            </span>
+
+            <h1>
+                {% if object %}
+                    Edit budget
+                {% else %}
+                    Create budget
+                {% endif %}
+            </h1>
+
+            <p>
+                Set a monthly limit for your spending.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'budget:budget_list' %}"
+            class="button button-secondary"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to budgets
+        </a>
+    </header>
+
+    <section class="budget-form-card">
+
+        <div class="budget-form-heading">
+            <span class="form-icon">
+                <i class="fa-solid fa-wallet"></i>
+            </span>
+
+            <div>
+                <h2>
+                    {% if object %}
+                        Update your budget
+                    {% else %}
+                        Add a new budget
+                    {% endif %}
+                </h2>
+
+                <p>
+                    Budgets must cover one complete calendar month.
+                </p>
+            </div>
+        </div>
+
+        {% if form.non_field_errors %}
+            <div class="form-error-summary">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" class="budget-form">
+            {% csrf_token %}
+
+            <div class="budget-form-grid">
+
+                <div class="budget-form-field budget-form-field-full">
+                    <label for="{{ form.category.id_for_label }}">
+                        Category
+                    </label>
+
+                    {{ form.category }}
+
+                    <small class="field-help">
+                        Choose a category or create an overall budget.
+                    </small>
+
+                    {% for error in form.category.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="budget-form-field budget-form-field-full">
+                    <label for="{{ form.budget_limit.id_for_label }}">
+                        Budget limit
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <div class="currency-input-wrapper">
+                        <span class="currency-symbol">₹</span>
+                        {{ form.budget_limit }}
+                    </div>
+
+                    {% for error in form.budget_limit.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="budget-form-field">
+                    <label for="{{ form.start_date.id_for_label }}">
+                        Month starts
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    {{ form.start_date }}
+
+                    <small class="field-help">
+                        Use the first day of the month.
+                    </small>
+
+                    {% for error in form.start_date.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="budget-form-field">
+                    <label for="{{ form.end_date.id_for_label }}">
+                        Month ends
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    {{ form.end_date }}
+
+                    <small class="field-help">
+                        Use the last day of the month.
+                    </small>
+
+                    {% for error in form.end_date.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="budget-form-field budget-form-field-full">
+                    <label class="active-checkbox-label">
+                        {{ form.is_active }}
+                        <span>
+                            Keep this budget active
+                        </span>
+                    </label>
+
+                    <small class="field-help">
+                        Inactive budgets do not count toward your
+                        monthly active-budget limit.
+                    </small>
+
+                    {% for error in form.is_active.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+            <div class="budget-form-actions">
+                <a
+                    href="{% url 'budget:budget_list' %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="button button-primary"
+                >
+                    <i class="fa-solid fa-check"></i>
+
+                    {% if object %}
+                        Save changes
+                    {% else %}
+                        Create budget
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+
+    </section>
+
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script
+        src="{% static 'budgets/js/budgets.js' %}"
+    ></script>
+{% endblock %}

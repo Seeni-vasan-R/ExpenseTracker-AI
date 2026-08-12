@@ -1,102 +1,157 @@
-{% load static %}
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <a
+            href="{% url 'dashboard:dashboard' %}"
+            class="brand-link"
+            title="Expense Tracker"
+        >
+            <span class="brand-mark">E</span>
 
-<div class="sidebar">
-    <div class="logo">
-        <h2>ExpenseTracker</h2>
+            <span class="brand-copy">
+                <strong>Expense Tracker</strong>
+                <small>See your money clearly.</small>
+            </span>
+        </a>
+
+        <button
+            type="button"
+            class="sidebar-toggle"
+            id="sidebarToggle"
+            aria-label="Collapse sidebar"
+            title="Collapse sidebar"
+        >
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
     </div>
 
-    <nav aria-label="Main navigation">
-        <ul class="sidebar-menu">
-            <li>
-                <a
-                    href="{% url 'dashboard:dashboard' %}"
-                    class="{% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}"
-                >
-                    <i class="fas fa-home" aria-hidden="true"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
+    <nav
+        class="sidebar-navigation"
+        aria-label="Main navigation"
+    >
+        <p class="navigation-label">
+            Workspace
+        </p>
 
-            <li>
-                <a
-                    href="{% url 'transactions:transaction_list' %}"
-                    class="{% if request.resolver_match.namespace == 'transactions' and 'transaction' in request.resolver_match.url_name %}active{% endif %}"
-                >
-                    <i class="fas fa-wallet" aria-hidden="true"></i>
-                    <span>Transactions</span>
-                </a>
-            </li>
+        <a
+            href="{% url 'dashboard:dashboard' %}"
+            class="nav-link
+            {% if request.resolver_match.url_name == 'dashboard' %}
+                active
+            {% endif %}"
+            title="Dashboard"
+        >
+            <i
+                class="fa-solid fa-table-cells-large"
+                aria-hidden="true"
+            ></i>
 
-            <li>
-                <a
-                    href="{% url 'transactions:category_list' %}"
-                    class="{% if request.resolver_match.url_name == 'category_list' %}active{% endif %}"
-                >
-                    <i class="fas fa-list" aria-hidden="true"></i>
-                    <span>Categories</span>
-                </a>
-            </li>
+            <span>Dashboard</span>
+        </a>
 
-            <li>
-                <a
-                    href="{% url 'budget:budget_list' %}"
-                    class="{% if request.resolver_match.namespace == 'budget' %}active{% endif %}"
-                >
-                    <i class="fas fa-piggy-bank" aria-hidden="true"></i>
-                    <span>Budgets</span>
-                </a>
-            </li>
+        <a
+            href="{% url 'transactions:transaction_list' %}"
+            class="nav-link
+            {% if request.resolver_match.namespace == 'transactions' %}
+                active
+            {% endif %}"
+            title="Transactions"
+        >
+            <i
+                class="fa-solid fa-arrow-right-arrow-left"
+                aria-hidden="true"
+            ></i>
 
-            <li>
-                <a
-                    href="#"
-                    aria-disabled="true"
-                    title="Recurring transactions are not available yet"
-                >
-                    <i class="fas fa-sync-alt" aria-hidden="true"></i>
-                    <span>Recurring</span>
-                </a>
-            </li>
+            <span>Transactions</span>
+        </a>
 
-            <li>
-                <a
-                    href="#"
-                    aria-disabled="true"
-                    title="Analytics page is not available yet"
-                >
-                    <i class="fas fa-chart-line" aria-hidden="true"></i>
-                    <span>Analytics</span>
-                </a>
-            </li>
+        <a
+            href="{% url 'budget:budget_list' %}"
+            class="nav-link
+            {% if request.resolver_match.namespace == 'budget' %}
+                active
+            {% endif %}"
+            title="Budgets"
+        >
+            <i
+                class="fa-solid fa-wallet"
+                aria-hidden="true"
+            ></i>
 
-            <li>
-                <a
-                    href="#"
-                    aria-disabled="true"
-                    title="AI insights are not available yet"
-                >
-                    <i class="fas fa-robot" aria-hidden="true"></i>
-                    <span>AI Insights</span>
-                </a>
-            </li>
+            <span>Budgets</span>
+        </a>
 
-            <li>
-                <a
-                    href="#"
-                    aria-disabled="true"
-                    title="Settings are not available yet"
-                >
-                    <i class="fas fa-cog" aria-hidden="true"></i>
-                    <span>Settings</span>
-                </a>
-            </li>
-        </ul>
+        <p class="navigation-label navigation-label-secondary">
+            Insights
+        </p>
+
+        <span
+            class="nav-link disabled-nav-link"
+            title="Analysis is not available yet"
+            aria-disabled="true"
+        >
+            <i
+                class="fa-solid fa-chart-line"
+                aria-hidden="true"
+            ></i>
+
+            <span>Analysis</span>
+        </span>
+
+        <span
+            class="nav-link disabled-nav-link"
+            title="Accounts is not available yet"
+            aria-disabled="true"
+        >
+            <i
+                class="fa-solid fa-building-columns"
+                aria-hidden="true"
+            ></i>
+
+            <span>Accounts</span>
+        </span>
+
+        <p class="navigation-label navigation-label-secondary">
+            Personal
+        </p>
+
+        <span
+            class="nav-link disabled-nav-link"
+            title="Settings is not available yet"
+            aria-disabled="true"
+        >
+            <i
+                class="fa-solid fa-sliders"
+                aria-hidden="true"
+            ></i>
+
+            <span>Settings</span>
+        </span>
     </nav>
 
-    <div class="sidebar-footer">
-        <a href="{% url 'accounts:logout' %}">
-            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+    <div class="sidebar-bottom">
+        <div class="habit-card">
+            <i
+                class="fa-regular fa-lightbulb"
+                aria-hidden="true"
+            ></i>
+
+            <div>
+                <strong>Smart habit</strong>
+                <p>Track every expense consistently.</p>
+            </div>
+        </div>
+
+        <a
+            href="{% url 'accounts:logout' %}"
+            class="logout-link"
+            title="Logout"
+        >
+            <i
+                class="fa-solid fa-arrow-right-from-bracket"
+                aria-hidden="true"
+            ></i>
+
             <span>Logout</span>
         </a>
     </div>
-</div>
+</aside>

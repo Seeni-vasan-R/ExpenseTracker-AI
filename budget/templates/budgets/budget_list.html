@@ -1,0 +1,328 @@
+{% extends "dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Budgets | Expense Tracker
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'budgets/css/budgets.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<section class="page-wrapper budgets-page">
+
+    <header class="module-header budget-header">
+        <div>
+            <span class="section-kicker">
+                Financial planning
+            </span>
+
+            <h1>Budgets</h1>
+
+            <p>
+                Set monthly spending limits and stay in control.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'budget:budget_add' %}"
+            class="button button-primary"
+        >
+            <i class="fa-solid fa-plus"></i>
+            Create budget
+        </a>
+    </header>
+
+    <section class="budget-summary-grid">
+
+        <article class="budget-summary-card">
+            <div class="summary-card-top">
+                <span>Total budget</span>
+
+                <span class="summary-icon">
+                    <i class="fa-solid fa-wallet"></i>
+                </span>
+            </div>
+
+            <strong>
+                ₹{{ total_budget|default:"0.00"|floatformat:2 }}
+            </strong>
+
+            <small>
+                All your budgets
+            </small>
+        </article>
+
+        <article class="budget-summary-card">
+            <div class="summary-card-top">
+                <span>Active budget</span>
+
+                <span class="summary-icon summary-icon-green">
+                    <i class="fa-solid fa-chart-line"></i>
+                </span>
+            </div>
+
+            <strong>
+                ₹{{ active_budget|default:"0.00"|floatformat:2 }}
+            </strong>
+
+            <small>
+                Currently active limits
+            </small>
+        </article>
+
+        <article class="budget-summary-card">
+            <div class="summary-card-top">
+                <span>Total used</span>
+
+                <span class="summary-icon summary-icon-orange">
+                    <i class="fa-solid fa-arrow-trend-down"></i>
+                </span>
+            </div>
+
+            <strong>
+                ₹{{ total_used|default:"0.00"|floatformat:2 }}
+            </strong>
+
+            <small>
+                From matching expenses
+            </small>
+        </article>
+
+        <article class="budget-summary-card">
+            <div class="summary-card-top">
+                <span>Budget slots</span>
+
+                <span class="summary-icon summary-icon-purple">
+                    <i class="fa-solid fa-layer-group"></i>
+                </span>
+            </div>
+
+            <strong>
+                {{ active_budget_count|default:"0" }}
+                <small class="limit-value">
+                    / {{ budget_limit_per_month|default:"5" }}
+                </small>
+            </strong>
+
+            <small>
+                Active budgets this month
+            </small>
+        </article>
+
+    </section>
+
+    <section class="budget-panel">
+
+        <div class="budget-panel-heading">
+            <div>
+                <span class="section-kicker">
+                    Monthly overview
+                </span>
+
+                <h2>Your budgets</h2>
+            </div>
+
+            <span class="budget-limit-note">
+                <i class="fa-solid fa-circle-info"></i>
+                Maximum {{ budget_limit_per_month|default:"5" }}
+                active budgets per month
+            </span>
+        </div>
+
+        {% if budgets %}
+
+            <div class="budget-grid">
+
+                {% for budget in budgets %}
+
+                    <article
+                        class="budget-card {{ budget.status_class }}"
+                    >
+                        <div class="budget-card-header">
+                            <div class="budget-card-title">
+                                <span class="budget-category-icon">
+                                    {% if budget.category %}
+                                        <i class="fa-solid fa-tag"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-globe"></i>
+                                    {% endif %}
+                                </span>
+
+                                <div>
+                                    <h3>
+                                        {% if budget.category %}
+                                            {{ budget.category.name }}
+                                        {% else %}
+                                            Overall budget
+                                        {% endif %}
+                                    </h3>
+
+                                    <p>
+                                        {{ budget.start_date|date:"d M Y" }}
+                                        –
+                                        {{ budget.end_date|date:"d M Y" }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="budget-card-menu">
+                                {% if budget.is_active %}
+                                    <span class="active-badge">
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="inactive-badge">
+                                        Inactive
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="budget-status-row">
+                            <span
+                                class="budget-status
+                                {{ budget.status_class }}"
+                            >
+                                {% if budget.status_class == "over-budget" %}
+                                    <i class="fa-solid fa-circle-exclamation"></i>
+                                {% elif budget.status_class == "almost-reached" %}
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-check"></i>
+                                {% endif %}
+
+                                {{ budget.status }}
+                            </span>
+
+                            <span class="budget-percentage">
+                                {{ budget.progress_percentage|floatformat:0 }}%
+                            </span>
+                        </div>
+
+                        <div class="budget-progress-track">
+                            <div
+                                class="budget-progress-bar
+                                {{ budget.status_class }}"
+                                data-progress="{{ budget.progress_percentage }}"
+                            ></div>
+                        </div>
+
+                        <div class="budget-amount-grid">
+                            <div class="budget-amount-item">
+                                <span>Used</span>
+
+                                <strong>
+                                    ₹{{ budget.used_amount|floatformat:2 }}
+                                </strong>
+                            </div>
+
+                            <div class="budget-amount-item">
+                                <span>Budget</span>
+
+                                <strong>
+                                    ₹{{ budget.budget_limit|floatformat:2 }}
+                                </strong>
+                            </div>
+
+                            <div class="budget-amount-item">
+                                <span>Remaining</span>
+
+                                <strong
+                                    class="
+                                    {% if budget.remaining_amount < 0 %}
+                                        negative-amount
+                                    {% else %}
+                                        positive-amount
+                                    {% endif %}
+                                    "
+                                >
+                                    ₹{{ budget.remaining_amount|floatformat:2 }}
+                                </strong>
+                            </div>
+                        </div>
+
+                        {% if budget.remaining_amount < 0 %}
+                            <div class="budget-alert budget-alert-danger">
+                                <i class="fa-solid fa-circle-exclamation"></i>
+
+                                <span>
+                                    You have exceeded this budget by
+                                    ₹{{ budget.remaining_amount|stringformat:"s"|cut:"-" }}
+                                </span>
+                            </div>
+                        {% elif budget.status_class == "almost-reached" %}
+                            <div class="budget-alert budget-alert-warning">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+
+                                <span>
+                                    You are close to reaching this budget.
+                                </span>
+                            </div>
+                        {% endif %}
+
+                        <div class="budget-card-footer">
+                            <a
+                                href="{% url 'budget:budget_update' budget.pk %}"
+                                class="budget-action"
+                            >
+                                <i class="fa-solid fa-pen"></i>
+                                Edit
+                            </a>
+
+                            <a
+                                href="{% url 'budget:budget_delete' budget.pk %}"
+                                class="budget-action budget-action-danger"
+                            >
+                                <i class="fa-regular fa-trash-can"></i>
+                                Delete
+                            </a>
+                        </div>
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="budget-empty-state">
+                <div class="empty-state-icon">
+                    <i class="fa-solid fa-bullseye"></i>
+                </div>
+
+                <h2>No budgets yet</h2>
+
+                <p>
+                    Create a monthly budget to start monitoring
+                    your spending.
+                </p>
+
+                <a
+                    href="{% url 'budget:budget_add' %}"
+                    class="button button-primary"
+                >
+                    <i class="fa-solid fa-plus"></i>
+                    Create your first budget
+                </a>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script
+        src="{% static 'budgets/js/budgets.js' %}"
+    ></script>
+{% endblock %}

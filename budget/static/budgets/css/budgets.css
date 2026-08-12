@@ -1,0 +1,769 @@
+/* Budgets module */
+
+.module-header {
+    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.module-header h1 {
+    margin: 5px 0 4px;
+    color: var(--text);
+    font-family: "Cormorant Garamond", serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1;
+}
+
+.module-header p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.78rem;
+}
+
+/* Summary */
+
+.budget-summary-grid {
+    margin-bottom: 22px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 13px;
+}
+
+.budget-summary-card {
+    min-height: 140px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+}
+
+.summary-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.summary-card-top > span:first-child {
+    color: var(--text-soft);
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.summary-icon {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    border-radius: 9px;
+    font-size: 0.78rem;
+}
+
+.summary-icon-green {
+    color: var(--income);
+    background: rgba(71, 115, 92, 0.13);
+}
+
+.summary-icon-orange {
+    color: #c47736;
+    background: rgba(196, 119, 54, 0.13);
+}
+
+.summary-icon-purple {
+    color: #8268ad;
+    background: rgba(130, 104, 173, 0.13);
+}
+
+.budget-summary-card > strong {
+    color: var(--text);
+    font-size: 1.45rem;
+    font-weight: 800;
+}
+
+.limit-value {
+    color: var(--text-soft);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.budget-summary-card > small {
+    color: var(--text-soft);
+    font-size: 0.63rem;
+}
+
+/* Main panel */
+
+.budget-panel {
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+}
+
+.budget-panel-heading {
+    margin-bottom: 22px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.budget-panel-heading h2 {
+    margin: 4px 0 0;
+    color: var(--text);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.8rem;
+}
+
+.budget-limit-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-soft);
+    font-size: 0.65rem;
+}
+
+/* Budget cards */
+
+.budget-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.budget-card {
+    padding: 19px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    transition:
+        transform var(--transition),
+        box-shadow var(--transition),
+        border-color var(--transition);
+}
+
+.budget-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-2px);
+}
+
+.budget-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.budget-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.budget-category-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.budget-card-title h3 {
+    margin: 0 0 4px;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.budget-card-title p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.62rem;
+}
+
+.active-badge,
+.inactive-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-size: 0.58rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.active-badge {
+    color: var(--income);
+    background: rgba(71, 115, 92, 0.13);
+}
+
+.inactive-badge {
+    color: var(--text-soft);
+    background: var(--border);
+}
+
+.budget-status-row {
+    margin-top: 19px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.budget-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.65rem;
+    font-weight: 800;
+}
+
+.budget-status.on-track {
+    color: var(--income);
+}
+
+.budget-status.almost-reached {
+    color: #c47736;
+}
+
+.budget-status.over-budget {
+    color: var(--expense);
+}
+
+.budget-percentage {
+    color: var(--text);
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.budget-progress-track {
+    height: 8px;
+    margin-top: 9px;
+    overflow: hidden;
+    background: var(--border);
+    border-radius: 999px;
+}
+
+.budget-progress-bar {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    transition: width 0.8s ease;
+}
+
+.budget-progress-bar.on-track {
+    background: var(--income);
+}
+
+.budget-progress-bar.almost-reached {
+    background: #c47736;
+}
+
+.budget-progress-bar.over-budget {
+    background: var(--expense);
+}
+
+.budget-amount-grid {
+    margin-top: 20px;
+    padding-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    border-top: 1px solid var(--border);
+}
+
+.budget-amount-item {
+    min-width: 0;
+}
+
+.budget-amount-item span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-soft);
+    font-size: 0.6rem;
+}
+
+.budget-amount-item strong {
+    display: block;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 0.75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.positive-amount {
+    color: var(--income) !important;
+}
+
+.negative-amount {
+    color: var(--expense) !important;
+}
+
+.budget-alert {
+    margin-top: 16px;
+    padding: 9px 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    border-radius: 8px;
+    font-size: 0.63rem;
+    line-height: 1.4;
+}
+
+.budget-alert-danger {
+    color: var(--expense);
+    background: rgba(166, 83, 74, 0.1);
+    border: 1px solid rgba(166, 83, 74, 0.2);
+}
+
+.budget-alert-warning {
+    color: #c47736;
+    background: rgba(196, 119, 54, 0.1);
+    border: 1px solid rgba(196, 119, 54, 0.2);
+}
+
+.budget-card-footer {
+    margin-top: 18px;
+    padding-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-top: 1px solid var(--border);
+}
+
+.budget-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-soft);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.budget-action:hover {
+    color: var(--accent-dark);
+}
+
+.budget-action-danger:hover {
+    color: var(--expense);
+}
+
+/* Empty state */
+
+.budget-empty-state {
+    min-height: 330px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+}
+
+.empty-state-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 5px;
+    display: grid;
+    place-items: center;
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    border-radius: 15px;
+    font-size: 1.35rem;
+}
+
+.budget-empty-state h2 {
+    margin: 0;
+    color: var(--text);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.75rem;
+}
+
+.budget-empty-state p {
+    max-width: 330px;
+    margin: 0 0 8px;
+    color: var(--text-soft);
+    font-size: 0.74rem;
+    line-height: 1.55;
+}
+
+/* Budget form */
+
+.budget-form-card {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+}
+
+.budget-form-heading {
+    margin-bottom: 25px;
+    padding-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    border-bottom: 1px solid var(--border);
+}
+
+.form-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    border-radius: 11px;
+}
+
+.budget-form-heading h2 {
+    margin: 0 0 4px;
+    color: var(--text);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.65rem;
+}
+
+.budget-form-heading p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.68rem;
+}
+
+.form-error-summary {
+    margin-bottom: 20px;
+    padding: 12px;
+    color: var(--expense);
+    background: rgba(166, 83, 74, 0.1);
+    border: 1px solid rgba(166, 83, 74, 0.22);
+    border-radius: 8px;
+    font-size: 0.7rem;
+}
+
+.form-error-summary p {
+    margin: 0 0 4px;
+}
+
+.form-error-summary p:last-child {
+    margin-bottom: 0;
+}
+
+.budget-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.budget-form-field {
+    min-width: 0;
+}
+
+.budget-form-field-full {
+    grid-column: 1 / -1;
+}
+
+.budget-form-field label {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--text);
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.required-mark {
+    color: var(--expense);
+}
+
+.budget-form-field input:not([type="checkbox"]),
+.budget-form-field select {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    color: var(--text);
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.74rem;
+}
+
+.budget-form-field input:focus,
+.budget-form-field select:focus {
+    outline: 2px solid rgba(182, 129, 85, 0.3);
+    border-color: var(--accent);
+}
+
+.currency-input-wrapper {
+    position: relative;
+}
+
+.currency-symbol {
+    position: absolute;
+    top: 50%;
+    left: 13px;
+    color: var(--text-soft);
+    font-size: 0.76rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.currency-input-wrapper input {
+    padding-left: 30px !important;
+}
+
+.field-help {
+    display: block;
+    margin-top: 6px;
+    color: var(--text-soft);
+    font-size: 0.62rem;
+    line-height: 1.45;
+}
+
+.field-error {
+    display: block;
+    margin-top: 5px;
+    color: var(--expense);
+    font-size: 0.64rem;
+}
+
+.active-checkbox-label {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.active-checkbox-label input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+}
+
+.budget-form-actions {
+    margin-top: 27px;
+    padding-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid var(--border);
+}
+
+/* Delete page */
+
+.budget-delete-page {
+    display: flex;
+    justify-content: center;
+}
+
+.delete-card {
+    width: 100%;
+    max-width: 520px;
+    padding: 34px;
+    text-align: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+}
+
+.delete-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 15px;
+    display: grid;
+    place-items: center;
+    color: var(--expense);
+    background: rgba(166, 83, 74, 0.1);
+    border-radius: 16px;
+    font-size: 1.35rem;
+}
+
+.delete-card h1 {
+    margin: 6px 0 8px;
+    color: var(--text);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 2rem;
+}
+
+.delete-card > p {
+    max-width: 360px;
+    margin: 0 auto 22px;
+    color: var(--text-soft);
+    font-size: 0.73rem;
+    line-height: 1.55;
+}
+
+.delete-budget-preview {
+    margin-bottom: 24px;
+    padding: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.preview-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    border-radius: 9px;
+}
+
+.delete-budget-preview strong,
+.delete-budget-preview small {
+    display: block;
+}
+
+.delete-budget-preview strong {
+    margin-bottom: 3px;
+    color: var(--text);
+    font-size: 0.76rem;
+}
+
+.delete-budget-preview small {
+    color: var(--text-soft);
+    font-size: 0.62rem;
+}
+
+.delete-form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.button-danger {
+    color: #ffffff;
+    background: var(--expense);
+    border: 1px solid var(--expense);
+}
+
+.button-danger:hover {
+    background: #9f4741;
+    border-color: #9f4741;
+}
+
+/* Responsive */
+
+@media (max-width: 1050px) {
+    .budget-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 850px) {
+    .budget-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .budget-panel-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 700px) {
+    .module-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .budget-panel,
+    .budget-form-card {
+        padding: 18px;
+    }
+
+    .budget-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .budget-form-field-full {
+        grid-column: auto;
+    }
+
+    .budget-form-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .budget-form-actions .button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .budget-limit-note {
+        line-height: 1.4;
+    }
+}
+
+@media (max-width: 500px) {
+    .budget-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .budget-summary-card {
+        min-height: 120px;
+    }
+
+    .budget-panel-heading {
+        gap: 10px;
+    }
+
+    .budget-amount-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .budget-amount-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .budget-amount-item span {
+        margin: 0;
+    }
+
+    .delete-card {
+        padding: 24px 18px;
+    }
+
+    .delete-form {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .delete-form .button {
+        width: 100%;
+        justify-content: center;
+    }
+}

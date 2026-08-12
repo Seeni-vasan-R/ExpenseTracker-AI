@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction as db_transaction
@@ -10,6 +12,8 @@ from django.views.generic import (
     ListView,
     UpdateView,
 )
+
+from transactions.models import Transaction
 
 from .forms import BudgetForm
 from .models import Budget
@@ -33,30 +37,117 @@ class BudgetListView(LoginRequiredMixin, ListView):
             .order_by("-start_date", "-created_at")
         )
 
+    def _add_budget_metrics(self, budgets):
+        for budget in budgets:
+            expense_transactions = Transaction.objects.filter(
+                user=self.request.user,
+                transaction_type="Expense",
+                transaction_date__range=(
+                    budget.start_date,
+                    budget.end_date,
+                ),
+            )
+
+            if budget.category_id:
+                expense_transactions = (
+                    expense_transactions.filter(
+                        category_id=budget.category_id,
+                    )
+                )
+
+            used_amount = (
+                expense_transactions.aggregate(
+                    total=Sum("amount"),
+                ).get("total")
+                or Decimal("0.00")
+            )
+
+            remaining_amount = (
+                budget.budget_limit - used_amount
+            )
+
+            if budget.budget_limit > 0:
+                raw_progress = (
+                    used_amount / budget.budget_limit
+                ) * Decimal("100")
+            else:
+                raw_progress = Decimal("0.00")
+
+            progress_percentage = min(
+                max(raw_progress, Decimal("0.00")),
+                Decimal("100.00"),
+            )
+
+            if used_amount >= budget.budget_limit:
+                budget.status = "Over budget"
+                budget.status_class = "over-budget"
+            elif raw_progress >= Decimal("80"):
+                budget.status = "Almost reached"
+                budget.status_class = "almost-reached"
+            else:
+                budget.status = "On track"
+                budget.status_class = "on-track"
+
+            budget.used_amount = used_amount
+            budget.remaining_amount = remaining_amount
+            budget.progress_percentage = (
+                progress_percentage
+            )
+            budget.raw_progress_percentage = (
+                raw_progress
+            )
+
+        return budgets
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        budgets = self.get_queryset()
+        budgets = list(self.get_queryset())
+        budgets = self._add_budget_metrics(budgets)
 
-        total_budget = (
-            budgets.aggregate(total=Sum("budget_limit"))
-            .get("total")
-            or 0
+        total_budget = sum(
+            (
+                budget.budget_limit
+                for budget in budgets
+            ),
+            Decimal("0.00"),
         )
 
-        active_budget = (
-            budgets
-            .filter(is_active=True)
-            .aggregate(total=Sum("budget_limit"))
-            .get("total")
-            or 0
+        active_budgets = [
+            budget
+            for budget in budgets
+            if budget.is_active
+        ]
+
+        active_budget = sum(
+            (
+                budget.budget_limit
+                for budget in active_budgets
+            ),
+            Decimal("0.00"),
+        )
+
+        total_used = sum(
+            (
+                budget.used_amount
+                for budget in budgets
+            ),
+            Decimal("0.00"),
         )
 
         context.update(
             {
+                "budgets": budgets,
                 "total_budget": total_budget,
                 "active_budget": active_budget,
-                "budget_count": budgets.count(),
+                "total_used": total_used,
+                "budget_count": len(budgets),
+                "active_budget_count": len(
+                    active_budgets
+                ),
+                "budget_limit_per_month": (
+                    Budget.MAX_ACTIVE_BUDGETS_PER_MONTH
+                ),
             }
         )
 
@@ -65,13 +156,15 @@ class BudgetListView(LoginRequiredMixin, ListView):
 
 class BudgetCreateView(LoginRequiredMixin, CreateView):
     """
-    Create a budget for the authenticated user.
+    Create a monthly budget for the authenticated user.
     """
 
     model = Budget
     form_class = BudgetForm
     template_name = "budgets/budget_form.html"
-    success_url = reverse_lazy("budgets:budget_list")
+    success_url = reverse_lazy(
+        "budget:budget_list"
+    )
     login_url = "accounts:login"
 
     def get_form_kwargs(self):
@@ -81,9 +174,14 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        form.instance.is_active = True
 
-        with db_transaction.atomic():
-            response = super().form_valid(form)
+        try:
+            with db_transaction.atomic():
+                response = super().form_valid(form)
+        except Exception as error:
+            form.add_error(None, str(error))
+            return self.form_invalid(form)
 
         messages.success(
             self.request,
@@ -103,13 +201,16 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
 
 class BudgetUpdateView(LoginRequiredMixin, UpdateView):
     """
-    Update only a budget belonging to the authenticated user.
+    Update only a budget belonging to the
+    authenticated user.
     """
 
     model = Budget
     form_class = BudgetForm
     template_name = "budgets/budget_form.html"
-    success_url = reverse_lazy("budgets:budget_list")
+    success_url = reverse_lazy(
+        "budget:budget_list"
+    )
     login_url = "accounts:login"
 
     def get_queryset(self):
@@ -127,8 +228,12 @@ class BudgetUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
 
-        with db_transaction.atomic():
-            response = super().form_valid(form)
+        try:
+            with db_transaction.atomic():
+                response = super().form_valid(form)
+        except Exception as error:
+            form.add_error(None, str(error))
+            return self.form_invalid(form)
 
         messages.success(
             self.request,
@@ -148,12 +253,17 @@ class BudgetUpdateView(LoginRequiredMixin, UpdateView):
 
 class BudgetDeleteView(LoginRequiredMixin, DeleteView):
     """
-    Delete only a budget belonging to the authenticated user.
+    Delete only a budget belonging to the
+    authenticated user.
     """
 
     model = Budget
-    template_name = "budgets/budget_confirm_delete.html"
-    success_url = reverse_lazy("budgets:budget_list")
+    template_name = (
+        "budgets/budget_confirm_delete.html"
+    )
+    success_url = reverse_lazy(
+        "budget:budget_list"
+    )
     login_url = "accounts:login"
 
     def get_queryset(self):

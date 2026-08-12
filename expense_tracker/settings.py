@@ -92,7 +92,7 @@ INSTALLED_APPS = [
 
     # Project applications
     "accounts.apps.AccountsConfig",
-    "transactions",
+    "transactions.apps.TransactionsConfig",
     "dashboard",
     "budget.apps.BudgetsConfig",
     "analytics",

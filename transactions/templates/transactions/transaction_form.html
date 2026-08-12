@@ -1,0 +1,239 @@
+{% extends "dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    {% if object %}
+        Edit transaction | Expense Tracker
+    {% else %}
+        Add transaction | Expense Tracker
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'transactions/css/transactions.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<section class="page-wrapper transaction-form-page">
+
+    <header class="module-header">
+        <div>
+            <span class="section-kicker">Financial activity</span>
+
+            <h1>
+                {% if object %}
+                    Edit transaction
+                {% else %}
+                    Add transaction
+                {% endif %}
+            </h1>
+
+            <p>
+                Record your income or expense accurately.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'transactions:transaction_list' %}"
+            class="button button-secondary"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to transactions
+        </a>
+    </header>
+
+    <section class="transaction-form-card">
+
+        <div class="form-card-heading">
+            <span class="section-kicker">
+                Transaction details
+            </span>
+
+            <h2>
+                {% if object %}
+                    Update your record
+                {% else %}
+                    Add a new record
+                {% endif %}
+            </h2>
+
+            <p>
+                Fields marked with an asterisk are required.
+            </p>
+        </div>
+
+        <form
+            method="post"
+            enctype="multipart/form-data"
+            novalidate
+            class="transaction-form"
+        >
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-error-summary">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="form-type-selector">
+                <span class="form-section-label">
+                    Transaction type <span class="required-mark">*</span>
+                </span>
+
+                <div class="type-options">
+                    {% for radio in form.transaction_type %}
+                        <label class="type-option">
+                            {{ radio.tag }}
+                            <span>{{ radio.choice_label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+
+                {% for error in form.transaction_type.errors %}
+                    <span class="field-error">
+                        {{ error }}
+                    </span>
+                {% endfor %}
+            </div>
+
+            <div class="form-grid">
+
+                <div class="form-field">
+                    <label for="{{ form.amount.id_for_label }}">
+                        Amount <span class="required-mark">*</span>
+                    </label>
+
+                    {{ form.amount }}
+
+                    {% for error in form.amount.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-field">
+                    <label for="{{ form.transaction_date.id_for_label }}">
+                        Date <span class="required-mark">*</span>
+                    </label>
+
+                    {{ form.transaction_date }}
+
+                    {% for error in form.transaction_date.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-field">
+                    <label for="{{ form.category.id_for_label }}">
+                        Category <span class="required-mark">*</span>
+                    </label>
+
+                    {{ form.category }}
+
+                    {% for error in form.category.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-field">
+                    <label for="{{ form.payment_method.id_for_label }}">
+                        Payment method <span class="required-mark">*</span>
+                    </label>
+
+                    {{ form.payment_method }}
+
+                    {% for error in form.payment_method.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="{{ form.description.id_for_label }}">
+                        Description
+                    </label>
+
+                    {{ form.description }}
+
+                    {% for error in form.description.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="{{ form.receipt.id_for_label }}">
+                        Receipt
+                    </label>
+
+                    {{ form.receipt }}
+
+                    <small class="field-help">
+                        Optional. You can attach an image or document.
+                    </small>
+
+                    {% if form.instance.receipt %}
+                        <small class="current-file">
+                            Current file:
+                            <a
+                                href="{{ form.instance.receipt.url }}"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                View receipt
+                            </a>
+                        </small>
+                    {% endif %}
+
+                    {% for error in form.receipt.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <a
+                    href="{% url 'transactions:transaction_list' %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="button button-primary"
+                >
+                    <i class="fa-solid fa-check"></i>
+
+                    {% if object %}
+                        Save changes
+                    {% else %}
+                        Save transaction
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+
+    </section>
+
+</section>
+
+{% endblock %}

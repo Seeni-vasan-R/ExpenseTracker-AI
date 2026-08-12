@@ -1,3 +1,5 @@
+import calendar
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -9,7 +11,7 @@ from .models import Budget
 
 class BudgetForm(forms.ModelForm):
     """
-    Form for creating and editing user-owned budgets.
+    Form for creating and editing user-owned monthly budgets.
     """
 
     class Meta:
@@ -50,23 +52,49 @@ class BudgetForm(forms.ModelForm):
         self.user = user
 
         super().__init__(*args, **kwargs)
+        
+        if not self.instance.pk:
+            self.fields["is_active"].initial = True
 
-        self._apply_bootstrap_classes()
+        self._configure_date_fields()
+        self._apply_form_classes()
         self._configure_category_field()
         self._assign_user_to_new_instance()
 
-    def _apply_bootstrap_classes(self):
+    def _configure_date_fields(self):
+        for field_name in [
+            "start_date",
+            "end_date",
+        ]:
+            self.fields[field_name].input_formats = [
+                "%Y-%m-%d",
+            ]
+
+    def _apply_form_classes(self):
         for field in self.fields.values():
-            if isinstance(field.widget, forms.CheckboxInput):
-                field.widget.attrs["class"] = "form-check-input"
-            elif isinstance(field.widget, forms.Select):
-                field.widget.attrs["class"] = "form-select"
+            if isinstance(
+                field.widget,
+                forms.CheckboxInput,
+            ):
+                field.widget.attrs["class"] = (
+                    "form-check-input"
+                )
+            elif isinstance(
+                field.widget,
+                forms.Select,
+            ):
+                field.widget.attrs["class"] = (
+                    "form-select"
+                )
             else:
-                field.widget.attrs["class"] = "form-control"
+                field.widget.attrs["class"] = (
+                    "form-control"
+                )
 
     def _configure_category_field(self):
         category_field = self.fields["category"]
 
+        # Keep support for an overall budget.
         category_field.required = False
         category_field.empty_label = "Overall budget"
 
@@ -77,13 +105,18 @@ class BudgetForm(forms.ModelForm):
             category_field.queryset = (
                 Category.objects.filter(
                     Q(user=self.user)
-                    | Q(user__isnull=True, is_default=True)
+                    | Q(
+                        user__isnull=True,
+                        is_default=True,
+                    )
                 )
                 .exclude(category_type="Income")
                 .order_by("name")
             )
         else:
-            category_field.queryset = Category.objects.none()
+            category_field.queryset = (
+                Category.objects.none()
+            )
 
     def _assign_user_to_new_instance(self):
         if (
@@ -116,11 +149,35 @@ class BudgetForm(forms.ModelForm):
         end_date = cleaned_data.get("end_date")
         category = cleaned_data.get("category")
 
-        if start_date and end_date and end_date < start_date:
-            self.add_error(
-                "end_date",
-                "End date cannot be before the start date.",
-            )
+        if start_date and end_date:
+            if start_date.day != 1:
+                self.add_error(
+                    "start_date",
+                    "A monthly budget must start on "
+                    "the first day of the month.",
+                )
+
+            if (
+                start_date.year != end_date.year
+                or start_date.month != end_date.month
+            ):
+                self.add_error(
+                    "end_date",
+                    "A budget must cover exactly one "
+                    "calendar month.",
+                )
+            else:
+                last_day = calendar.monthrange(
+                    start_date.year,
+                    start_date.month,
+                )[1]
+
+                if end_date.day != last_day:
+                    self.add_error(
+                        "end_date",
+                        "A monthly budget must end on "
+                        "the last day of the month.",
+                    )
 
         if category:
             if (
@@ -129,13 +186,15 @@ class BudgetForm(forms.ModelForm):
             ):
                 self.add_error(
                     "category",
-                    "Selected category does not belong to you.",
+                    "Selected category does not belong "
+                    "to you.",
                 )
 
             if category.category_type == "Income":
                 self.add_error(
                     "category",
-                    "Income categories cannot be used for budgets.",
+                    "Income categories cannot be used "
+                    "for budgets.",
                 )
 
         return cleaned_data

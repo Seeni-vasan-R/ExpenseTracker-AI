@@ -1,77 +1,408 @@
+{% extends "dashboard/base.html" %}
+
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+{% block title %}
+    Dashboard | Expense Tracker
+{% endblock %}
 
-    <title>Dashboard</title>
-
-    <meta
-        name="description"
-        content="Personal expense tracking dashboard"
-    >
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
+{% block extra_css %}
     <link
         rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        href="{% static 'dashboard/css/dashboard.css' %}"
     >
+{% endblock %}
 
-    <link
-        rel="stylesheet"
-        href="{% static 'dashboard/css/sidebar.css' %}"
-    >
+{% block content %}
 
-    <link
-        rel="stylesheet"
-        href="{% static 'dashboard/css/navbar.css' %}"
-    >
+<section class="page-wrapper">
 
-    <link
-        rel="stylesheet"
-        href="{% static 'dashboard/css/cards.css' %}"
-    >
-</head>
-
-<body class="dashboard-body">
-    <div class="dashboard-layout">
-
-        <aside class="dashboard-sidebar">
-            {% include "dashboard/components/sidebar.html" %}
-        </aside>
-
-        <main class="dashboard-main">
-            <header class="dashboard-header">
-                {% include "dashboard/components/navbar.html" %}
-            </header>
-
-            <section
-                class="dashboard-content container-fluid"
-                aria-label="Dashboard summary"
+    <header class="topbar">
+        <div class="topbar-left">
+            <button
+                type="button"
+                class="mobile-menu-button"
+                id="mobileMenuButton"
+                aria-label="Open navigation"
             >
-                <div class="mt-4">
-                    {% include "dashboard/components/cards.html" %}
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div>
+                <span class="eyebrow">
+                    Personal finance overview
+                </span>
+
+                <h1>
+                    Welcome,
+                    {{ request.user.first_name|default:request.user.username }}
+                </h1>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <button
+                type="button"
+                class="theme-button"
+                id="themeToggle"
+                aria-label="Toggle theme"
+            >
+                <i class="fa-regular fa-moon"></i>
+            </button>
+
+            <div class="profile-chip">
+                <span class="profile-avatar">
+                    {{ request.user.first_name|default:request.user.username|first|upper }}
+                </span>
+
+                <span class="profile-name">
+                    {{ request.user.first_name|default:request.user.username }}
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <section class="balance-hero">
+        <div class="hero-copy">
+            <span class="section-kicker">
+                Current balance
+            </span>
+
+            <h2 class="balance-value">
+                ₹{{ balance|default:"0.00" }}
+            </h2>
+
+            <p>
+                Here is your financial activity for
+                {{ current_month }}/{{ current_year }}.
+            </p>
+        </div>
+
+        <div class="hero-actions">
+            <a
+                href="{% url 'transactions:transaction_add' %}"
+                class="button button-primary"
+            >
+                <i class="fa-solid fa-plus"></i>
+                Add transaction
+            </a>
+
+            <a
+                href="{% url 'budget:budget_add' %}"
+                class="button button-secondary"
+            >
+                <i class="fa-solid fa-bullseye"></i>
+                Create budget
+            </a>
+        </div>
+    </section>
+
+    <section class="summary-grid">
+        <article class="summary-card">
+            <div class="summary-card-header">
+                <span>Total income</span>
+                <i class="fa-solid fa-arrow-trend-up income-icon"></i>
+            </div>
+
+            <strong>
+                ₹{{ income|default:"0.00" }}
+            </strong>
+
+            <small>This month</small>
+        </article>
+
+        <article class="summary-card">
+            <div class="summary-card-header">
+                <span>Total expenses</span>
+                <i class="fa-solid fa-arrow-trend-down expense-icon"></i>
+            </div>
+
+            <strong>
+                ₹{{ expense|default:"0.00" }}
+            </strong>
+
+            <small>This month</small>
+        </article>
+
+        <article class="summary-card">
+            <div class="summary-card-header">
+                <span>Savings</span>
+                <i class="fa-solid fa-seedling savings-icon"></i>
+            </div>
+
+            <strong>
+                ₹{{ savings|default:"0.00" }}
+            </strong>
+
+            <small>After expenses</small>
+        </article>
+
+        <article class="summary-card">
+            <div class="summary-card-header">
+                <span>Budget status</span>
+                <i class="fa-solid fa-chart-simple budget-icon"></i>
+            </div>
+
+            <strong>
+                ₹{{ budget_remaining|default:"0.00" }}
+            </strong>
+
+            <small>Remaining</small>
+        </article>
+    </section>
+
+    <section class="dashboard-grid">
+
+        <article class="content-card budget-section">
+            <div class="card-heading">
+                <div>
+                    <span class="section-kicker">
+                        Monthly planning
+                    </span>
+
+                    <h2>Category budgets</h2>
                 </div>
 
-                <div class="mt-4">
-                    {% include "dashboard/components/recent_transactions.html" %}
+                <a
+                    href="{% url 'budget:budget_list' %}"
+                    class="text-link"
+                >
+                    View all
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+            </div>
+
+            {% if budgets %}
+
+                <div class="budget-list">
+                    {% for budget in budgets %}
+                        <div class="budget-item">
+
+                            <div class="budget-item-top">
+                                <div>
+                                    <strong>
+                                        {% if budget.category %}
+                                            {{ budget.category }}
+                                        {% else %}
+                                            Monthly budget
+                                        {% endif %}
+                                    </strong>
+
+                                    <span>
+                                        ₹{{ budget.spent|default:"0.00" }}
+                                        of
+                                        ₹{{ budget.limit|default:"0.00" }}
+                                    </span>
+                                </div>
+
+                                <strong>
+                                    {{ budget.percentage|default:"0" }}%
+                                </strong>
+                            </div>
+
+                            <div class="progress-track">
+                                <span
+                                    class="progress-value
+                                    {{ budget.status_class|default:'on-track' }}"
+                                    style="width: {{ budget.percentage|default:'0' }}%;"
+                                ></span>
+                            </div>
+
+                            <div class="budget-item-bottom">
+                                <span>
+                                    {% if budget.remaining >= 0 %}
+                                        ₹{{ budget.remaining|floatformat:2 }}
+                                        remaining
+                                    {% else %}
+                                        ₹{{ budget.remaining|stringformat:"s"|cut:"-" }}
+                                        over budget
+                                    {% endif %}
+                                </span>
+
+                                <span
+                                    class="budget-status
+                                    {{ budget.status_class|default:'on-track' }}"
+                                >
+                                    {{ budget.status|default:"On track" }}
+                                </span>
+                            </div>
+
+                        </div>
+                    {% endfor %}
                 </div>
-            </section>
-        </main>
 
-    </div>
+            {% else %}
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
-    ></script>
-</body>
-</html>
+                <div class="empty-state">
+                    <i class="fa-regular fa-folder-open"></i>
+
+                    <h3>No budgets yet</h3>
+
+                    <p>
+                        Create a budget to start planning your spending.
+                    </p>
+
+                    <a
+                        href="{% url 'budget:budget_add' %}"
+                        class="button button-small button-secondary"
+                    >
+                        Create budget
+                    </a>
+                </div>
+
+            {% endif %}
+        </article>
+
+        <article class="content-card chart-section">
+            <div class="card-heading">
+                <div>
+                    <span class="section-kicker">
+                        Spending movement
+                    </span>
+
+                    <h2>Monthly expenses</h2>
+                </div>
+
+                <span class="card-period">
+                    Last 6 months
+                </span>
+            </div>
+
+            <div class="chart-wrapper">
+                <canvas id="monthlyExpenseChart"></canvas>
+            </div>
+        </article>
+
+    </section>
+
+    <section class="dashboard-grid lower-grid">
+
+        <article class="content-card transactions-section">
+            <div class="card-heading">
+                <div>
+                    <span class="section-kicker">
+                        Latest activity
+                    </span>
+
+                    <h2>Recent transactions</h2>
+                </div>
+
+                <a
+                    href="{% url 'transactions:transaction_list' %}"
+                    class="text-link"
+                >
+                    View all
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+            </div>
+
+            {% if recent_transactions %}
+
+                <div class="transaction-list">
+                    {% for transaction in recent_transactions %}
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+
+                            <div class="transaction-details">
+                                <strong>
+                                    {{ transaction.category|default:"Transaction" }}
+                                </strong>
+
+                                <span>
+                                    {{ transaction.description|default:"No description" }}
+                                </span>
+                            </div>
+
+                            <div class="transaction-meta">
+                                <strong
+                                    class="
+                                    {% if transaction.transaction_type == 'Income' %}
+                                        amount-income
+                                    {% else %}
+                                        amount-expense
+                                    {% endif %}
+                                    "
+                                >
+                                    {% if transaction.transaction_type == "Income" %}
+                                        +
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                    ₹{{ transaction.amount }}
+                                </strong>
+
+                                <span>
+                                    {{ transaction.transaction_date|date:"d M Y" }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+                    <i class="fa-regular fa-file-lines"></i>
+
+                    <h3>No transactions yet</h3>
+
+                    <p>
+                        Add your first transaction to see your activity here.
+                    </p>
+
+                    <a
+                        href="{% url 'transactions:transaction_add' %}"
+                        class="button button-small button-primary"
+                    >
+                        Add transaction
+                    </a>
+                </div>
+
+            {% endif %}
+        </article>
+
+        <article class="content-card insight-section">
+            <div class="card-heading">
+                <div>
+                    <span class="section-kicker">
+                        Personal insight
+                    </span>
+
+                    <h2>Spend with intention</h2>
+                </div>
+
+                <i class="fa-regular fa-lightbulb insight-icon"></i>
+            </div>
+
+            {% if patterns %}
+                {% for pattern in patterns|slice:":2" %}
+                    <div class="insight-item">
+                        <span class="insight-marker"></span>
+                        <p>{{ pattern }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="insight-placeholder">
+                    <p>
+                        Keep recording your expenses. Once more activity is
+                        available, your spending patterns will appear here.
+                    </p>
+                </div>
+            {% endif %}
+
+            <span
+                class="button button-small button-secondary button-disabled"
+            >
+                analysis coming soon
+            </span>
+        </article>
+
+    </section>
+
+</section>
+
+{{ monthly_trend|json_script:"monthly-trend-data" }}
+
+{% endblock %}

@@ -1,0 +1,515 @@
+{% extends "dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Transactions | Expense Tracker
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'transactions/css/transactions.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<section class="page-wrapper transactions-page">
+
+    <header class="module-header">
+        <div>
+            <span class="section-kicker">Financial activity</span>
+            <h1>Transactions</h1>
+            <p>Review and manage your income and expenses.</p>
+        </div>
+
+        <a
+            href="{% url 'transactions:transaction_add' %}"
+            class="button button-primary"
+        >
+            <i class="fa-solid fa-plus"></i>
+            Add transaction
+        </a>
+    </header>
+
+    <section class="transaction-summary-grid">
+        <article class="transaction-summary-card">
+            <span>Total income</span>
+
+            <strong class="income-text">
+                ₹{{ total_income|default:"0.00" }}
+            </strong>
+
+            <small>Current filtered results</small>
+        </article>
+
+        <article class="transaction-summary-card">
+            <span>Total expenses</span>
+
+            <strong class="expense-text">
+                ₹{{ total_expense|default:"0.00" }}
+            </strong>
+
+            <small>Current filtered results</small>
+        </article>
+
+        <article class="transaction-summary-card">
+            <span>Balance</span>
+
+            <strong>
+                ₹{{ balance|default:"0.00" }}
+            </strong>
+
+            <small>Income minus expenses</small>
+        </article>
+
+        <article class="transaction-summary-card">
+            <span>Transactions</span>
+
+            <strong>
+                {{ transaction_count|default:"0" }}
+            </strong>
+
+            <small>Matching records</small>
+        </article>
+    </section>
+
+    <section class="transaction-panel">
+
+        <div class="transaction-toolbar">
+            <div>
+                <span class="section-kicker">Activity list</span>
+                <h2>All transactions</h2>
+            </div>
+        </div>
+
+        <form
+            method="get"
+            class="transaction-filters"
+        >
+            <div class="filter-panel-heading">
+                <div>
+                    <h3>Filter transactions</h3>
+                    <p>
+                        Narrow the list using one or more options.
+                    </p>
+                </div>
+
+                {% if search or selected_type or selected_category or selected_payment_method or selected_date_from or selected_date_to or selected_min_amount or selected_max_amount %}
+                    <a
+                        href="{% url 'transactions:transaction_list' %}"
+                        class="clear-filter-link"
+                    >
+                        Clear all
+                    </a>
+                {% endif %}
+            </div>
+
+            <div class="filter-fields">
+
+                <div class="filter-field filter-field-search">
+                    <label for="transaction-search">
+                        Search
+                    </label>
+
+                    <div class="search-input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        <input
+                            id="transaction-search"
+                            type="search"
+                            name="search"
+                            value="{{ search }}"
+                            placeholder="Search transactions"
+                            aria-label="Search transactions"
+                        >
+                    </div>
+                </div>
+
+                <div class="filter-field">
+                    <label for="transaction-type-filter">
+                        Type
+                    </label>
+
+                    <select
+                        id="transaction-type-filter"
+                        name="type"
+                        class="filter-select"
+                        aria-label="Filter by transaction type"
+                    >
+                        <option value="">All types</option>
+
+                        <option
+                            value="Income"
+                            {% if selected_type == "Income" %}
+                                selected
+                            {% endif %}
+                        >
+                            Income
+                        </option>
+
+                        <option
+                            value="Expense"
+                            {% if selected_type == "Expense" %}
+                                selected
+                            {% endif %}
+                        >
+                            Expense
+                        </option>
+                    </select>
+                </div>
+
+                <div class="filter-field">
+                    <label for="transaction-category-filter">
+                        Category
+                    </label>
+
+                    <select
+                        id="transaction-category-filter"
+                        name="category"
+                        class="filter-select"
+                        aria-label="Filter by category"
+                    >
+                        <option value="">All categories</option>
+
+                        {% if categories %}
+                            {% for category in categories %}
+                                <option
+                                    value="{{ category.id }}"
+                                    {% if selected_category == category.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ category.name }}
+                                </option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled>
+                                No categories available
+                            </option>
+                        {% endif %}
+                    </select>
+                </div>
+
+                <div class="filter-field">
+                    <label for="payment-method-filter">
+                        Payment method
+                    </label>
+
+                    <select
+                        id="payment-method-filter"
+                        name="payment_method"
+                        class="filter-select"
+                        aria-label="Filter by payment method"
+                    >
+                        <option value="">
+                            All payment methods
+                        </option>
+
+                        {% for value, label in payment_methods %}
+                            <option
+                                value="{{ value }}"
+                                {% if selected_payment_method == value %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-field">
+                    <label for="date-from-filter">
+                        Date from
+                    </label>
+
+                    <input
+                        id="date-from-filter"
+                        type="date"
+                        name="date_from"
+                        value="{{ selected_date_from }}"
+                        class="filter-input"
+                        aria-label="From date"
+                    >
+                </div>
+
+                <div class="filter-field">
+                    <label for="date-to-filter">
+                        Date to
+                    </label>
+
+                    <input
+                        id="date-to-filter"
+                        type="date"
+                        name="date_to"
+                        value="{{ selected_date_to }}"
+                        class="filter-input"
+                        aria-label="To date"
+                    >
+                </div>
+
+                <div class="filter-field">
+                    <label for="min-amount-filter">
+                        Minimum amount
+                    </label>
+
+                    <input
+                        id="min-amount-filter"
+                        type="number"
+                        name="min_amount"
+                        value="{{ selected_min_amount }}"
+                        min="0"
+                        step="0.01"
+                        placeholder="₹ 0.00"
+                        class="filter-input"
+                        aria-label="Minimum amount"
+                    >
+                </div>
+
+                <div class="filter-field">
+                    <label for="max-amount-filter">
+                        Maximum amount
+                    </label>
+
+                    <input
+                        id="max-amount-filter"
+                        type="number"
+                        name="max_amount"
+                        value="{{ selected_max_amount }}"
+                        min="0"
+                        step="0.01"
+                        placeholder="₹ 0.00"
+                        class="filter-input"
+                        aria-label="Maximum amount"
+                    >
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button
+                    type="submit"
+                    class="button button-small button-secondary"
+                >
+                    <i class="fa-solid fa-check"></i>
+                    Apply filters
+                </button>
+
+                {% if search or selected_type or selected_category or selected_payment_method or selected_date_from or selected_date_to or selected_min_amount or selected_max_amount %}
+                    <a
+                        href="{% url 'transactions:transaction_list' %}"
+                        class="filter-reset-button"
+                    >
+                        Reset filters
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if transactions %}
+
+            <div class="transaction-table-wrapper">
+                <table class="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Payment method</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td data-label="Date">
+                                    <span class="date-value">
+                                        {{ transaction.transaction_date|date:"d M Y" }}
+                                    </span>
+                                </td>
+
+                                <td data-label="Description">
+                                    <div class="table-description">
+                                        <span class="table-transaction-icon">
+                                            <i class="fa-solid fa-receipt"></i>
+                                        </span>
+
+                                        <div>
+                                            <strong>
+                                                {% if transaction.description %}
+                                                    {{ transaction.description|truncatechars:34 }}
+                                                {% else %}
+                                                    {{ transaction.category.name }}
+                                                {% endif %}
+                                            </strong>
+
+                                            {% if transaction.receipt %}
+                                                <small>
+                                                    <i class="fa-solid fa-paperclip"></i>
+                                                    Receipt attached
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td data-label="Category">
+                                    <span class="category-badge">
+                                        {{ transaction.category.name }}
+                                    </span>
+                                </td>
+
+                                <td data-label="Payment method">
+                                    <span class="payment-method">
+                                        {{ transaction.payment_method }}
+                                    </span>
+                                </td>
+
+                                <td data-label="Type">
+                                    {% if transaction.transaction_type == "Income" %}
+                                        <span class="type-badge type-income">
+                                            Income
+                                        </span>
+                                    {% else %}
+                                        <span class="type-badge type-expense">
+                                            Expense
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td data-label="Amount">
+                                    {% if transaction.transaction_type == "Income" %}
+                                        <strong class="amount-income">
+                                            +₹{{ transaction.amount }}
+                                        </strong>
+                                    {% else %}
+                                        <strong class="amount-expense">
+                                            -₹{{ transaction.amount }}
+                                        </strong>
+                                    {% endif %}
+                                </td>
+
+                                <td data-label="Actions">
+                                    <div class="table-actions">
+                                        <a
+                                            href="{% url 'transactions:transaction_detail' transaction.pk %}"
+                                            class="table-action"
+                                            title="View transaction"
+                                            aria-label="View transaction"
+                                        >
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+
+                                        <a
+                                            href="{% url 'transactions:transaction_update' transaction.pk %}"
+                                            class="table-action"
+                                            title="Edit transaction"
+                                            aria-label="Edit transaction"
+                                        >
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
+
+                                        <a
+                                            href="{% url 'transactions:transaction_delete' transaction.pk %}"
+                                            class="table-action table-action-danger"
+                                            title="Delete transaction"
+                                            aria-label="Delete transaction"
+                                        >
+                                            <i class="fa-regular fa-trash-can"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+                <nav
+                    class="pagination"
+                    aria-label="Transaction pages"
+                >
+                    {% if page_obj.has_previous %}
+                        <a
+                            href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search|urlencode }}{% endif %}{% if selected_type %}&type={{ selected_type|urlencode }}{% endif %}{% if selected_category %}&category={{ selected_category|urlencode }}{% endif %}{% if selected_payment_method %}&payment_method={{ selected_payment_method|urlencode }}{% endif %}{% if selected_date_from %}&date_from={{ selected_date_from|urlencode }}{% endif %}{% if selected_date_to %}&date_to={{ selected_date_to|urlencode }}{% endif %}{% if selected_min_amount %}&min_amount={{ selected_min_amount|urlencode }}{% endif %}{% if selected_max_amount %}&max_amount={{ selected_max_amount|urlencode }}{% endif %}"
+                            class="pagination-link"
+                            aria-label="Previous page"
+                        >
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
+
+                    <span class="pagination-current">
+                        Page {{ page_obj.number }}
+                        of
+                        {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a
+                            href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search|urlencode }}{% endif %}{% if selected_type %}&type={{ selected_type|urlencode }}{% endif %}{% if selected_category %}&category={{ selected_category|urlencode }}{% endif %}{% if selected_payment_method %}&payment_method={{ selected_payment_method|urlencode }}{% endif %}{% if selected_date_from %}&date_from={{ selected_date_from|urlencode }}{% endif %}{% if selected_date_to %}&date_to={{ selected_date_to|urlencode }}{% endif %}{% if selected_min_amount %}&min_amount={{ selected_min_amount|urlencode }}{% endif %}{% if selected_max_amount %}&max_amount={{ selected_max_amount|urlencode }}{% endif %}"
+                            class="pagination-link"
+                            aria-label="Next page"
+                        >
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+
+        {% else %}
+
+            <div class="transaction-empty-state">
+                <div class="empty-state-icon">
+                    <i class="fa-regular fa-file-lines"></i>
+                </div>
+
+                {% if search or selected_type or selected_category or selected_payment_method or selected_date_from or selected_date_to or selected_min_amount or selected_max_amount %}
+                    <h2>No matching transactions</h2>
+
+                    <p>
+                        Try changing your search or filter values.
+                    </p>
+
+                    <a
+                        href="{% url 'transactions:transaction_list' %}"
+                        class="button button-small button-secondary"
+                    >
+                        Clear filters
+                    </a>
+                {% else %}
+                    <h2>No transactions yet</h2>
+
+                    <p>
+                        Add your first income or expense to start tracking
+                        your financial activity.
+                    </p>
+
+                    <a
+                        href="{% url 'transactions:transaction_add' %}"
+                        class="button button-small button-primary"
+                    >
+                        <i class="fa-solid fa-plus"></i>
+                        Add transaction
+                    </a>
+                {% endif %}
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script
+        src="{% static 'transactions/js/transactions.js' %}"
+    ></script>
+{% endblock %}
