@@ -1,9 +1,13 @@
-<aside class="sidebar" id="sidebar">
+<aside
+    class="sidebar"
+    id="sidebar"
+    aria-label="Main sidebar"
+>
     <div class="sidebar-brand">
         <a
             href="{% url 'dashboard:dashboard' %}"
             class="brand-link"
-            title="Expense Tracker"
+            title="Expense Tracker dashboard"
         >
             <span class="brand-mark">E</span>
 
@@ -34,10 +38,7 @@
 
         <a
             href="{% url 'dashboard:dashboard' %}"
-            class="nav-link
-            {% if request.resolver_match.url_name == 'dashboard' %}
-                active
-            {% endif %}"
+            class="nav-link {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}"
             title="Dashboard"
         >
             <i
@@ -50,10 +51,7 @@
 
         <a
             href="{% url 'transactions:transaction_list' %}"
-            class="nav-link
-            {% if request.resolver_match.namespace == 'transactions' %}
-                active
-            {% endif %}"
+            class="nav-link {% if request.resolver_match.namespace == 'transactions' %}active{% endif %}"
             title="Transactions"
         >
             <i
@@ -66,10 +64,7 @@
 
         <a
             href="{% url 'budget:budget_list' %}"
-            class="nav-link
-            {% if request.resolver_match.namespace == 'budget' %}
-                active
-            {% endif %}"
+            class="nav-link {% if request.resolver_match.namespace == 'budget' %}active{% endif %}"
             title="Budgets"
         >
             <i
@@ -84,10 +79,10 @@
             Insights
         </p>
 
-        <span
-            class="nav-link disabled-nav-link"
-            title="Analysis is not available yet"
-            aria-disabled="true"
+        <a
+            href="{% url 'analytics:dashboard' %}"
+            class="nav-link {% if request.resolver_match.namespace == 'analytics' %}active{% endif %}"
+            title="Analysis"
         >
             <i
                 class="fa-solid fa-chart-line"
@@ -95,12 +90,12 @@
             ></i>
 
             <span>Analysis</span>
-        </span>
+        </a>
 
-        <span
-            class="nav-link disabled-nav-link"
-            title="Accounts is not available yet"
-            aria-disabled="true"
+        <a
+            href="{% url 'accounts:profile' %}"
+            class="nav-link {% if request.resolver_match.namespace == 'accounts' %}active{% endif %}"
+            title="Accounts"
         >
             <i
                 class="fa-solid fa-building-columns"
@@ -108,16 +103,16 @@
             ></i>
 
             <span>Accounts</span>
-        </span>
+        </a>
 
         <p class="navigation-label navigation-label-secondary">
             Personal
         </p>
 
-        <span
-            class="nav-link disabled-nav-link"
-            title="Settings is not available yet"
-            aria-disabled="true"
+        <a
+            href="{% url 'accounts:settings' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}"
+            title="Settings"
         >
             <i
                 class="fa-solid fa-sliders"
@@ -125,7 +120,7 @@
             ></i>
 
             <span>Settings</span>
-        </span>
+        </a>
     </nav>
 
     <div class="sidebar-bottom">
@@ -141,17 +136,25 @@
             </div>
         </div>
 
-        <a
-            href="{% url 'accounts:logout' %}"
-            class="logout-link"
-            title="Logout"
+        <form
+            method="post"
+            action="{% url 'accounts:logout' %}"
+            class="logout-form"
         >
-            <i
-                class="fa-solid fa-arrow-right-from-bracket"
-                aria-hidden="true"
-            ></i>
+            {% csrf_token %}
 
-            <span>Logout</span>
-        </a>
+            <button
+                type="submit"
+                class="logout-link"
+                title="Logout"
+            >
+                <i
+                    class="fa-solid fa-arrow-right-from-bracket"
+                    aria-hidden="true"
+                ></i>
+
+                <span>Logout</span>
+            </button>
+        </form>
     </div>
 </aside>

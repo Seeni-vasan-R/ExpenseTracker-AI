@@ -23,7 +23,9 @@
 
     <header class="module-header">
         <div>
-            <span class="section-kicker">Financial activity</span>
+            <span class="section-kicker">
+                Financial activity
+            </span>
 
             <h1>
                 {% if object %}
@@ -85,14 +87,20 @@
 
             <div class="form-type-selector">
                 <span class="form-section-label">
-                    Transaction type <span class="required-mark">*</span>
+                    Transaction type
+                    <span class="required-mark">*</span>
                 </span>
 
                 <div class="type-options">
                     {% for radio in form.transaction_type %}
-                        <label class="type-option">
+                        <label
+                            class="type-option"
+                            for="{{ radio.id_for_label }}"
+                        >
                             {{ radio.tag }}
-                            <span>{{ radio.choice_label }}</span>
+                            <span>
+                                {{ radio.choice_label }}
+                            </span>
                         </label>
                     {% endfor %}
                 </div>
@@ -108,7 +116,8 @@
 
                 <div class="form-field">
                     <label for="{{ form.amount.id_for_label }}">
-                        Amount <span class="required-mark">*</span>
+                        Amount
+                        <span class="required-mark">*</span>
                     </label>
 
                     {{ form.amount }}
@@ -122,7 +131,8 @@
 
                 <div class="form-field">
                     <label for="{{ form.transaction_date.id_for_label }}">
-                        Date <span class="required-mark">*</span>
+                        Date
+                        <span class="required-mark">*</span>
                     </label>
 
                     {{ form.transaction_date }}
@@ -135,8 +145,27 @@
                 </div>
 
                 <div class="form-field">
+                    <label for="{{ form.transaction_time.id_for_label }}">
+                        Time
+                    </label>
+
+                    {{ form.transaction_time }}
+
+                    <small class="field-help">
+                        Optional. Add the time when this transaction occurred.
+                    </small>
+
+                    {% for error in form.transaction_time.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-field">
                     <label for="{{ form.category.id_for_label }}">
-                        Category <span class="required-mark">*</span>
+                        Category
+                        <span class="required-mark">*</span>
                     </label>
 
                     {{ form.category }}
@@ -150,7 +179,8 @@
 
                 <div class="form-field">
                     <label for="{{ form.payment_method.id_for_label }}">
-                        Payment method <span class="required-mark">*</span>
+                        Payment method
+                        <span class="required-mark">*</span>
                     </label>
 
                     {{ form.payment_method }}
@@ -190,6 +220,7 @@
                     {% if form.instance.receipt %}
                         <small class="current-file">
                             Current file:
+
                             <a
                                 href="{{ form.instance.receipt.url }}"
                                 target="_blank"
@@ -210,6 +241,7 @@
             </div>
 
             <div class="form-actions">
+
                 <a
                     href="{% url 'transactions:transaction_list' %}"
                     class="button button-secondary"
@@ -229,6 +261,7 @@
                         Save transaction
                     {% endif %}
                 </button>
+
             </div>
         </form>
 

@@ -4,14 +4,25 @@
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>
-        {% block title %}Expense Tracker{% endblock %}
+        {% block title %}
+            Expense Tracker
+        {% endblock %}
     </title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
 
     <link
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
@@ -34,16 +45,23 @@
 <body class="dashboard-body sidebar-collapsed">
 
     <div class="app-shell">
+
         {% include "dashboard/components/sidebar.html" %}
 
         <main class="main-content">
-            <div class="mobile-overlay" id="mobileOverlay"></div>
+
+            <div
+                class="mobile-overlay"
+                id="mobileOverlay"
+            ></div>
 
             {% block content %}{% endblock %}
         </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"
+    ></script>
 
     <script
         src="{% static 'dashboard/js/dashboard.js' %}"

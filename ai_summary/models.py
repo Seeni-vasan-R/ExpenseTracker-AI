@@ -1,76 +1,82 @@
 from django.conf import settings
 from django.db import models
-from transactions.models import Category
+from django.db.models import Q
 
 
-class Insight(models.Model):
-
-    INSIGHT_TYPES = [
-        ('Anomaly', 'Anomaly'),
-        ('Budget_Pacing', 'Budget Pacing'),
-        ('Trend', 'Trend'),
-    ]
+class AISummary(models.Model):
+    """
+    Stores a generated monthly financial summary.
+    """
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="ai_summaries",
     )
 
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
+    month = models.PositiveSmallIntegerField()
 
-    insight_text = models.TextField()
+    year = models.PositiveIntegerField()
 
-    insight_type = models.CharField(
-        max_length=30,
-        choices=INSIGHT_TYPES
-    )
+    summary_text = models.TextField()
 
-    metric_value = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True
-    )
-
-    threshold_value = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True
-    )
-
-    reference_month = models.IntegerField(
-        null=True,
-        blank=True
-    )
-
-    reference_year = models.IntegerField(
-        null=True,
-        blank=True
-    )
-
-    generated_at = models.DateTimeField(auto_now_add=True)
-
-    analysis_start_date = models.DateField(
-        null=True,
-        blank=True
-    )
-
-    analysis_end_date = models.DateField(
-        null=True,
-        blank=True
-    )
-
-    generation_model = models.CharField(
-        max_length=100,
+    insights = models.JSONField(
+        default=list,
         blank=True,
-        null=True
     )
+
+    recommendations = models.JSONField(
+        default=list,
+        blank=True,
+    )
+
+    metrics = models.JSONField(
+        default=dict,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+        ordering = ["-year", "-month", "-created_at"]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "user",
+                    "month",
+                    "year",
+                ],
+                name="unique_ai_summary_user_month",
+            ),
+            models.CheckConstraint(
+                condition=Q(
+                    month__gte=1,
+                    month__lte=12,
+                ),
+                name="ai_summary_valid_month",
+            ),
+        ]
+
+        indexes = [
+            models.Index(
+                fields=[
+                    "user",
+                    "year",
+                    "month",
+                ],
+                name="ai_summary_user_period_idx",
+            ),
+        ]
 
     def __str__(self):
-        return f"{self.user.username} - {self.insight_type}"
+        return (
+            f"{self.user.username} - "
+            f"{self.year}-{self.month:02d} AI Summary"
+        )

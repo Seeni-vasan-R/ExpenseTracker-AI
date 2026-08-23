@@ -50,7 +50,10 @@
                 <i class="fa-regular fa-moon"></i>
             </button>
 
-            <div class="profile-chip">
+            <a
+                href="{% url 'accounts:profile' %}"
+                class="profile-chip"
+            >
                 <span class="profile-avatar">
                     {{ request.user.first_name|default:request.user.username|first|upper }}
                 </span>
@@ -58,7 +61,7 @@
                 <span class="profile-name">
                     {{ request.user.first_name|default:request.user.username }}
                 </span>
-            </div>
+            </a>
         </div>
     </header>
 
@@ -202,9 +205,8 @@
 
                             <div class="progress-track">
                                 <span
-                                    class="progress-value
-                                    {{ budget.status_class|default:'on-track' }}"
-                                    style="width: {{ budget.percentage|default:'0' }}%;"
+                                    class="progress-value {{ budget.status_class|default:'on-track' }}"
+                                    data-percentage="{{ budget.percentage|default:'0' }}"
                                 ></span>
                             </div>
 
@@ -220,8 +222,7 @@
                                 </span>
 
                                 <span
-                                    class="budget-status
-                                    {{ budget.status_class|default:'on-track' }}"
+                                    class="budget-status {{ budget.status_class|default:'on-track' }}"
                                 >
                                     {{ budget.status|default:"On track" }}
                                 </span>
@@ -307,7 +308,11 @@
 
                             <div class="transaction-details">
                                 <strong>
-                                    {{ transaction.category|default:"Transaction" }}
+                                    {% if transaction.category %}
+                                        {{ transaction.category.name|default:transaction.category }}
+                                    {% else %}
+                                        Transaction
+                                    {% endif %}
                                 </strong>
 
                                 <span>
@@ -317,13 +322,7 @@
 
                             <div class="transaction-meta">
                                 <strong
-                                    class="
-                                    {% if transaction.transaction_type == 'Income' %}
-                                        amount-income
-                                    {% else %}
-                                        amount-expense
-                                    {% endif %}
-                                    "
+                                    class="{% if transaction.transaction_type == 'Income' %}amount-income{% else %}amount-expense{% endif %}"
                                 >
                                     {% if transaction.transaction_type == "Income" %}
                                         +
@@ -380,7 +379,9 @@
                 {% for pattern in patterns|slice:":2" %}
                     <div class="insight-item">
                         <span class="insight-marker"></span>
-                        <p>{{ pattern }}</p>
+                        <p>
+                            {{ pattern }}
+                        </p>
                     </div>
                 {% endfor %}
             {% else %}
@@ -392,17 +393,80 @@
                 </div>
             {% endif %}
 
-            <span
-                class="button button-small button-secondary button-disabled"
+            <a
+                href="{% url 'ai_summary:summary' %}"
+                class="button button-small button-secondary"
             >
-                analysis coming soon
-            </span>
+                Open AI Summary
+            </a>
         </article>
 
+    </section>
+
+    <section class="dashboard-navigation-card">
+        <div class="card-heading">
+            <div>
+                <span class="section-kicker">
+                    Explore
+                </span>
+
+                <h2>Manage your finances</h2>
+            </div>
+        </div>
+
+        <div class="quick-links">
+            <a
+                href="{% url 'analytics:dashboard' %}"
+                class="quick-link"
+            >
+                <i class="fa-solid fa-chart-line"></i>
+
+                <span>
+                    <strong>Analytics</strong>
+                    <small>Review trends and spending patterns</small>
+                </span>
+
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+            <a
+                href="{% url 'accounts:profile' %}"
+                class="quick-link"
+            >
+                <i class="fa-solid fa-user"></i>
+
+                <span>
+                    <strong>Account</strong>
+                    <small>Manage your profile and preferences</small>
+                </span>
+
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+            <a
+                href="{% url 'ai_summary:summary' %}"
+                class="quick-link"
+            >
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                <span>
+                    <strong>AI Summary</strong>
+                    <small>View personalized financial guidance</small>
+                </span>
+
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
     </section>
 
 </section>
 
 {{ monthly_trend|json_script:"monthly-trend-data" }}
+
+<script>
+    document.querySelectorAll("[data-percentage]").forEach((progress) => {
+        progress.style.width = `${progress.dataset.percentage}%`;
+    });
+</script>
 
 {% endblock %}

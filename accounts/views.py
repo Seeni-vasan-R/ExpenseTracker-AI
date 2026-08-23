@@ -238,3 +238,11 @@ def edit_profile_view(request):
             "profile_form": profile_form,
         },
     )
+
+
+@login_required
+def settings_view(request):
+    return render(
+        request,
+        "accounts/settings.html",
+    )

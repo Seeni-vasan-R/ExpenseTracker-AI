@@ -1,0 +1,9 @@
+/*
+    AI Summary styles are intentionally inherited from:
+
+    dashboard/static/dashboard/css/dashboard.css
+
+    The AI Summary template extends dashboard/base.html,
+    so keeping a second complete stylesheet here would create
+    conflicting theme and layout rules.
+*/

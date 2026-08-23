@@ -1,0 +1,203 @@
+/*
+    Analytics styles are intentionally inherited from:
+
+    dashboard/static/dashboard/css/dashboard.css
+
+    The Analytics template extends dashboard/base.html,
+    so keeping a second complete stylesheet here would create
+    conflicting theme and layout rules.
+*/
+.analytics-calendar-panel {
+    min-width: 0;
+}
+
+.analytics-calendar-period {
+    color: var(--accent-dark);
+    font-size: 0.7rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.analytics-calendar-legend {
+    margin-bottom: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+
+    color: var(--text-soft);
+    font-size: 0.63rem;
+}
+
+.analytics-calendar-legend-colors {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.analytics-calendar-legend-colors i {
+    width: 16px;
+    height: 16px;
+
+    display: block;
+
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+.analytics-expense-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.analytics-calendar-weekday {
+    padding: 7px 0;
+
+    color: var(--text-soft);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.analytics-calendar-empty {
+    min-height: 88px;
+    background: transparent;
+}
+
+.analytics-calendar-day {
+    min-height: 88px;
+    padding: 10px;
+
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    gap: 8px;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    transition:
+        transform var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+}
+
+.analytics-calendar-day.has-expense {
+    cursor: default;
+}
+
+.analytics-calendar-day.has-expense:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-2px);
+}
+
+.analytics-calendar-day-number {
+    color: var(--text);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.analytics-calendar-day-amount {
+    overflow: hidden;
+
+    color: var(--text);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.analytics-calendar-day-count {
+    color: var(--text-soft);
+    font-size: 0.58rem;
+    text-align: right;
+}
+
+.calendar-level-0 {
+    background: var(--surface-raised);
+}
+
+.calendar-level-1 {
+    background: color-mix(
+        in srgb,
+        var(--accent) 18%,
+        var(--surface-raised)
+    );
+}
+
+.calendar-level-2 {
+    background: color-mix(
+        in srgb,
+        var(--accent) 34%,
+        var(--surface-raised)
+    );
+}
+
+.calendar-level-3 {
+    background: color-mix(
+        in srgb,
+        var(--accent) 52%,
+        var(--surface-raised)
+    );
+}
+
+.calendar-level-4 {
+    background: color-mix(
+        in srgb,
+        var(--accent-dark) 72%,
+        var(--surface-raised)
+    );
+}
+
+.analytics-calendar-day.calendar-level-4,
+.analytics-calendar-day.calendar-level-4
+    .analytics-calendar-day-number,
+.analytics-calendar-day.calendar-level-4
+    .analytics-calendar-day-amount,
+.analytics-calendar-day.calendar-level-4
+    .analytics-calendar-day-count {
+    color: #fffaf2;
+}
+
+@media (max-width: 700px) {
+    .analytics-calendar-legend {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .analytics-expense-calendar {
+        gap: 5px;
+    }
+
+    .analytics-calendar-weekday {
+        font-size: 0.52rem;
+    }
+
+    .analytics-calendar-empty,
+    .analytics-calendar-day {
+        min-height: 60px;
+    }
+
+    .analytics-calendar-day {
+        padding: 6px;
+        gap: 3px;
+    }
+
+    .analytics-calendar-day-number {
+        font-size: 0.62rem;
+    }
+
+    .analytics-calendar-day-amount {
+        font-size: 0.53rem;
+    }
+
+    .analytics-calendar-day-count {
+        display: none;
+    }
+}

@@ -1,3 +1,5 @@
+from decimal import Decimal, InvalidOperation
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction as db_transaction
@@ -5,7 +7,6 @@ from django.db.models import Q, Sum
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from decimal import Decimal, InvalidOperation
 from django.views import View
 from django.views.generic import (
     CreateView,
@@ -17,30 +18,32 @@ from django.views.generic import (
 
 from .forms import (
     CategoryForm,
-    RecurringTransactionForm,
     TransactionForm,
 )
 from .models import (
     Category,
-    RecurringTransaction,
     Transaction,
 )
 
 
 class TransactionListView(LoginRequiredMixin, ListView):
     model = Transaction
-    template_name = "transactions/transaction_list.html"
+    template_name = (
+        "transactions/transaction_list.html"
+    )
     context_object_name = "transactions"
     paginate_by = 10
     login_url = "accounts:login"
 
     def get_queryset(self):
         queryset = (
-            Transaction.objects.active()
+            Transaction.objects
+            .active()
             .for_user(self.request.user)
             .select_related("category")
             .order_by(
                 "-transaction_date",
+                "-transaction_time",
                 "-created_at",
             )
         )
@@ -98,45 +101,45 @@ class TransactionListView(LoginRequiredMixin, ListView):
             "Expense",
         }:
             queryset = queryset.filter(
-                transaction_type=transaction_type
+                transaction_type=transaction_type,
             )
 
         if category_id.isdigit():
             queryset = queryset.filter(
-                category_id=int(category_id)
+                category_id=int(category_id),
             )
 
         if payment_method:
             queryset = queryset.filter(
-                payment_method=payment_method
+                payment_method=payment_method,
             )
 
         if date_from:
             queryset = queryset.filter(
-                transaction_date__gte=date_from
+                transaction_date__gte=date_from,
             )
 
         if date_to:
             queryset = queryset.filter(
-                transaction_date__lte=date_to
+                transaction_date__lte=date_to,
             )
 
         min_amount_value = self.parse_decimal(
-            min_amount
+            min_amount,
         )
 
         if min_amount_value is not None:
             queryset = queryset.filter(
-                amount__gte=min_amount_value
+                amount__gte=min_amount_value,
             )
 
         max_amount_value = self.parse_decimal(
-            max_amount
+            max_amount,
         )
 
         if max_amount_value is not None:
             queryset = queryset.filter(
-                amount__lte=max_amount_value
+                amount__lte=max_amount_value,
             )
 
         return queryset
@@ -154,39 +157,55 @@ class TransactionListView(LoginRequiredMixin, ListView):
 
             return number
 
-        except (InvalidOperation, ValueError):
+        except (
+            InvalidOperation,
+            ValueError,
+        ):
             return None
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = super().get_context_data(
+            **kwargs,
+        )
 
         filtered_transactions = self.get_queryset()
 
         total_income = (
             filtered_transactions
-            .filter(transaction_type="Income")
-            .aggregate(total=Sum("amount"))
+            .filter(
+                transaction_type="Income",
+            )
+            .aggregate(
+                total=Sum("amount"),
+            )
             .get("total")
             or Decimal("0.00")
         )
 
         total_expense = (
             filtered_transactions
-            .filter(transaction_type="Expense")
-            .aggregate(total=Sum("amount"))
+            .filter(
+                transaction_type="Expense",
+            )
+            .aggregate(
+                total=Sum("amount"),
+            )
             .get("total")
             or Decimal("0.00")
         )
 
-        categories = Category.objects.filter(
-            Q(user=self.request.user)
-            | Q(
-                user__isnull=True,
-                is_default=True,
+        categories = (
+            Category.objects.filter(
+                Q(user=self.request.user)
+                | Q(
+                    user__isnull=True,
+                    is_default=True,
+                )
             )
-        ).order_by(
-            "category_type",
-            "name",
+            .order_by(
+                "category_type",
+                "name",
+            )
         )
 
         context.update(
@@ -195,13 +214,17 @@ class TransactionListView(LoginRequiredMixin, ListView):
                     "search",
                     "",
                 ),
-                "selected_type": self.request.GET.get(
-                    "type",
-                    "",
+                "selected_type": (
+                    self.request.GET.get(
+                        "type",
+                        "",
+                    )
                 ),
-                "selected_category": self.request.GET.get(
-                    "category",
-                    "",
+                "selected_category": (
+                    self.request.GET.get(
+                        "category",
+                        "",
+                    )
                 ),
                 "selected_payment_method": (
                     self.request.GET.get(
@@ -234,26 +257,35 @@ class TransactionListView(LoginRequiredMixin, ListView):
                     )
                 ),
                 "categories": categories,
-                "payment_methods": Transaction.PAYMENT_METHODS,
+                "payment_methods": (
+                    Transaction.PAYMENT_METHODS
+                ),
                 "total_income": total_income,
                 "total_expense": total_expense,
-                "balance": total_income - total_expense,
-                "transaction_count": filtered_transactions.count(),
+                "balance": (
+                    total_income - total_expense
+                ),
+                "transaction_count": (
+                    filtered_transactions.count()
+                ),
             }
         )
 
         return context
 
 
-class TransactionCreateView(LoginRequiredMixin, CreateView):
-    """
-    Create a new transaction for the authenticated user.
-    """
-
+class TransactionCreateView(
+    LoginRequiredMixin,
+    CreateView,
+):
     model = Transaction
     form_class = TransactionForm
-    template_name = "transactions/transaction_form.html"
-    success_url = reverse_lazy("transactions:transaction_list")
+    template_name = (
+        "transactions/transaction_form.html"
+    )
+    success_url = reverse_lazy(
+        "transactions:transaction_list",
+    )
     login_url = "accounts:login"
 
     def get_form_kwargs(self):
@@ -279,23 +311,28 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
             self.request,
             "Please correct the errors below.",
         )
+
         return super().form_invalid(form)
 
 
-class TransactionUpdateView(LoginRequiredMixin, UpdateView):
-    """
-    Update an active transaction belonging to the authenticated user.
-    """
-
+class TransactionUpdateView(
+    LoginRequiredMixin,
+    UpdateView,
+):
     model = Transaction
     form_class = TransactionForm
-    template_name = "transactions/transaction_form.html"
-    success_url = reverse_lazy("transactions:transaction_list")
+    template_name = (
+        "transactions/transaction_form.html"
+    )
+    success_url = reverse_lazy(
+        "transactions:transaction_list",
+    )
     login_url = "accounts:login"
 
     def get_queryset(self):
         return (
-            Transaction.objects.active()
+            Transaction.objects
+            .active()
             .for_user(self.request.user)
             .select_related("category")
         )
@@ -323,40 +360,47 @@ class TransactionUpdateView(LoginRequiredMixin, UpdateView):
             self.request,
             "Please correct the errors below.",
         )
+
         return super().form_invalid(form)
 
 
-class TransactionDetailView(LoginRequiredMixin, DetailView):
-    """
-    Display an active transaction belonging to the authenticated user.
-    """
-
+class TransactionDetailView(
+    LoginRequiredMixin,
+    DetailView,
+):
     model = Transaction
-    template_name = "transactions/transaction_detail.html"
+    template_name = (
+        "transactions/transaction_detail.html"
+    )
     context_object_name = "transaction"
     login_url = "accounts:login"
 
     def get_queryset(self):
         return (
-            Transaction.objects.active()
+            Transaction.objects
+            .active()
             .for_user(self.request.user)
-            .select_related("category", "recurring_source")
+            .select_related("category")
         )
 
 
-class TransactionDeleteView(LoginRequiredMixin, DeleteView):
-    """
-    Soft-delete an active transaction.
-    """
-
+class TransactionDeleteView(
+    LoginRequiredMixin,
+    DeleteView,
+):
     model = Transaction
-    template_name = "transactions/transaction_confirm_delete.html"
-    success_url = reverse_lazy("transactions:transaction_list")
+    template_name = (
+        "transactions/transaction_confirm_delete.html"
+    )
+    success_url = reverse_lazy(
+        "transactions:transaction_list",
+    )
     login_url = "accounts:login"
 
     def get_queryset(self):
         return (
-            Transaction.objects.active()
+            Transaction.objects
+            .active()
             .for_user(self.request.user)
             .select_related("category")
         )
@@ -374,16 +418,16 @@ class TransactionDeleteView(LoginRequiredMixin, DeleteView):
         return redirect(self.success_url)
 
 
-class RestoreTransactionView(LoginRequiredMixin, View):
-    """
-    Restore a previously soft-deleted transaction.
-    """
-
+class RestoreTransactionView(
+    LoginRequiredMixin,
+    View,
+):
     login_url = "accounts:login"
 
     def post(self, request, pk):
         transaction_object = get_object_or_404(
-            Transaction.objects.deleted()
+            Transaction.objects
+            .deleted()
             .for_user(request.user)
             .select_related("category"),
             pk=pk,
@@ -396,16 +440,19 @@ class RestoreTransactionView(LoginRequiredMixin, View):
             "Transaction restored successfully.",
         )
 
-        return redirect("transactions:transaction_list")
+        return redirect(
+            "transactions:transaction_list",
+        )
 
 
-class CategoryListView(LoginRequiredMixin, ListView):
-    """
-    Display the authenticated user's categories and valid global defaults.
-    """
-
+class CategoryListView(
+    LoginRequiredMixin,
+    ListView,
+):
     model = Category
-    template_name = "transactions/category_list.html"
+    template_name = (
+        "transactions/category_list.html"
+    )
     context_object_name = "categories"
     login_url = "accounts:login"
 
@@ -413,21 +460,30 @@ class CategoryListView(LoginRequiredMixin, ListView):
         return (
             Category.objects.filter(
                 Q(user=self.request.user)
-                | Q(user__isnull=True, is_default=True)
+                | Q(
+                    user__isnull=True,
+                    is_default=True,
+                )
             )
-            .order_by("category_type", "name")
+            .order_by(
+                "category_type",
+                "name",
+            )
         )
 
 
-class CategoryCreateView(LoginRequiredMixin, CreateView):
-    """
-    Create a user-specific category.
-    """
-
+class CategoryCreateView(
+    LoginRequiredMixin,
+    CreateView,
+):
     model = Category
     form_class = CategoryForm
-    template_name = "transactions/category_form.html"
-    success_url = reverse_lazy("transactions:category_list")
+    template_name = (
+        "transactions/category_form.html"
+    )
+    success_url = reverse_lazy(
+        "transactions:category_list",
+    )
     login_url = "accounts:login"
 
     def get_form_kwargs(self):
@@ -453,18 +509,22 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
             self.request,
             "Please correct the errors below.",
         )
+
         return super().form_invalid(form)
 
 
-class CategoryUpdateView(LoginRequiredMixin, UpdateView):
-    """
-    Update only a category owned by the authenticated user.
-    """
-
+class CategoryUpdateView(
+    LoginRequiredMixin,
+    UpdateView,
+):
     model = Category
     form_class = CategoryForm
-    template_name = "transactions/category_form.html"
-    success_url = reverse_lazy("transactions:category_list")
+    template_name = (
+        "transactions/category_form.html"
+    )
+    success_url = reverse_lazy(
+        "transactions:category_list",
+    )
     login_url = "accounts:login"
 
     def get_queryset(self):
@@ -496,20 +556,21 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
             self.request,
             "Please correct the errors below.",
         )
+
         return super().form_invalid(form)
 
 
-class CategoryDeleteView(LoginRequiredMixin, DeleteView):
-    """
-    Delete a user-owned category.
-
-    The database's PROTECT behavior prevents deletion if the category
-    is used by a transaction or recurring transaction.
-    """
-
+class CategoryDeleteView(
+    LoginRequiredMixin,
+    DeleteView,
+):
     model = Category
-    template_name = "transactions/category_confirm_delete.html"
-    success_url = reverse_lazy("transactions:category_list")
+    template_name = (
+        "transactions/category_confirm_delete.html"
+    )
+    success_url = reverse_lazy(
+        "transactions:category_list",
+    )
     login_url = "accounts:login"
 
     def get_queryset(self):
@@ -529,152 +590,16 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
             messages.error(
                 request,
                 (
-                    "This category cannot be deleted because it is "
-                    "currently used by a transaction or recurring "
-                    "transaction."
+                    "This category cannot be deleted "
+                    "because it is currently used "
+                    "by a transaction."
                 ),
             )
+
         else:
             messages.success(
                 request,
                 "Category deleted successfully.",
             )
-
-        return redirect(self.success_url)
-
-
-class RecurringTransactionListView(LoginRequiredMixin, ListView):
-    """
-    Display recurring transaction templates belonging to the user.
-    """
-
-    model = RecurringTransaction
-    template_name = "transactions/recurring_transaction_list.html"
-    context_object_name = "recurring_transactions"
-    login_url = "accounts:login"
-
-    def get_queryset(self):
-        return (
-            RecurringTransaction.objects.filter(
-                user=self.request.user,
-            )
-            .select_related("category")
-            .order_by("next_occurrence", "-created_at")
-        )
-
-
-class RecurringTransactionCreateView(LoginRequiredMixin, CreateView):
-    """
-    Create a recurring transaction template.
-    """
-
-    model = RecurringTransaction
-    form_class = RecurringTransactionForm
-    template_name = "transactions/recurring_transaction_form.html"
-    success_url = reverse_lazy(
-        "transactions:recurring_transaction_list"
-    )
-    login_url = "accounts:login"
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["user"] = self.request.user
-        return kwargs
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-
-        with db_transaction.atomic():
-            response = super().form_valid(form)
-
-        messages.success(
-            self.request,
-            "Recurring transaction created successfully.",
-        )
-
-        return response
-
-    def form_invalid(self, form):
-        messages.error(
-            self.request,
-            "Please correct the errors below.",
-        )
-        return super().form_invalid(form)
-
-
-class RecurringTransactionUpdateView(LoginRequiredMixin, UpdateView):
-    """
-    Update a recurring transaction template owned by the user.
-    """
-
-    model = RecurringTransaction
-    form_class = RecurringTransactionForm
-    template_name = "transactions/recurring_transaction_form.html"
-    success_url = reverse_lazy(
-        "transactions:recurring_transaction_list"
-    )
-    login_url = "accounts:login"
-
-    def get_queryset(self):
-        return (
-            RecurringTransaction.objects.filter(
-                user=self.request.user,
-            )
-            .select_related("category")
-        )
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["user"] = self.request.user
-        return kwargs
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-
-        with db_transaction.atomic():
-            response = super().form_valid(form)
-
-        messages.success(
-            self.request,
-            "Recurring transaction updated successfully.",
-        )
-
-        return response
-
-    def form_invalid(self, form):
-        messages.error(
-            self.request,
-            "Please correct the errors below.",
-        )
-        return super().form_invalid(form)
-
-
-class RecurringTransactionDeleteView(LoginRequiredMixin, DeleteView):
-    """
-    Delete a recurring transaction template.
-    """
-
-    model = RecurringTransaction
-    template_name = (
-        "transactions/recurring_transaction_confirm_delete.html"
-    )
-    success_url = reverse_lazy(
-        "transactions:recurring_transaction_list"
-    )
-    login_url = "accounts:login"
-
-    def get_queryset(self):
-        return RecurringTransaction.objects.filter(
-            user=self.request.user,
-        )
-
-    def post(self, request, *args, **kwargs):
-        recurring = self.get_object()
-        recurring.delete()
-
-        messages.success(
-            request,
-            "Recurring transaction deleted successfully.",
-        )
 
         return redirect(self.success_url)

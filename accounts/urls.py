@@ -36,4 +36,10 @@ urlpatterns = [
         views.edit_profile_view,
         name="edit_profile",
     ),
+    
+    path(
+        "settings/",
+        views.settings_view,
+        name="settings",
+    ),
 ]

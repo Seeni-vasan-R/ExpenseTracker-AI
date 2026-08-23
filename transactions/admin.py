@@ -1,11 +1,6 @@
 from django.contrib import admin
-from django.utils import timezone
 
-from .models import (
-    Category,
-    RecurringTransaction,
-    Transaction,
-)
+from .models import Category, Transaction
 
 
 @admin.register(Category)
@@ -16,45 +11,20 @@ class CategoryAdmin(admin.ModelAdmin):
         "user",
         "is_default",
         "created_at",
-        "updated_at",
     )
 
     list_filter = (
         "category_type",
         "is_default",
-        "created_at",
     )
 
     search_fields = (
         "name",
         "user__username",
-        "user__email",
     )
 
     ordering = (
-        "category_type",
         "name",
-    )
-
-    readonly_fields = (
-        "created_at",
-        "updated_at",
-    )
-
-
-@admin.action(description="Soft-delete selected transactions")
-def soft_delete_transactions(modeladmin, request, queryset):
-    queryset.filter(is_deleted=False).update(
-        is_deleted=True,
-        deleted_at=timezone.now(),
-    )
-
-
-@admin.action(description="Restore selected transactions")
-def restore_transactions(modeladmin, request, queryset):
-    queryset.filter(is_deleted=True).update(
-        is_deleted=False,
-        deleted_at=None,
     )
 
 
@@ -67,38 +37,27 @@ class TransactionAdmin(admin.ModelAdmin):
         "category",
         "payment_method",
         "transaction_date",
+        "transaction_time",
         "is_deleted",
-        "is_recurring_generated",
-        "created_at",
     )
 
     list_filter = (
         "transaction_type",
         "payment_method",
-        "category",
-        "is_deleted",
-        "is_recurring_generated",
         "transaction_date",
+        "is_deleted",
     )
 
     search_fields = (
         "user__username",
-        "user__email",
-        "category__name",
         "description",
+        "category__name",
     )
-
-    date_hierarchy = "transaction_date"
 
     ordering = (
         "-transaction_date",
+        "-transaction_time",
         "-created_at",
-    )
-
-    list_select_related = (
-        "user",
-        "category",
-        "recurring_source",
     )
 
     readonly_fields = (
@@ -107,54 +66,7 @@ class TransactionAdmin(admin.ModelAdmin):
         "deleted_at",
     )
 
-    actions = (
-        soft_delete_transactions,
-        restore_transactions,
-    )
-
-
-@admin.register(RecurringTransaction)
-class RecurringTransactionAdmin(admin.ModelAdmin):
-    list_display = (
-        "user",
-        "transaction_type",
-        "amount",
-        "category",
-        "frequency",
-        "start_date",
-        "end_date",
-        "next_occurrence",
-        "is_active",
-        "created_at",
-    )
-
-    list_filter = (
-        "transaction_type",
-        "frequency",
-        "is_active",
-        "category",
-        "start_date",
-        "next_occurrence",
-    )
-
-    search_fields = (
-        "user__username",
-        "user__email",
-        "category__name",
-        "description",
-    )
-
-    ordering = (
-        "next_occurrence",
-        "-created_at",
-    )
-
     list_select_related = (
         "user",
         "category",
-    )
-
-    readonly_fields = (
-        "created_at",
-        "updated_at",
     )

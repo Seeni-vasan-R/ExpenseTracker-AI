@@ -1,0 +1,307 @@
+{% extends "dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Analytics | Expense Tracker
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'analytics/css/dashboard.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<section class="page-wrapper analytics-page">
+
+    <header class="topbar analytics-page-header">
+        <div class="topbar-left">
+            <button
+                type="button"
+                class="mobile-menu-button"
+                id="mobileMenuButton"
+                aria-label="Open navigation"
+            >
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div>
+                <span class="eyebrow">
+                    Financial intelligence
+                </span>
+
+                <h1>Analytics</h1>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <span
+                id="last-updated"
+                class="analytics-updated"
+            >
+                Preparing analytics...
+            </span>
+
+            <a
+                href="{% url 'ai_summary:summary' %}"
+                class="button button-primary"
+            >
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                AI Summary
+            </a>
+        </div>
+    </header>
+
+    <section class="analytics-filter-card">
+        <div class="filter-heading">
+            <div>
+                <span class="section-kicker">
+                    Reporting period
+                </span>
+
+                <h2>Review your money clearly</h2>
+            </div>
+        </div>
+
+        <div class="filter-controls">
+            <div class="filter-field">
+                <label for="month-select">
+                    Month
+                </label>
+
+                <select id="month-select">
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="year-select">
+                    Year
+                </label>
+
+                <select id="year-select"></select>
+            </div>
+
+            <button
+                id="apply-filters"
+                type="button"
+                class="button button-primary"
+            >
+                <i class="fa-solid fa-filter"></i>
+                Apply filters
+            </button>
+
+            <button
+                id="refresh-dashboard"
+                type="button"
+                class="button button-secondary"
+            >
+                <i class="fa-solid fa-rotate"></i>
+                Refresh
+            </button>
+        </div>
+    </section>
+
+    <div
+        id="dashboard-error"
+        class="analytics-alert hidden"
+        role="alert"
+    ></div>
+
+    <section>
+        <div class="analytics-panel-heading">
+            <div>
+                <span class="section-kicker">
+                    Monthly snapshot
+                </span>
+
+                <h2>Your financial position</h2>
+            </div>
+        </div>
+
+        <div
+            class="analytics-summary-grid"
+            style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));"
+        >
+            <article class="analytics-summary-card">
+                <div class="analytics-card-label">
+                    <span>Income</span>
+
+                    <span class="analytics-card-icon income-icon">
+                        <i class="fa-solid fa-arrow-trend-up"></i>
+                    </span>
+                </div>
+
+                <strong id="income-value">
+                    ₹0.00
+                </strong>
+
+                <small id="income-change">
+                    Selected month
+                </small>
+            </article>
+
+            <article class="analytics-summary-card">
+                <div class="analytics-card-label">
+                    <span>Expenses</span>
+
+                    <span class="analytics-card-icon expense-icon">
+                        <i class="fa-solid fa-arrow-trend-down"></i>
+                    </span>
+                </div>
+
+                <strong id="expense-value">
+                    ₹0.00
+                </strong>
+
+                <small id="expense-change">
+                    Selected month
+                </small>
+            </article>
+
+            <article class="analytics-summary-card">
+                <div class="analytics-card-label">
+                    <span>Balance</span>
+
+                    <span class="analytics-card-icon savings-icon">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </span>
+                </div>
+
+                <strong id="balance-value">
+                    ₹0.00
+                </strong>
+
+                <small id="savings-rate">
+                    0.00% savings rate
+                </small>
+            </article>
+        </div>
+    </section>
+
+    <section class="analytics-grid">
+        <article class="analytics-panel">
+            <div class="analytics-panel-heading">
+                <div>
+                    <span class="section-kicker">
+                        Selected month
+                    </span>
+
+                    <h2>Spending by category</h2>
+                </div>
+            </div>
+
+            <div class="analytics-chart-wrapper analytics-doughnut-wrapper">
+                <canvas id="category-chart"></canvas>
+            </div>
+
+            <div
+                id="category-legend"
+                class="analytics-category-legend"
+            ></div>
+        </article>
+
+        <article class="analytics-panel">
+            <div class="analytics-panel-heading">
+                <div>
+                    <span class="section-kicker">
+                        Daily activity
+                    </span>
+
+                    <h2>Income and expense timeline</h2>
+                </div>
+            </div>
+
+            <div class="analytics-chart-wrapper">
+                <canvas id="timeline-chart"></canvas>
+            </div>
+        </article>
+
+        <article
+            class="analytics-panel"
+            style="grid-column: 1 / -1;"
+        >
+            <div class="analytics-panel-heading">
+                <div>
+                    <span class="section-kicker">
+                        Month view
+                    </span>
+
+                    <h2>Six-month financial movement</h2>
+                </div>
+            </div>
+
+            <div class="analytics-chart-wrapper">
+                <canvas id="month-view-chart"></canvas>
+            </div>
+        </article>
+
+        <article
+            class="analytics-panel analytics-calendar-panel"
+            style="grid-column: 1 / -1;"
+        >
+            <div class="analytics-panel-heading">
+                <div>
+                    <span class="section-kicker">
+                        Selected month
+                    </span>
+
+                    <h2>Spending calendar</h2>
+                </div>
+
+                <span
+                    id="calendar-period"
+                    class="analytics-calendar-period"
+                >
+                    Loading...
+                </span>
+            </div>
+
+            <div class="analytics-calendar-legend">
+                <span>Lower spending</span>
+
+                <div class="analytics-calendar-legend-colors">
+                    <i class="calendar-level-0"></i>
+                    <i class="calendar-level-1"></i>
+                    <i class="calendar-level-2"></i>
+                    <i class="calendar-level-3"></i>
+                    <i class="calendar-level-4"></i>
+                </div>
+
+                <span>Higher spending</span>
+            </div>
+
+            <div
+                id="expense-calendar"
+                class="analytics-expense-calendar"
+            >
+                <div class="analytics-empty-state">
+                    Loading spending calendar...
+                </div>
+            </div>
+        </article>
+    </section>
+
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script
+        src="{% static 'analytics/js/dashboard.js' %}"
+    ></script>
+{% endblock %}

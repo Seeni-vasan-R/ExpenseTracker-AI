@@ -19,9 +19,15 @@
 
     <header class="module-header">
         <div>
-            <span class="section-kicker">Financial activity</span>
+            <span class="section-kicker">
+                Financial activity
+            </span>
+
             <h1>Transactions</h1>
-            <p>Review and manage your income and expenses.</p>
+
+            <p>
+                Review and manage your income and expenses.
+            </p>
         </div>
 
         <a
@@ -34,6 +40,7 @@
     </header>
 
     <section class="transaction-summary-grid">
+
         <article class="transaction-summary-card">
             <span>Total income</span>
 
@@ -73,13 +80,17 @@
 
             <small>Matching records</small>
         </article>
+
     </section>
 
     <section class="transaction-panel">
 
         <div class="transaction-toolbar">
             <div>
-                <span class="section-kicker">Activity list</span>
+                <span class="section-kicker">
+                    Activity list
+                </span>
+
                 <h2>All transactions</h2>
             </div>
         </div>
@@ -91,6 +102,7 @@
             <div class="filter-panel-heading">
                 <div>
                     <h3>Filter transactions</h3>
+
                     <p>
                         Narrow the list using one or more options.
                     </p>
@@ -138,7 +150,9 @@
                         class="filter-select"
                         aria-label="Filter by transaction type"
                     >
-                        <option value="">All types</option>
+                        <option value="">
+                            All types
+                        </option>
 
                         <option
                             value="Income"
@@ -171,7 +185,9 @@
                         class="filter-select"
                         aria-label="Filter by category"
                     >
-                        <option value="">All categories</option>
+                        <option value="">
+                            All categories
+                        </option>
 
                         {% if categories %}
                             {% for category in categories %}
@@ -285,9 +301,11 @@
                         aria-label="Maximum amount"
                     >
                 </div>
+
             </div>
 
             <div class="filter-actions">
+
                 <button
                     type="submit"
                     class="button button-small button-secondary"
@@ -304,6 +322,7 @@
                         Reset filters
                     </a>
                 {% endif %}
+
             </div>
         </form>
 
@@ -311,9 +330,10 @@
 
             <div class="transaction-table-wrapper">
                 <table class="transaction-table">
+
                     <thead>
                         <tr>
-                            <th>Date</th>
+                            <th>Date and time</th>
                             <th>Description</th>
                             <th>Category</th>
                             <th>Payment method</th>
@@ -326,14 +346,32 @@
                     <tbody>
                         {% for transaction in transactions %}
                             <tr>
-                                <td data-label="Date">
-                                    <span class="date-value">
-                                        {{ transaction.transaction_date|date:"d M Y" }}
-                                    </span>
+
+                                <td data-label="Date and time">
+                                    <div class="transaction-date-time">
+
+                                        <span class="date-value">
+                                            {{ transaction.transaction_date|date:"d M Y" }}
+                                        </span>
+
+                                        {% if transaction.transaction_time %}
+                                            <small class="time-value">
+                                                <i class="fa-regular fa-clock"></i>
+                                                {{ transaction.transaction_time|time:"H:i" }}
+                                            </small>
+                                        {% else %}
+                                            <small class="time-value time-not-recorded">
+                                                <i class="fa-regular fa-clock"></i>
+                                                Time not recorded
+                                            </small>
+                                        {% endif %}
+
+                                    </div>
                                 </td>
 
                                 <td data-label="Description">
                                     <div class="table-description">
+
                                         <span class="table-transaction-icon">
                                             <i class="fa-solid fa-receipt"></i>
                                         </span>
@@ -342,8 +380,10 @@
                                             <strong>
                                                 {% if transaction.description %}
                                                     {{ transaction.description|truncatechars:34 }}
-                                                {% else %}
+                                                {% elif transaction.category %}
                                                     {{ transaction.category.name }}
+                                                {% else %}
+                                                    Transaction
                                                 {% endif %}
                                             </strong>
 
@@ -354,12 +394,17 @@
                                                 </small>
                                             {% endif %}
                                         </div>
+
                                     </div>
                                 </td>
 
                                 <td data-label="Category">
                                     <span class="category-badge">
-                                        {{ transaction.category.name }}
+                                        {% if transaction.category %}
+                                            {{ transaction.category.name }}
+                                        {% else %}
+                                            Uncategorized
+                                        {% endif %}
                                     </span>
                                 </td>
 
@@ -395,6 +440,7 @@
 
                                 <td data-label="Actions">
                                     <div class="table-actions">
+
                                         <a
                                             href="{% url 'transactions:transaction_detail' transaction.pk %}"
                                             class="table-action"
@@ -405,7 +451,7 @@
                                         </a>
 
                                         <a
-                                            href="{% url 'transactions:transaction_update' transaction.pk %}"
+                                            href="{% url 'transactions:transaction_edit' transaction.pk %}"
                                             class="table-action"
                                             title="Edit transaction"
                                             aria-label="Edit transaction"
@@ -421,11 +467,14 @@
                                         >
                                             <i class="fa-regular fa-trash-can"></i>
                                         </a>
+
                                     </div>
                                 </td>
+
                             </tr>
                         {% endfor %}
                     </tbody>
+
                 </table>
             </div>
 
@@ -434,6 +483,7 @@
                     class="pagination"
                     aria-label="Transaction pages"
                 >
+
                     {% if page_obj.has_previous %}
                         <a
                             href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search|urlencode }}{% endif %}{% if selected_type %}&type={{ selected_type|urlencode }}{% endif %}{% if selected_category %}&category={{ selected_category|urlencode }}{% endif %}{% if selected_payment_method %}&payment_method={{ selected_payment_method|urlencode }}{% endif %}{% if selected_date_from %}&date_from={{ selected_date_from|urlencode }}{% endif %}{% if selected_date_to %}&date_to={{ selected_date_to|urlencode }}{% endif %}{% if selected_min_amount %}&min_amount={{ selected_min_amount|urlencode }}{% endif %}{% if selected_max_amount %}&max_amount={{ selected_max_amount|urlencode }}{% endif %}"
@@ -459,17 +509,20 @@
                             <i class="fa-solid fa-chevron-right"></i>
                         </a>
                     {% endif %}
+
                 </nav>
             {% endif %}
 
         {% else %}
 
             <div class="transaction-empty-state">
+
                 <div class="empty-state-icon">
                     <i class="fa-regular fa-file-lines"></i>
                 </div>
 
                 {% if search or selected_type or selected_category or selected_payment_method or selected_date_from or selected_date_to or selected_min_amount or selected_max_amount %}
+
                     <h2>No matching transactions</h2>
 
                     <p>
@@ -482,7 +535,9 @@
                     >
                         Clear filters
                     </a>
+
                 {% else %}
+
                     <h2>No transactions yet</h2>
 
                     <p>
@@ -497,7 +552,9 @@
                         <i class="fa-solid fa-plus"></i>
                         Add transaction
                     </a>
+
                 {% endif %}
+
             </div>
 
         {% endif %}

@@ -1,0 +1,463 @@
+{% extends "dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    AI Summary | Expense Tracker
+{% endblock %}
+
+{% block content %}
+
+<section class="page-wrapper ai-summary-page ai-vertical-layout">
+
+    <header class="topbar">
+        <div class="topbar-left">
+            <button
+                type="button"
+                class="mobile-menu-button"
+                id="mobileMenuButton"
+                aria-label="Open navigation"
+            >
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div>
+                <span class="eyebrow">
+                    Explainable financial guidance
+                </span>
+
+                <h1>AI Summary</h1>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <span
+                id="summary-updated"
+                class="ai-summary-updated"
+            >
+                Preparing summary...
+            </span>
+
+            <a
+                href="{% url 'analytics:dashboard' %}"
+                class="button button-secondary"
+            >
+                <i class="fa-solid fa-chart-line"></i>
+                Analytics
+            </a>
+        </div>
+    </header>
+
+    <section class="ai-vertical-section ai-period-card">
+        <div class="ai-section-heading">
+            <div>
+                <span class="section-kicker">
+                    Personal financial guidance
+                </span>
+
+                <h2>
+                    Understand your month at a glance
+                </h2>
+
+                <p>
+                    Your summary turns spending data into clear,
+                    practical actions.
+                </p>
+            </div>
+
+            <span class="ai-sparkle">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </span>
+        </div>
+
+        <div class="ai-period-controls">
+            <div class="ai-filter-field">
+                <label for="month-select">
+                    Month
+                </label>
+
+                <select id="month-select">
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+
+            <div class="ai-filter-field">
+                <label for="year-select">
+                    Year
+                </label>
+
+                <select id="year-select"></select>
+            </div>
+
+            <button
+                id="generate-summary"
+                class="button button-primary"
+                type="button"
+            >
+                <i class="fa-solid fa-arrows-rotate"></i>
+                Generate summary
+            </button>
+        </div>
+    </section>
+
+    <div
+        id="summary-error"
+        class="ai-summary-alert hidden"
+        role="alert"
+    ></div>
+
+    <section class="ai-vertical-section ai-overview-card">
+        <div class="ai-overview-icon">
+            <i class="fa-solid fa-lightbulb"></i>
+        </div>
+
+        <div>
+            <span class="section-kicker">
+                Generated overview
+            </span>
+
+            <h2 id="summary-period">
+                Loading...
+            </h2>
+
+            <p id="summary-text">
+                Preparing your financial summary...
+            </p>
+        </div>
+    </section>
+
+    <section class="ai-vertical-section">
+        <div class="ai-section-heading">
+            <div>
+                <span class="section-kicker">
+                    Monthly snapshot
+                </span>
+
+                <h2>
+                    Key financial metrics
+                </h2>
+            </div>
+        </div>
+
+        <div class="ai-metric-row">
+
+            <article class="ai-metric-card ai-metric-income">
+                <span>Income</span>
+
+                <strong id="metric-income">
+                    ₹{{ total_income|default:"0.00" }}
+                </strong>
+
+                <small>
+                    Recorded this month
+                </small>
+            </article>
+
+            <article class="ai-metric-card ai-metric-expense">
+                <span>Expenses</span>
+
+                <strong id="metric-expense">
+                    ₹{{ total_expense|default:"0.00" }}
+                </strong>
+
+                <small>
+                    Active expenses
+                </small>
+            </article>
+
+            <article class="ai-metric-card ai-metric-balance">
+                <span>Balance</span>
+
+                <strong id="metric-balance">
+                    ₹{{ balance|default:"0.00" }}
+                </strong>
+
+                <small>
+                    Income after expenses
+                </small>
+            </article>
+
+            <article class="ai-metric-card ai-metric-savings">
+                <span>Savings rate</span>
+
+                <strong id="metric-savings-rate">
+                    {{ savings_rate|default:"0.00" }}%
+                </strong>
+
+                <small>
+                    Based on recorded income
+                </small>
+            </article>
+
+        </div>
+    </section>
+
+    <section class="ai-vertical-section">
+        <div class="ai-section-heading">
+            <div>
+                <span class="section-kicker">
+                    Explainable financial guidance
+                </span>
+
+                <h2>
+                    Your financial summary
+                </h2>
+
+                <p>
+                    Review your spending behaviour, key insights,
+                    unusual patterns, budget position, and suggested
+                    actions in one place.
+                </p>
+            </div>
+        </div>
+
+        <div class="ai-summary-four-boxes">
+
+            <article
+                class="ai-summary-box ai-behaviour-summary-box"
+            >
+                <div class="ai-summary-box-heading">
+                    <div>
+                        <span class="section-kicker">
+                            Behaviour overview
+                        </span>
+
+                        <h2>
+                            Key behaviour summary
+                        </h2>
+                    </div>
+
+                    <span class="ai-summary-box-icon">
+                        <i class="fa-solid fa-chart-simple"></i>
+                    </span>
+                </div>
+
+                <div
+                    id="behaviour-summary-content"
+                    class="ai-summary-box-content"
+                >
+                    <p class="ai-summary-empty">
+                        Loading behaviour summary...
+                    </p>
+                </div>
+            </article>
+
+            <article
+                class="ai-summary-box ai-insight-summary-box"
+            >
+                <div class="ai-summary-box-heading">
+                    <div>
+                        <span class="section-kicker">
+                            Explainable signals
+                        </span>
+
+                        <h2>
+                            Insight card
+                        </h2>
+                    </div>
+
+                    <span class="ai-summary-box-icon">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </span>
+                </div>
+
+                <div
+                    id="insight-summary-content"
+                    class="ai-summary-box-content"
+                >
+                    <p class="ai-summary-empty">
+                        Loading insight card...
+                    </p>
+                </div>
+            </article>
+
+            <article
+                class="ai-summary-box ai-pattern-summary-box"
+            >
+                <div class="ai-summary-box-heading">
+                    <div>
+                        <span class="section-kicker">
+                            Spending behaviour
+                        </span>
+
+                        <h2>
+                            Patterns and anomalies
+                        </h2>
+                    </div>
+
+                    <span class="ai-summary-box-icon">
+                        <i class="fa-solid fa-wave-square"></i>
+                    </span>
+                </div>
+
+                <div
+                    id="pattern-summary-content"
+                    class="ai-summary-box-content"
+                >
+                    <p class="ai-summary-empty">
+                        Loading patterns and anomalies...
+                    </p>
+                </div>
+            </article>
+
+            <article
+                class="ai-summary-box ai-budget-summary-box"
+            >
+                <div class="ai-summary-box-heading">
+                    <div>
+                        <span class="section-kicker">
+                            Budget awareness
+                        </span>
+
+                        <h2>
+                            Budget and recommendations
+                        </h2>
+                    </div>
+
+                    <span class="ai-summary-box-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </span>
+                </div>
+
+                <div
+                    id="budget-summary-content"
+                    class="ai-summary-box-content"
+                >
+                    <p class="ai-summary-empty">
+                        Loading budgets and recommendations...
+                    </p>
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+    <section class="ai-vertical-section ai-panel">
+        <div class="ai-section-heading">
+            <div>
+                <span class="section-kicker">
+                    Spending classification
+                </span>
+
+                <h2>
+                    Needs, wants and savings
+                </h2>
+            </div>
+        </div>
+
+        <div class="ai-classification-list">
+
+            <div class="ai-classification-row">
+                <span>Needs</span>
+
+                <strong id="classification-need">
+                    ₹0.00
+                </strong>
+
+                <small id="classification-need-percent">
+                    0.00%
+                </small>
+            </div>
+
+            <div class="ai-classification-row">
+                <span>Wants</span>
+
+                <strong id="classification-want">
+                    ₹0.00
+                </strong>
+
+                <small id="classification-want-percent">
+                    0.00%
+                </small>
+            </div>
+
+            <div class="ai-classification-row">
+                <span>Savings</span>
+
+                <strong id="classification-saving">
+                    ₹0.00
+                </strong>
+
+                <small id="classification-saving-percent">
+                    0.00%
+                </small>
+            </div>
+
+        </div>
+
+        <div class="ai-classification-bar">
+            <span
+                id="classification-need-bar"
+                class="ai-classification-segment ai-need-segment"
+            ></span>
+
+            <span
+                id="classification-want-bar"
+                class="ai-classification-segment ai-want-segment"
+            ></span>
+
+            <span
+                id="classification-saving-bar"
+                class="ai-classification-segment ai-saving-segment"
+            ></span>
+        </div>
+    </section>
+
+    <section class="ai-vertical-section ai-panel">
+        <div class="ai-section-heading">
+            <div>
+                <span class="section-kicker">
+                    Forward view
+                </span>
+
+                <h2>
+                    Expense forecast
+                </h2>
+            </div>
+        </div>
+
+        <div class="ai-forecast-content">
+            <div class="ai-forecast-value">
+                <span>
+                    Estimated average monthly expense
+                </span>
+
+                <strong id="forecast-value">
+                    ₹0.00
+                </strong>
+
+                <small id="forecast-confidence">
+                    Waiting for forecast data
+                </small>
+            </div>
+
+            <div class="ai-forecast-note">
+                <p>
+                    This is a historical baseline, not a guarantee.
+                    Continue recording transactions for more reliable
+                    future analysis.
+                </p>
+            </div>
+        </div>
+    </section>
+
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script
+        src="{% static 'ai_summary/js/summary.js' %}"
+    ></script>
+{% endblock %}
