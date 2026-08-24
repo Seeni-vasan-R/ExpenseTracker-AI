@@ -1,190 +1,1206 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Register | Expense Tracker
+    Create Account | Expense Tracker
 {% endblock %}
 
 {% block content %}
-<div class="auth-wrapper d-flex align-items-center justify-content-center min-vh-100">
-    <div
-        class="card auth-card shadow-lg border-0"
-        style="max-width: 480px; width: 100%;"
-    >
-        <div class="card-body p-4 p-md-5">
-            <h2 class="fw-bold mb-1 text-center">
-                Create Account
-            </h2>
 
-            <p class="text-muted text-center mb-4">
-                Start tracking your expenses smarter
-            </p>
+<style>
+    /* =========================================
+       REGISTER PAGE — EXPENSE TRACKER THEME
+       ========================================= */
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div
-                        class="alert alert-{{ message.tags }} alert-dismissible fade show"
-                        role="alert"
-                    >
-                        {{ message }}
+    .auth-page {
+        min-height: 100vh;
+        background: #f3ede2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        position: relative;
+        overflow: hidden;
+    }
 
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert"
-                            aria-label="Close"
-                        ></button>
+    .auth-page::before {
+        content: "";
+        position: absolute;
+        width: 560px;
+        height: 560px;
+        border: 1px solid rgba(90, 73, 58, 0.12);
+        border-radius: 50%;
+        top: -300px;
+        right: -140px;
+    }
+
+    .auth-page::after {
+        content: "";
+        position: absolute;
+        width: 430px;
+        height: 430px;
+        border: 1px solid rgba(90, 73, 58, 0.08);
+        border-radius: 50%;
+        bottom: -270px;
+        left: -180px;
+    }
+
+
+    /* =========================================
+       MAIN CONTAINER
+       ========================================= */
+
+    .auth-container {
+        width: 100%;
+        max-width: 1100px;
+        min-height: 650px;
+
+        display: grid;
+        grid-template-columns: 42% 58%;
+
+        background: #faf7f0;
+        border-radius: 28px;
+        overflow: hidden;
+
+        box-shadow:
+            0 25px 70px rgba(57, 45, 35, 0.14);
+
+        position: relative;
+        z-index: 2;
+    }
+
+
+    /* =========================================
+       BRAND PANEL
+       ========================================= */
+
+    .auth-brand {
+        background: #40382f;
+        color: #fffaf2;
+
+        padding: 55px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-brand::before {
+        content: "";
+        position: absolute;
+
+        width: 520px;
+        height: 520px;
+
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 50%;
+
+        top: -260px;
+        right: -250px;
+    }
+
+    .auth-brand::after {
+        content: "";
+        position: absolute;
+
+        width: 430px;
+        height: 430px;
+
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+
+        bottom: -280px;
+        left: -230px;
+    }
+
+    .brand-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .brand-logo {
+        width: 58px;
+        height: 58px;
+
+        border-radius: 14px;
+
+        background: #bd8753;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 32px;
+
+        margin-bottom: 28px;
+    }
+
+    .brand-title {
+        font-family: Georgia, "Times New Roman", serif;
+
+        font-size: 46px;
+        line-height: 1.05;
+
+        font-weight: 500;
+
+        letter-spacing: -1.5px;
+
+        margin-bottom: 20px;
+    }
+
+    .brand-description {
+        color: rgba(255, 250, 242, 0.72);
+
+        font-size: 15px;
+        line-height: 1.7;
+
+        max-width: 330px;
+    }
+
+    .brand-features {
+        margin-top: 38px;
+    }
+
+    .brand-feature {
+        display: flex;
+        align-items: center;
+
+        gap: 12px;
+
+        margin-bottom: 18px;
+
+        color: rgba(255, 250, 242, 0.78);
+
+        font-size: 14px;
+    }
+
+    .feature-icon {
+        width: 30px;
+        height: 30px;
+
+        border-radius: 50%;
+
+        background: rgba(189, 135, 83, 0.18);
+
+        color: #d6a06d;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 13px;
+    }
+
+    .brand-footer {
+        position: relative;
+        z-index: 2;
+
+        color: rgba(255, 250, 242, 0.45);
+
+        font-size: 12px;
+    }
+
+
+    /* =========================================
+       FORM PANEL
+       ========================================= */
+
+    .auth-form-panel {
+        padding: 48px 60px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #faf7f0;
+    }
+
+    .auth-form-content {
+        width: 100%;
+        max-width: 520px;
+    }
+
+    .auth-heading {
+        font-family: Georgia, "Times New Roman", serif;
+
+        font-size: 40px;
+        font-weight: 500;
+
+        color: #292521;
+
+        letter-spacing: -1px;
+
+        margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+        color: #81776b;
+
+        font-size: 14px;
+
+        margin-bottom: 30px;
+    }
+
+
+    /* =========================================
+       ALERTS
+       ========================================= */
+
+    .auth-alert {
+        border: none;
+        border-radius: 11px;
+
+        background: #e2eee6;
+        color: #355443;
+
+        padding: 13px 16px;
+
+        font-size: 13px;
+
+        margin-bottom: 16px;
+    }
+
+    .auth-alert.alert-danger {
+        background: #f2dfda;
+        color: #7a4034;
+    }
+
+
+    /* =========================================
+       FORM GRID
+       ========================================= */
+
+    .form-row {
+        display: grid;
+
+        grid-template-columns: 1fr 1fr;
+
+        gap: 16px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .auth-label {
+        display: block;
+
+        color: #443c34;
+
+        font-size: 13px;
+
+        font-weight: 600;
+
+        margin-bottom: 8px;
+    }
+
+
+    /* =========================================
+       INPUTS
+       ========================================= */
+
+    .auth-form-content input:not([type="checkbox"]) {
+        width: 100%;
+
+        height: 50px;
+
+        border: 1px solid #ddd3c5;
+
+        border-radius: 10px;
+
+        background: #fffdf9;
+
+        color: #292521;
+
+        padding: 0 15px;
+
+        font-size: 14px;
+
+        outline: none;
+
+        transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease,
+            background 0.2s ease;
+
+        box-sizing: border-box;
+    }
+
+    .auth-form-content input:not([type="checkbox"]):focus {
+        border-color: #bd8753;
+
+        box-shadow:
+            0 0 0 3px rgba(189, 135, 83, 0.13);
+
+        background: #ffffff;
+    }
+
+    .auth-form-content input:not([type="checkbox"]):hover {
+        border-color: #cbbbaa;
+    }
+
+    .auth-form-content input::placeholder {
+        color: #aaa196;
+    }
+
+
+    /* =========================================
+       PASSWORD WRAPPER
+       ========================================= */
+
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-wrapper input {
+        padding-right: 50px !important;
+    }
+
+    .password-toggle {
+        position: absolute;
+
+        right: 12px;
+        top: 50%;
+
+        transform: translateY(-50%);
+
+        width: 34px;
+        height: 34px;
+
+        border: none;
+
+        background: transparent;
+
+        color: #8b8176;
+
+        cursor: pointer;
+
+        border-radius: 7px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .password-toggle:hover {
+        background: #eee7dc;
+        color: #5b5045;
+    }
+
+
+    /* =========================================
+       PASSWORD STRENGTH
+       ========================================= */
+
+    .password-strength {
+        margin-top: 9px;
+    }
+
+    .strength-bars {
+        display: grid;
+
+        grid-template-columns: repeat(4, 1fr);
+
+        gap: 5px;
+
+        margin-bottom: 6px;
+    }
+
+    .strength-bar {
+        height: 4px;
+
+        border-radius: 10px;
+
+        background: #ded5c9;
+
+        transition: background 0.2s ease;
+    }
+
+    .strength-text {
+        font-size: 11px;
+
+        color: #8b8176;
+    }
+
+
+    /* =========================================
+       HELP TEXT
+       ========================================= */
+
+    .password-help {
+        color: #8b8176;
+
+        font-size: 11px;
+
+        line-height: 1.5;
+
+        margin-top: 7px;
+    }
+
+    .password-help ul {
+        margin: 5px 0 0;
+        padding-left: 17px;
+    }
+
+
+    /* =========================================
+       FIELD ERRORS
+       ========================================= */
+
+    .field-error {
+        color: #a64c3c;
+
+        font-size: 11px;
+
+        margin-top: 6px;
+
+        line-height: 1.5;
+    }
+
+    .auth-form-content .errorlist {
+        margin: 6px 0 0;
+        padding: 0;
+
+        list-style: none;
+
+        color: #a64c3c;
+
+        font-size: 11px;
+    }
+
+
+    /* =========================================
+       CREATE ACCOUNT BUTTON
+       ========================================= */
+
+    .auth-button {
+        width: 100%;
+
+        height: 53px;
+
+        border: none;
+
+        border-radius: 11px;
+
+        background: #bd8753;
+
+        color: #fffaf4;
+
+        font-size: 14px;
+
+        font-weight: 600;
+
+        cursor: pointer;
+
+        transition:
+            transform 0.2s ease,
+            background 0.2s ease,
+            box-shadow 0.2s ease;
+
+        box-shadow:
+            0 8px 20px rgba(189, 135, 83, 0.22);
+    }
+
+    .auth-button:hover {
+        background: #a87545;
+
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 10px 25px rgba(189, 135, 83, 0.28);
+    }
+
+    .auth-button:active {
+        transform: translateY(0);
+    }
+
+
+    /* =========================================
+       LOGIN LINK
+       ========================================= */
+
+    .login-text {
+        text-align: center;
+
+        color: #81776b;
+
+        font-size: 13px;
+
+        margin-top: 22px;
+    }
+
+    .login-text a {
+        color: #a87545;
+
+        font-weight: 600;
+
+        text-decoration: none;
+    }
+
+    .login-text a:hover {
+        text-decoration: underline;
+    }
+
+
+    /* =========================================
+       SECURITY NOTE
+       ========================================= */
+
+    .security-note {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 7px;
+
+        color: #93897e;
+
+        font-size: 11px;
+
+        margin-top: 16px;
+    }
+
+    .security-note span {
+        color: #bd8753;
+    }
+
+
+    /* =========================================
+       RESPONSIVE
+       ========================================= */
+
+    @media (max-width: 900px) {
+
+        .auth-container {
+            grid-template-columns: 1fr;
+
+            max-width: 550px;
+        }
+
+        .auth-brand {
+            min-height: 280px;
+
+            padding: 38px;
+        }
+
+        .brand-title {
+            font-size: 38px;
+        }
+
+        .brand-features {
+            display: none;
+        }
+
+        .brand-footer {
+            display: none;
+        }
+
+        .auth-form-panel {
+            padding: 42px 38px;
+        }
+    }
+
+
+    @media (max-width: 560px) {
+
+        .auth-page {
+            padding: 15px;
+        }
+
+        .auth-container {
+            border-radius: 20px;
+        }
+
+        .auth-brand {
+            padding: 30px;
+        }
+
+        .auth-form-panel {
+            padding: 35px 25px;
+        }
+
+        .auth-heading {
+            font-size: 34px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+    }
+</style>
+
+
+<div class="auth-page">
+
+    <div class="auth-container">
+
+        <!-- =====================================
+             BRAND SIDE
+             ===================================== -->
+
+        <section class="auth-brand">
+
+            <div class="brand-content">
+
+                <div class="brand-logo">
+                    E
+                </div>
+
+                <h1 class="brand-title">
+                    Expense<br>
+                    Tracker
+                </h1>
+
+                <p class="brand-description">
+                    Start tracking your money smarter.
+                    Understand your spending, manage your
+                    budgets, and build better financial habits.
+                </p>
+
+
+                <div class="brand-features">
+
+                    <div class="brand-feature">
+
+                        <div class="feature-icon">
+                            ✓
+                        </div>
+
+                        <span>
+                            Track every transaction
+                        </span>
+
                     </div>
-                {% endfor %}
-            {% endif %}
 
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger" role="alert">
-                    {% for error in form.non_field_errors %}
-                        <div>{{ error }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
 
-            <form method="post">
-                {% csrf_token %}
+                    <div class="brand-feature">
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label
-                            for="{{ form.first_name.id_for_label }}"
-                            class="form-label"
-                        >
-                            First Name
-                        </label>
+                        <div class="feature-icon">
+                            ₹
+                        </div>
 
-                        {{ form.first_name }}
+                        <span>
+                            Manage your monthly budgets
+                        </span>
 
-                        {% if form.first_name.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.first_name.errors %}
-                                    <div>{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label
-                            for="{{ form.last_name.id_for_label }}"
-                            class="form-label"
-                        >
-                            Last Name
-                        </label>
 
-                        {{ form.last_name }}
+                    <div class="brand-feature">
 
-                        {% if form.last_name.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.last_name.errors %}
-                                    <div>{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                        <div class="feature-icon">
+                            ↗
+                        </div>
+
+                        <span>
+                            Understand your spending patterns
+                        </span>
+
                     </div>
+
                 </div>
 
-                <div class="mb-3">
-                    <label
-                        for="{{ form.username.id_for_label }}"
-                        class="form-label"
-                    >
-                        Username
-                    </label>
+            </div>
 
-                    {{ form.username }}
 
-                    {% if form.username.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.username.errors %}
-                                <div>{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+            <div class="brand-footer">
+                Personal finance, made simpler.
+            </div>
 
-                <div class="mb-3">
-                    <label
-                        for="{{ form.email.id_for_label }}"
-                        class="form-label"
-                    >
-                        Email
-                    </label>
+        </section>
 
-                    {{ form.email }}
 
-                    {% if form.email.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.email.errors %}
-                                <div>{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+        <!-- =====================================
+             REGISTER FORM
+             ===================================== -->
 
-                <div class="mb-3">
-                    <label
-                        for="{{ form.password1.id_for_label }}"
-                        class="form-label"
-                    >
-                        Password
-                    </label>
+        <section class="auth-form-panel">
 
-                    {{ form.password1 }}
+            <div class="auth-form-content">
 
-                    {% if form.password1.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.password1.errors %}
-                                <div>{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-
-                    {% if form.password1.help_text %}
-                        <div class="form-text">
-                            {{ form.password1.help_text|safe }}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="mb-4">
-                    <label
-                        for="{{ form.password2.id_for_label }}"
-                        class="form-label"
-                    >
-                        Confirm Password
-                    </label>
-
-                    {{ form.password2 }}
-
-                    {% if form.password2.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.password2.errors %}
-                                <div>{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <button
-                    type="submit"
-                    class="btn btn-primary w-100 py-2 fw-semibold"
-                >
+                <h2 class="auth-heading">
                     Create Account
-                </button>
-            </form>
+                </h2>
 
-            <p class="text-center text-muted mt-4 mb-0">
-                Already have an account?
-                <a href="{% url 'accounts:login' %}">
-                    Log in
-                </a>
-            </p>
-        </div>
+                <p class="auth-subtitle">
+                    Start tracking your expenses smarter
+                </p>
+
+
+                <!-- =================================
+                     DJANGO MESSAGES
+                     ================================= -->
+
+                {% if messages %}
+
+                    {% for message in messages %}
+
+                        <div
+                            class="alert auth-alert
+                            {% if message.tags == 'error' %}
+                                alert-danger
+                            {% endif %}"
+                            role="alert"
+                        >
+
+                            {{ message }}
+
+                            <button
+                                type="button"
+                                class="btn-close float-end"
+                                data-bs-dismiss="alert"
+                                aria-label="Close"
+                            ></button>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+
+                <!-- =================================
+                     NON FIELD ERRORS
+                     ================================= -->
+
+                {% if form.non_field_errors %}
+
+                    <div class="auth-alert alert-danger">
+
+                        {% for error in form.non_field_errors %}
+
+                            <div>
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+
+                <form method="post" novalidate>
+
+                    {% csrf_token %}
+
+
+                    <!-- =================================
+                         FIRST + LAST NAME
+                         ================================= -->
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label
+                                for="{{ form.first_name.id_for_label }}"
+                                class="auth-label"
+                            >
+                                First Name
+                            </label>
+
+                            {{ form.first_name }}
+
+                            {% if form.first_name.errors %}
+
+                                <div class="field-error">
+
+                                    {% for error in form.first_name.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label
+                                for="{{ form.last_name.id_for_label }}"
+                                class="auth-label"
+                            >
+                                Last Name
+                            </label>
+
+                            {{ form.last_name }}
+
+                            {% if form.last_name.errors %}
+
+                                <div class="field-error">
+
+                                    {% for error in form.last_name.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================
+                         USERNAME
+                         ================================= -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="{{ form.username.id_for_label }}"
+                            class="auth-label"
+                        >
+                            Username
+                        </label>
+
+                        {{ form.username }}
+
+                        {% if form.username.errors %}
+
+                            <div class="field-error">
+
+                                {% for error in form.username.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- =================================
+                         EMAIL
+                         ================================= -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="{{ form.email.id_for_label }}"
+                            class="auth-label"
+                        >
+                            Email
+                        </label>
+
+                        {{ form.email }}
+
+                        {% if form.email.errors %}
+
+                            <div class="field-error">
+
+                                {% for error in form.email.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- =================================
+                         PASSWORD
+                         ================================= -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="{{ form.password1.id_for_label }}"
+                            class="auth-label"
+                        >
+                            Password
+                        </label>
+
+
+                        <div class="password-wrapper">
+
+                            {{ form.password1 }}
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                data-target="{{ form.password1.id_for_label }}"
+                                aria-label="Show password"
+                            >
+                                👁
+                            </button>
+
+                        </div>
+
+
+                        <!-- PASSWORD STRENGTH -->
+
+                        <div class="password-strength">
+
+                            <div class="strength-bars">
+
+                                <div class="strength-bar"></div>
+                                <div class="strength-bar"></div>
+                                <div class="strength-bar"></div>
+                                <div class="strength-bar"></div>
+
+                            </div>
+
+                            <div class="strength-text">
+                                Password strength: <strong>None</strong>
+                            </div>
+
+                        </div>
+
+
+                        {% if form.password1.errors %}
+
+                            <div class="field-error">
+
+                                {% for error in form.password1.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if form.password1.help_text %}
+
+                            <div class="password-help">
+                                {{ form.password1.help_text|safe }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- =================================
+                         CONFIRM PASSWORD
+                         ================================= -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="{{ form.password2.id_for_label }}"
+                            class="auth-label"
+                        >
+                            Confirm Password
+                        </label>
+
+
+                        <div class="password-wrapper">
+
+                            {{ form.password2 }}
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                data-target="{{ form.password2.id_for_label }}"
+                                aria-label="Show password"
+                            >
+                                👁
+                            </button>
+
+                        </div>
+
+
+                        {% if form.password2.errors %}
+
+                            <div class="field-error">
+
+                                {% for error in form.password2.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- =================================
+                         CREATE ACCOUNT
+                         ================================= -->
+
+                    <button
+                        type="submit"
+                        class="auth-button"
+                    >
+                        Create Account
+                    </button>
+
+                </form>
+
+
+                <!-- =================================
+                     LOGIN
+                     ================================= -->
+
+                <p class="login-text">
+
+                    Already have an account?
+
+                    <a href="{% url 'accounts:login' %}">
+                        Log in
+                    </a>
+
+                </p>
+
+
+                <div class="security-note">
+
+                    <span>🔒</span>
+
+                    Your account information is securely stored.
+
+                </div>
+
+            </div>
+
+        </section>
+
     </div>
+
 </div>
+
+
+<script>
+    /* =========================================
+       PASSWORD VISIBILITY
+       ========================================= */
+
+    document.querySelectorAll(".password-toggle").forEach(function(button) {
+
+        button.addEventListener("click", function() {
+
+            const targetId = this.dataset.target;
+            const input = document.getElementById(targetId);
+
+            if (!input) return;
+
+            if (input.type === "password") {
+
+                input.type = "text";
+
+                this.textContent = "🙈";
+                this.setAttribute("aria-label", "Hide password");
+
+            } else {
+
+                input.type = "password";
+
+                this.textContent = "👁";
+                this.setAttribute("aria-label", "Show password");
+
+            }
+
+        });
+
+    });
+
+
+    /* =========================================
+       PASSWORD STRENGTH
+       ========================================= */
+
+    const passwordInput =
+        document.getElementById("{{ form.password1.id_for_label }}");
+
+    const strengthBars =
+        document.querySelectorAll(".strength-bar");
+
+    const strengthText =
+        document.querySelector(".strength-text strong");
+
+
+    if (passwordInput) {
+
+        passwordInput.addEventListener("input", function() {
+
+            const password = this.value;
+
+            let score = 0;
+
+
+            if (password.length >= 8) {
+                score++;
+            }
+
+            if (/[a-z]/.test(password)) {
+                score++;
+            }
+
+            if (/[A-Z]/.test(password)) {
+                score++;
+            }
+
+            if (/[0-9]/.test(password)) {
+                score++;
+            }
+
+            if (/[^A-Za-z0-9]/.test(password)) {
+                score++;
+            }
+
+
+            const visibleScore = Math.min(score, 4);
+
+
+            strengthBars.forEach(function(bar, index) {
+
+                if (index < visibleScore) {
+
+                    bar.style.background = "#bd8753";
+
+                } else {
+
+                    bar.style.background = "#ded5c9";
+
+                }
+
+            });
+
+
+            let label = "None";
+
+            if (score === 1) {
+                label = "Very weak";
+            }
+
+            if (score === 2) {
+                label = "Weak";
+            }
+
+            if (score === 3) {
+                label = "Good";
+            }
+
+            if (score === 4) {
+                label = "Strong";
+            }
+
+            if (score >= 5) {
+                label = "Very strong";
+            }
+
+
+            strengthText.textContent = label;
+
+        });
+
+    }
+</script>
+
 {% endblock %}

@@ -5,123 +5,571 @@
 {% endblock %}
 
 {% block content %}
-<div class="auth-wrapper d-flex align-items-center justify-content-center min-vh-100">
-    <div
-        class="card auth-card shadow-lg border-0"
-        style="max-width: 420px; width: 100%;"
-    >
-        <div class="card-body p-4 p-md-5">
-            <h2 class="fw-bold mb-1 text-center">
-                Welcome Back
-            </h2>
 
-            <p class="text-muted text-center mb-4">
-                Log in to your account
-            </p>
+<style>
+    /* ================================
+       AUTH PAGE — EXPENSE TRACKER THEME
+       ================================ */
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div
-                        class="alert alert-{{ message.tags }} alert-dismissible fade show"
-                        role="alert"
-                    >
-                        {{ message }}
+    .auth-page {
+        min-height: 100vh;
+        background: #f3ede2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        position: relative;
+        overflow: hidden;
+    }
 
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert"
-                            aria-label="Close"
-                        ></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+    /* Decorative background circles */
+    .auth-page::before {
+        content: "";
+        position: absolute;
+        width: 520px;
+        height: 520px;
+        border: 1px solid rgba(90, 73, 58, 0.12);
+        border-radius: 50%;
+        top: -260px;
+        right: -120px;
+    }
 
-            <form method="post">
-                {% csrf_token %}
+    .auth-page::after {
+        content: "";
+        position: absolute;
+        width: 420px;
+        height: 420px;
+        border: 1px solid rgba(90, 73, 58, 0.08);
+        border-radius: 50%;
+        bottom: -250px;
+        left: -120px;
+    }
 
-                {% if next %}
-                    <input
-                        type="hidden"
-                        name="next"
-                        value="{{ next }}"
-                    >
-                {% endif %}
+    .auth-container {
+        width: 100%;
+        max-width: 1050px;
+        min-height: 620px;
+        display: grid;
+        grid-template-columns: 45% 55%;
+        background: #faf7f0;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 25px 70px rgba(57, 45, 35, 0.14);
+        position: relative;
+        z-index: 2;
+    }
 
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {% for error in form.non_field_errors %}
-                            <div>{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+    /* ================================
+       LEFT BRAND PANEL
+       ================================ */
 
-                <div class="mb-3">
-                    <label
-                        for="{{ form.username.id_for_label }}"
-                        class="form-label"
-                    >
-                        Username or Email
-                    </label>
+    .auth-brand {
+        background: #40382f;
+        color: #fffaf2;
+        padding: 55px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
 
-                    {{ form.username }}
+    .auth-brand::before {
+        content: "";
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 50%;
+        top: -230px;
+        right: -250px;
+    }
 
-                    {% if form.username.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.username.errors %}
-                                <div>{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+    .auth-brand::after {
+        content: "";
+        position: absolute;
+        width: 420px;
+        height: 420px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        bottom: -280px;
+        left: -220px;
+    }
+
+    .brand-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .brand-logo {
+        width: 58px;
+        height: 58px;
+        border-radius: 14px;
+        background: #bd8753;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 32px;
+        margin-bottom: 28px;
+    }
+
+    .brand-title {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 46px;
+        line-height: 1.05;
+        margin-bottom: 18px;
+        font-weight: 500;
+        letter-spacing: -1.5px;
+    }
+
+    .brand-description {
+        color: rgba(255, 250, 242, 0.72);
+        font-size: 16px;
+        line-height: 1.7;
+        max-width: 330px;
+    }
+
+    .brand-footer {
+        position: relative;
+        z-index: 2;
+        color: rgba(255, 250, 242, 0.55);
+        font-size: 13px;
+    }
+
+    /* ================================
+       RIGHT LOGIN PANEL
+       ================================ */
+
+    .auth-form-panel {
+        padding: 55px 65px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #faf7f0;
+    }
+
+    .auth-form-content {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .auth-heading {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 42px;
+        font-weight: 500;
+        color: #292521;
+        letter-spacing: -1px;
+        margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+        color: #81776b;
+        font-size: 15px;
+        margin-bottom: 34px;
+    }
+
+    /* ================================
+       ALERTS
+       ================================ */
+
+    .auth-alert {
+        border: none;
+        border-radius: 12px;
+        background: #e2eee6;
+        color: #355443;
+        padding: 13px 16px;
+        font-size: 14px;
+        margin-bottom: 14px;
+    }
+
+    .auth-alert.alert-danger {
+        background: #f2dfda;
+        color: #7a4034;
+    }
+
+    /* ================================
+       FORM
+       ================================ */
+
+    .auth-label {
+        display: block;
+        color: #443c34;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 9px;
+    }
+
+    .auth-input {
+        width: 100%;
+        height: 52px;
+        border: 1px solid #ddd3c5;
+        border-radius: 10px;
+        background: #fffdf9;
+        color: #292521;
+        padding: 0 16px;
+        font-size: 15px;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .auth-input:focus {
+        border-color: #bd8753;
+        box-shadow: 0 0 0 3px rgba(189, 135, 83, 0.14);
+        background: #ffffff;
+    }
+
+    .auth-input::placeholder {
+        color: #aaa196;
+    }
+
+    .remember-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 18px 0 25px;
+    }
+
+    .remember-check {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #70675d;
+        font-size: 14px;
+    }
+
+    .remember-check input {
+        width: 17px;
+        height: 17px;
+        accent-color: #bd8753;
+        cursor: pointer;
+    }
+
+    /* ================================
+       LOGIN BUTTON
+       ================================ */
+
+    .auth-button {
+        width: 100%;
+        height: 54px;
+        border: none;
+        border-radius: 11px;
+        background: #bd8753;
+        color: #fffaf4;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 8px 20px rgba(189, 135, 83, 0.22);
+    }
+
+    .auth-button:hover {
+        background: #a87545;
+        transform: translateY(-1px);
+        box-shadow: 0 10px 25px rgba(189, 135, 83, 0.28);
+    }
+
+    /* ================================
+       SIGN UP
+       ================================ */
+
+    .signup-text {
+        text-align: center;
+        color: #81776b;
+        font-size: 14px;
+        margin-top: 25px;
+    }
+
+    .signup-text a {
+        color: #a87545;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .signup-text a:hover {
+        text-decoration: underline;
+    }
+
+    /* ================================
+       ERROR TEXT
+       ================================ */
+
+    .field-error {
+        color: #a64c3c;
+        font-size: 12px;
+        margin-top: 6px;
+    }
+
+    /* ================================
+       RESPONSIVE
+       ================================ */
+
+    @media (max-width: 850px) {
+
+        .auth-container {
+            grid-template-columns: 1fr;
+            max-width: 500px;
+        }
+
+        .auth-brand {
+            min-height: 260px;
+            padding: 35px;
+        }
+
+        .brand-title {
+            font-size: 36px;
+        }
+
+        .brand-footer {
+            display: none;
+        }
+
+        .auth-form-panel {
+            padding: 40px 35px;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        .auth-page {
+            padding: 15px;
+        }
+
+        .auth-container {
+            border-radius: 20px;
+        }
+
+        .auth-brand {
+            padding: 30px;
+        }
+
+        .auth-form-panel {
+            padding: 35px 25px;
+        }
+
+        .auth-heading {
+            font-size: 34px;
+        }
+    }
+</style>
+
+
+<div class="auth-page">
+
+    <div class="auth-container">
+
+        <!-- LEFT BRAND -->
+        <section class="auth-brand">
+
+            <div class="brand-content">
+
+                <div class="brand-logo">
+                    E
                 </div>
 
-                <div class="mb-3">
-                    <label
-                        for="{{ form.password.id_for_label }}"
-                        class="form-label"
-                    >
-                        Password
-                    </label>
+                <h1 class="brand-title">
+                    Expense<br>
+                    Tracker
+                </h1>
 
-                    {{ form.password }}
+                <p class="brand-description">
+                    See your money clearly.
+                    Track expenses, manage budgets,
+                    and understand your financial habits.
+                </p>
 
-                    {% if form.password.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.password.errors %}
+            </div>
+
+            <div class="brand-footer">
+                Personal finance, made simpler.
+            </div>
+
+        </section>
+
+
+        <!-- LOGIN FORM -->
+        <section class="auth-form-panel">
+
+            <div class="auth-form-content">
+
+                <h2 class="auth-heading">
+                    Welcome Back
+                </h2>
+
+                <p class="auth-subtitle">
+                    Log in to your account
+                </p>
+
+
+                <!-- MESSAGES -->
+                {% if messages %}
+
+                    {% for message in messages %}
+
+                        <div
+                            class="alert auth-alert
+                            {% if message.tags == 'error' %}
+                                alert-danger
+                            {% endif %}"
+                            role="alert"
+                        >
+
+                            {{ message }}
+
+                            <button
+                                type="button"
+                                class="btn-close float-end"
+                                data-bs-dismiss="alert"
+                                aria-label="Close"
+                            ></button>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    {% if next %}
+                        <input
+                            type="hidden"
+                            name="next"
+                            value="{{ next }}"
+                        >
+                    {% endif %}
+
+
+                    <!-- FORM ERRORS -->
+                    {% if form.non_field_errors %}
+
+                        <div class="auth-alert alert-danger">
+
+                            {% for error in form.non_field_errors %}
                                 <div>{{ error }}</div>
                             {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="form-check">
-                        {{ form.remember_me }}
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- USERNAME -->
+                    <div class="mb-3">
 
                         <label
-                            class="form-check-label"
-                            for="{{ form.remember_me.id_for_label }}"
+                            for="{{ form.username.id_for_label }}"
+                            class="auth-label"
                         >
-                            Remember me
+                            Username or Email
                         </label>
+
+                        <input
+                            type="text"
+                            name="{{ form.username.name }}"
+                            id="{{ form.username.id_for_label }}"
+                            class="auth-input"
+                            value="{{ form.username.value|default:'' }}"
+                            autocomplete="username"
+                            placeholder="Enter your username or email"
+                        >
+
+                        {% if form.username.errors %}
+
+                            <div class="field-error">
+
+                                {% for error in form.username.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
                     </div>
-                </div>
 
-                <button
-                    type="submit"
-                    class="btn btn-primary w-100 py-2 fw-semibold"
-                >
-                    Log In
-                </button>
-            </form>
 
-            <p class="text-center text-muted mt-4 mb-0">
-                Don't have an account?
-                <a href="{% url 'accounts:register' %}">
-                    Sign up
-                </a>
-            </p>
-        </div>
+                    <!-- PASSWORD -->
+                    <div class="mb-3">
+
+                        <label
+                            for="{{ form.password.id_for_label }}"
+                            class="auth-label"
+                        >
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            name="{{ form.password.name }}"
+                            id="{{ form.password.id_for_label }}"
+                            class="auth-input"
+                            autocomplete="current-password"
+                            placeholder="Enter your password"
+                        >
+
+                        {% if form.password.errors %}
+
+                            <div class="field-error">
+
+                                {% for error in form.password.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- REMEMBER ME -->
+                    <div class="remember-row">
+
+                        <label class="remember-check">
+
+                            {{ form.remember_me }}
+
+                            <span>
+                                Remember me
+                            </span>
+
+                        </label>
+
+                    </div>
+
+
+                    <!-- LOGIN -->
+                    <button
+                        type="submit"
+                        class="auth-button"
+                    >
+                        Log In
+                    </button>
+
+                </form>
+
+
+                <!-- SIGN UP -->
+                <p class="signup-text">
+
+                    Don't have an account?
+
+                    <a href="{% url 'accounts:register' %}">
+                        Sign up
+                    </a>
+
+                </p>
+
+            </div>
+
+        </section>
+
     </div>
+
 </div>
+
 {% endblock %}
