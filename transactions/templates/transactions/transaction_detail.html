@@ -1,0 +1,230 @@
+{% extends "dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Transaction Details | Expense Tracker
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'transactions/css/transactions.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<section class="page-wrapper transaction-detail-page">
+
+    <header class="module-header transaction-detail-header">
+        <div>
+            <span class="section-kicker">
+                Financial activity
+            </span>
+
+            <h1>Transaction details</h1>
+
+            <p>
+                Review the complete details of this transaction.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'transactions:transaction_list' %}"
+            class="button button-secondary"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to transactions
+        </a>
+    </header>
+
+    <section class="transaction-detail-card">
+
+        <div class="transaction-detail-hero">
+
+            <div class="transaction-detail-hero-icon">
+                {% if transaction.transaction_type == "Income" %}
+                    <i class="fa-solid fa-arrow-trend-up"></i>
+                {% else %}
+                    <i class="fa-solid fa-arrow-trend-down"></i>
+                {% endif %}
+            </div>
+
+            <div class="transaction-detail-main">
+                <span
+                    class="type-badge {% if transaction.transaction_type == 'Income' %}type-income{% else %}type-expense{% endif %}"
+                >
+                    {{ transaction.transaction_type }}
+                </span>
+
+                <h2>
+                    {% if transaction.description %}
+                        {{ transaction.description }}
+                    {% elif transaction.category %}
+                        {{ transaction.category.name }}
+                    {% else %}
+                        Transaction
+                    {% endif %}
+                </h2>
+
+                <p>
+                    Transaction ID #{{ transaction.id }}
+                </p>
+            </div>
+
+            <div class="transaction-detail-amount-box">
+                <span>Amount</span>
+
+                <strong
+                    class="{% if transaction.transaction_type == 'Income' %}amount-income{% else %}amount-expense{% endif %}"
+                >
+                    {% if transaction.transaction_type == "Income" %}
+                        +₹{{ transaction.amount }}
+                    {% else %}
+                        -₹{{ transaction.amount }}
+                    {% endif %}
+                </strong>
+            </div>
+
+        </div>
+
+        <div class="transaction-detail-grid">
+
+            <div class="transaction-detail-item">
+                <span>
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Date
+                </span>
+
+                <strong>
+                    {{ transaction.transaction_date|date:"d M Y" }}
+                </strong>
+            </div>
+
+            <div class="transaction-detail-item">
+                <span>
+                    <i class="fa-regular fa-clock"></i>
+                    Time
+                </span>
+
+                <strong>
+                    {% if transaction.transaction_time %}
+                        {{ transaction.transaction_time|time:"H:i" }}
+                    {% else %}
+                        Not recorded
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="transaction-detail-item">
+                <span>
+                    <i class="fa-solid fa-folder"></i>
+                    Category
+                </span>
+
+                <strong>
+                    {% if transaction.category %}
+                        {{ transaction.category.name }}
+                    {% else %}
+                        Uncategorized
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="transaction-detail-item">
+                <span>
+                    <i class="fa-solid fa-credit-card"></i>
+                    Payment method
+                </span>
+
+                <strong>
+                    {{ transaction.payment_method }}
+                </strong>
+            </div>
+
+            <div class="transaction-detail-item">
+                <span>
+                    <i class="fa-solid fa-circle-info"></i>
+                    Transaction type
+                </span>
+
+                <strong>
+                    {{ transaction.transaction_type }}
+                </strong>
+            </div>
+
+            <div class="transaction-detail-item">
+                <span>
+                    <i class="fa-regular fa-calendar-plus"></i>
+                    Added on
+                </span>
+
+                <strong>
+                    {{ transaction.created_at|date:"d M Y, H:i" }}
+                </strong>
+            </div>
+
+        </div>
+
+        {% if transaction.description %}
+            <div class="transaction-detail-description">
+                <span class="section-kicker">
+                    Description
+                </span>
+
+                <p>
+                    {{ transaction.description }}
+                </p>
+            </div>
+        {% endif %}
+
+        {% if transaction.receipt %}
+            <div class="transaction-detail-receipt">
+                <div>
+                    <span class="section-kicker">
+                        Attached receipt
+                    </span>
+
+                    <p>
+                        A receipt file is available for this transaction.
+                    </p>
+                </div>
+
+                <a
+                    href="{{ transaction.receipt.url }}"
+                    target="_blank"
+                    rel="noopener"
+                    class="button button-secondary"
+                >
+                    <i class="fa-solid fa-paperclip"></i>
+                    Open receipt
+                </a>
+            </div>
+        {% endif %}
+
+        <div class="transaction-detail-footer">
+
+            <a
+                href="{% url 'transactions:transaction_edit' transaction.pk %}"
+                class="button button-primary"
+            >
+                <i class="fa-solid fa-pen"></i>
+                Edit transaction
+            </a>
+
+            <a
+                href="{% url 'transactions:transaction_delete' transaction.pk %}"
+                class="button detail-delete-button"
+            >
+                <i class="fa-solid fa-trash-can"></i>
+                Delete transaction
+            </a>
+
+        </div>
+
+    </section>
+
+</section>
+
+{% endblock %}

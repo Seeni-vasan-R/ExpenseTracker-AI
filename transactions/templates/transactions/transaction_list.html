@@ -305,7 +305,6 @@
             </div>
 
             <div class="filter-actions">
-
                 <button
                     type="submit"
                     class="button button-small button-secondary"
@@ -322,7 +321,6 @@
                         Reset filters
                     </a>
                 {% endif %}
-
             </div>
         </form>
 
@@ -349,7 +347,6 @@
 
                                 <td data-label="Date and time">
                                     <div class="transaction-date-time">
-
                                         <span class="date-value">
                                             {{ transaction.transaction_date|date:"d M Y" }}
                                         </span>
@@ -365,13 +362,11 @@
                                                 Time not recorded
                                             </small>
                                         {% endif %}
-
                                     </div>
                                 </td>
 
                                 <td data-label="Description">
                                     <div class="table-description">
-
                                         <span class="table-transaction-icon">
                                             <i class="fa-solid fa-receipt"></i>
                                         </span>
@@ -394,7 +389,6 @@
                                                 </small>
                                             {% endif %}
                                         </div>
-
                                     </div>
                                 </td>
 
@@ -459,14 +453,21 @@
                                             <i class="fa-solid fa-pen"></i>
                                         </a>
 
-                                        <a
-                                            href="{% url 'transactions:transaction_delete' transaction.pk %}"
-                                            class="table-action table-action-danger"
+                                        <button
+                                            type="button"
+                                            class="table-action table-action-danger delete-transaction-button"
                                             title="Delete transaction"
                                             aria-label="Delete transaction"
+                                            data-delete-url="{% url 'transactions:transaction_delete' transaction.pk %}"
+                                            data-transaction-type="{{ transaction.transaction_type }}"
+                                            data-transaction-amount="{{ transaction.amount }}"
+                                            data-transaction-category="{% if transaction.category %}{{ transaction.category.name }}{% else %}Uncategorized{% endif %}"
+                                            data-transaction-date="{{ transaction.transaction_date|date:'d M Y' }}"
+                                            data-transaction-time="{% if transaction.transaction_time %}{{ transaction.transaction_time|time:'H:i' }}{% else %}Not recorded{% endif %}"
+                                            data-transaction-description="{% if transaction.description %}{{ transaction.description|escape }}{% elif transaction.category %}{{ transaction.category.name|escape }}{% else %}Transaction{% endif %}"
                                         >
                                             <i class="fa-regular fa-trash-can"></i>
-                                        </a>
+                                        </button>
 
                                     </div>
                                 </td>
@@ -483,7 +484,6 @@
                     class="pagination"
                     aria-label="Transaction pages"
                 >
-
                     {% if page_obj.has_previous %}
                         <a
                             href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search|urlencode }}{% endif %}{% if selected_type %}&type={{ selected_type|urlencode }}{% endif %}{% if selected_category %}&category={{ selected_category|urlencode }}{% endif %}{% if selected_payment_method %}&payment_method={{ selected_payment_method|urlencode }}{% endif %}{% if selected_date_from %}&date_from={{ selected_date_from|urlencode }}{% endif %}{% if selected_date_to %}&date_to={{ selected_date_to|urlencode }}{% endif %}{% if selected_min_amount %}&min_amount={{ selected_min_amount|urlencode }}{% endif %}{% if selected_max_amount %}&max_amount={{ selected_max_amount|urlencode }}{% endif %}"
@@ -509,14 +509,12 @@
                             <i class="fa-solid fa-chevron-right"></i>
                         </a>
                     {% endif %}
-
                 </nav>
             {% endif %}
 
         {% else %}
 
             <div class="transaction-empty-state">
-
                 <div class="empty-state-icon">
                     <i class="fa-regular fa-file-lines"></i>
                 </div>
@@ -554,7 +552,6 @@
                     </a>
 
                 {% endif %}
-
             </div>
 
         {% endif %}
@@ -562,6 +559,119 @@
     </section>
 
 </section>
+
+<dialog
+    id="deleteTransactionDialog"
+    class="delete-transaction-dialog"
+    aria-labelledby="deleteDialogTitle"
+>
+    <div class="delete-modal-content">
+
+        <div class="delete-modal-header">
+            <div class="delete-modal-warning-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+
+            <button
+                type="button"
+                class="delete-modal-close"
+                data-close-delete-dialog
+                aria-label="Close delete confirmation"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="delete-modal-heading">
+            <span class="section-kicker">
+                Confirmation required
+            </span>
+
+            <h2 id="deleteDialogTitle">
+                Delete transaction?
+            </h2>
+
+            <p>
+                This transaction will be removed from your active list.
+                You can restore it later if needed.
+            </p>
+        </div>
+
+        <div class="delete-modal-transaction">
+
+            <div class="delete-modal-description">
+                <span class="delete-modal-label">
+                    Transaction
+                </span>
+
+                <strong id="delete-modal-description">
+                    Transaction
+                </strong>
+            </div>
+
+            <div class="delete-modal-details">
+
+                <div class="delete-modal-detail">
+                    <span>Type</span>
+
+                    <strong id="delete-modal-type">
+                        —
+                    </strong>
+                </div>
+
+                <div class="delete-modal-detail">
+                    <span>Amount</span>
+
+                    <strong id="delete-modal-amount">
+                        —
+                    </strong>
+                </div>
+
+                <div class="delete-modal-detail">
+                    <span>Category</span>
+
+                    <strong id="delete-modal-category">
+                        —
+                    </strong>
+                </div>
+
+                <div class="delete-modal-detail">
+                    <span>Date and time</span>
+
+                    <strong id="delete-modal-date-time">
+                        —
+                    </strong>
+                </div>
+
+            </div>
+        </div>
+
+        <form
+            id="deleteTransactionForm"
+            method="post"
+            class="delete-modal-actions"
+        >
+            {% csrf_token %}
+
+            <button
+                type="button"
+                class="button button-secondary"
+                data-close-delete-dialog
+            >
+                Cancel
+            </button>
+
+            <button
+                type="submit"
+                class="button delete-modal-confirm-button"
+            >
+                <i class="fa-solid fa-trash-can"></i>
+                Delete transaction
+            </button>
+        </form>
+
+    </div>
+</dialog>
 
 {% endblock %}
 

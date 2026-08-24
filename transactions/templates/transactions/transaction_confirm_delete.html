@@ -1,0 +1,161 @@
+{% extends "dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Delete Transaction | Expense Tracker
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'transactions/css/transactions.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<section class="page-wrapper transaction-delete-page">
+
+    <header class="module-header">
+        <div>
+            <span class="section-kicker">
+                Transaction management
+            </span>
+
+            <h1>Delete transaction</h1>
+
+            <p>
+                Review the transaction details before deleting it.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'transactions:transaction_list' %}"
+            class="button button-secondary"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to transactions
+        </a>
+    </header>
+
+    <section class="transaction-delete-card">
+
+        <div class="delete-warning-icon">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+
+        <div class="delete-card-heading">
+            <span class="section-kicker">
+                Confirmation required
+            </span>
+
+            <h2>Are you sure?</h2>
+
+            <p>
+                This transaction will be removed from your active
+                transaction list. You can restore it later if your
+                application supports restoring deleted transactions.
+            </p>
+        </div>
+
+        <div class="delete-transaction-details">
+
+            <div class="delete-detail-row">
+                <span>Type</span>
+
+                <strong>
+                    {{ object.transaction_type }}
+                </strong>
+            </div>
+
+            <div class="delete-detail-row">
+                <span>Amount</span>
+
+                <strong
+                    class="{% if object.transaction_type == 'Income' %}amount-income{% else %}amount-expense{% endif %}"
+                >
+                    {% if object.transaction_type == "Income" %}
+                        +₹{{ object.amount }}
+                    {% else %}
+                        -₹{{ object.amount }}
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="delete-detail-row">
+                <span>Category</span>
+
+                <strong>
+                    {% if object.category %}
+                        {{ object.category.name }}
+                    {% else %}
+                        Uncategorized
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="delete-detail-row">
+                <span>Date</span>
+
+                <strong>
+                    {{ object.transaction_date|date:"d M Y" }}
+                </strong>
+            </div>
+
+            <div class="delete-detail-row">
+                <span>Time</span>
+
+                <strong>
+                    {% if object.transaction_time %}
+                        {{ object.transaction_time|time:"H:i" }}
+                    {% else %}
+                        Not recorded
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="delete-detail-row">
+                <span>Payment method</span>
+
+                <strong>
+                    {{ object.payment_method }}
+                </strong>
+            </div>
+
+            {% if object.description %}
+                <div class="delete-detail-row delete-description-row">
+                    <span>Description</span>
+
+                    <strong>
+                        {{ object.description }}
+                    </strong>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <form method="post" class="delete-confirmation-form">
+            {% csrf_token %}
+
+            <a
+                href="{% url 'transactions:transaction_list' %}"
+                class="button button-secondary"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="button delete-confirm-button"
+            >
+                <i class="fa-solid fa-trash-can"></i>
+                Delete transaction
+            </button>
+        </form>
+
+    </section>
+
+</section>
+
+{% endblock %}
