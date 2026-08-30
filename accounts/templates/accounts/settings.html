@@ -1,0 +1,288 @@
+{% extends "dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Settings | Expense Tracker
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'accounts/css/accounts.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<section
+    class="page-wrapper account-page"
+    data-saved-theme="{{ profile.theme }}"
+>
+
+    <header class="module-header">
+        <div>
+            <span class="section-kicker">
+                Personal preferences
+            </span>
+
+            <h1>Settings</h1>
+
+            <p>
+                Manage your appearance, currency, categories, and security.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'accounts:profile' %}"
+            class="button button-secondary"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to account
+        </a>
+    </header>
+
+    {% if messages %}
+        <div class="account-messages">
+            {% for message in messages %}
+                <div
+                    class="account-message account-message-{{ message.tags }}"
+                    role="alert"
+                >
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <section class="settings-card">
+
+        <div class="account-section-heading">
+            <span class="section-kicker">
+                Application settings
+            </span>
+
+            <h2>Your preferences</h2>
+        </div>
+
+        {% if form.non_field_errors %}
+            <div class="account-form-error-summary">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="settings-grid">
+
+                <div class="settings-option">
+                    <div class="settings-option-heading">
+                        <h2>
+                            <i class="fa-solid fa-coins"></i>
+                            Default currency
+                        </h2>
+
+                        <p>
+                            Choose the currency used for your financial
+                            information.
+                        </p>
+                    </div>
+
+                    {{ form.currency }}
+
+                    {% for error in form.currency.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="settings-option">
+                    <div class="settings-option-heading">
+                        <h2>
+                            <i class="fa-solid fa-palette"></i>
+                            Appearance theme
+                        </h2>
+
+                        <p>
+                            Choose the visual theme for your dashboard.
+                        </p>
+                    </div>
+
+                    {{ form.theme }}
+
+                    {% for error in form.theme.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+            <div class="settings-summary">
+                <div class="settings-summary-icon">
+                    <i class="fa-solid fa-shield-heart"></i>
+                </div>
+
+                <div>
+                    <strong>Your preferences are private</strong>
+
+                    <p>
+                        These settings are saved only for your account.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'accounts:profile' %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="button button-primary"
+                >
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Save settings
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+    <section class="settings-card settings-category-card">
+
+        <div class="account-section-heading">
+            <span class="section-kicker">
+                Financial organization
+            </span>
+
+            <h2>Manage categories</h2>
+        </div>
+
+        <div class="settings-security-row">
+
+            <div class="settings-security-icon">
+                <i class="fa-solid fa-folder-tree"></i>
+            </div>
+
+            <div class="settings-security-copy">
+                <h3>Your transaction categories</h3>
+
+                <p>
+                    Add, edit, or remove your own categories. Default categories
+                    provided by the application remain available automatically.
+                </p>
+            </div>
+
+            <a
+                href="{% url 'transactions:category_list' %}"
+                class="button button-secondary"
+            >
+                Manage categories
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+        </div>
+
+    </section>
+
+    <section class="settings-card settings-security-card">
+
+        <div class="account-section-heading">
+            <span class="section-kicker">
+                Account security
+            </span>
+
+            <h2>Protect your account</h2>
+        </div>
+
+        <div class="settings-security-row">
+
+            <div class="settings-security-icon">
+                <i class="fa-solid fa-key"></i>
+            </div>
+
+            <div class="settings-security-copy">
+                <h3>Change your password</h3>
+
+                <p>
+                    Update your password regularly to help keep your account
+                    secure.
+                </p>
+            </div>
+
+            <a
+                href="{% url 'accounts:password_change' %}"
+                class="button button-secondary"
+            >
+                Change password
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+        </div>
+
+    </section>
+
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const themeSelect = document.getElementById(
+            "settings-theme-select"
+        );
+
+        if (!themeSelect) {
+            return;
+        }
+
+        function applyTheme(theme) {
+            if (theme !== "light" && theme !== "dark") {
+                return;
+            }
+
+            document.documentElement.dataset.theme = theme;
+
+            localStorage.setItem(
+                "expenseTrackerTheme",
+                theme
+            );
+
+            const themeToggle = document.getElementById(
+                "themeToggle"
+            );
+
+            const icon = themeToggle?.querySelector("i");
+
+            if (!icon) {
+                return;
+            }
+
+            icon.className =
+                theme === "dark"
+                    ? "fa-regular fa-sun"
+                    : "fa-regular fa-moon";
+        }
+
+        themeSelect.addEventListener("change", () => {
+            applyTheme(themeSelect.value);
+        });
+
+        applyTheme(themeSelect.value);
+    });
+</script>
+{% endblock %}

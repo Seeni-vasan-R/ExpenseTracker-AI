@@ -1,30 +1,28 @@
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import (
+    LoginView,
+    PasswordChangeView,
+)
 from django.db import transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_http_methods
 
+
 from .forms import (
     LoginForm,
     RegisterForm,
     UserProfileForm,
+    UserSettingsForm,
     UserUpdateForm,
 )
 from .models import UserProfile
 
 
-# -----------------------------------------------------------------------------
-# Register
-# -----------------------------------------------------------------------------
-
 @require_http_methods(["GET", "POST"])
 def register_view(request):
-    """
-    Register a new user account and create the user's profile.
-    """
     if request.user.is_authenticated:
         return redirect("dashboard:dashboard")
 
@@ -65,23 +63,12 @@ def register_view(request):
     )
 
 
-# -----------------------------------------------------------------------------
-# Login
-# -----------------------------------------------------------------------------
-
 class CustomLoginView(LoginView):
-    """
-    Login view with username/email support and remember-me handling.
-    """
-
     template_name = "accounts/login.html"
     authentication_form = LoginForm
     redirect_authenticated_user = True
 
     def form_valid(self, form):
-        """
-        Authenticate the user and configure the session lifetime.
-        """
         response = super().form_valid(form)
 
         remember_me = form.cleaned_data.get(
@@ -90,12 +77,10 @@ class CustomLoginView(LoginView):
         )
 
         if remember_me:
-            # Keep the session active for 14 days.
             self.request.session.set_expiry(
                 60 * 60 * 24 * 14,
             )
         else:
-            # Expire the session when the browser closes.
             self.request.session.set_expiry(0)
 
         display_name = (
@@ -111,9 +96,6 @@ class CustomLoginView(LoginView):
         return response
 
     def form_invalid(self, form):
-        """
-        Display a generic login error.
-        """
         messages.error(
             self.request,
             "Invalid username or password.",
@@ -122,29 +104,15 @@ class CustomLoginView(LoginView):
         return super().form_invalid(form)
 
     def get_success_url(self):
-        """
-        Respect the ?next= parameter when present. Otherwise, send the user
-        to the dashboard.
-        """
         return (
             self.get_redirect_url()
             or reverse_lazy("dashboard:dashboard")
         )
 
 
-# -----------------------------------------------------------------------------
-# Logout
-# -----------------------------------------------------------------------------
-
 @login_required
 @require_http_methods(["POST"])
 def logout_view(request):
-    """
-    Log out the current user.
-
-    Logout is restricted to POST to avoid changing authentication state through
-    a simple GET link.
-    """
     logout(request)
 
     messages.success(
@@ -155,16 +123,9 @@ def logout_view(request):
     return redirect("accounts:login")
 
 
-# -----------------------------------------------------------------------------
-# Profile
-# -----------------------------------------------------------------------------
-
 @login_required
 @require_http_methods(["GET"])
 def profile_view(request):
-    """
-    Display the authenticated user's profile.
-    """
     profile, _ = UserProfile.objects.get_or_create(
         user=request.user,
     )
@@ -179,16 +140,9 @@ def profile_view(request):
     )
 
 
-# -----------------------------------------------------------------------------
-# Edit profile
-# -----------------------------------------------------------------------------
-
 @login_required
 @require_http_methods(["GET", "POST"])
 def edit_profile_view(request):
-    """
-    Update the authenticated user's account and profile information.
-    """
     profile, _ = UserProfile.objects.get_or_create(
         user=request.user,
     )
@@ -208,6 +162,7 @@ def edit_profile_view(request):
         if user_form.is_valid() and profile_form.is_valid():
             with transaction.atomic():
                 user_form.save()
+
                 profile_form.save()
 
             messages.success(
@@ -241,8 +196,59 @@ def edit_profile_view(request):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def settings_view(request):
+    profile, _ = UserProfile.objects.get_or_create(
+        user=request.user,
+    )
+
+    if request.method == "POST":
+        form = UserSettingsForm(
+            request.POST,
+            instance=profile,
+        )
+
+        if form.is_valid():
+            saved_profile = form.save()
+
+            request.session["expense_tracker_theme"] = (
+                saved_profile.theme
+            )
+
+            messages.success(
+                request,
+                "Your settings have been saved successfully.",
+            )
+
+            return redirect("accounts:settings")
+
+        messages.error(
+            request,
+            "Please correct the settings below.",
+        )
+    else:
+        form = UserSettingsForm(
+            instance=profile,
+        )
+
     return render(
         request,
         "accounts/settings.html",
+        {
+            "form": form,
+            "profile": profile,
+        },
     )
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    template_name = "accounts/password_change.html"
+    success_url = reverse_lazy("accounts:profile")
+
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "Your password has been changed successfully.",
+        )
+
+        return super().form_valid(form)

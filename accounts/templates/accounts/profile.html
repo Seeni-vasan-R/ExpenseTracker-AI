@@ -1,240 +1,321 @@
-{% extends "base.html" %}
+{% extends "dashboard/base.html" %}
+
+{% load static %}
 
 {% block title %}
-    My Profile | Expense Tracker
+    My Account | Expense Tracker
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'accounts/css/accounts.css' %}"
+    >
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    {% if messages %}
-        {% for message in messages %}
-            <div
-                class="alert alert-{{ message.tags }} alert-dismissible fade show"
-                role="alert"
-            >
-                {{ message }}
 
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                    aria-label="Close"
-                ></button>
-            </div>
-        {% endfor %}
-    {% endif %}
+<section class="page-wrapper account-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <header class="module-header account-page-header">
         <div>
-            <h1 class="h3 mb-1">My Profile</h1>
-            <p class="text-muted mb-0">
-                View and manage your account information.
+            <span class="section-kicker">
+                Personal account
+            </span>
+
+            <h1>My account</h1>
+
+            <p>
+                View your account information and personal preferences.
             </p>
         </div>
 
         <a
             href="{% url 'accounts:edit_profile' %}"
-            class="btn btn-primary"
+            class="button button-primary"
         >
-            Edit Profile
+            <i class="fa-solid fa-pen"></i>
+            Edit profile
         </a>
-    </div>
+    </header>
 
-    <div class="row g-4">
-        <div class="col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body text-center p-4">
-                    {% if profile.profile_picture %}
-                        <img
-                            src="{{ profile.profile_picture.url }}"
-                            alt="Profile picture of {{ user_obj.username }}"
-                            class="rounded-circle img-fluid mb-3"
-                            style="width: 150px; height: 150px; object-fit: cover;"
+    {% if messages %}
+        <div class="account-messages">
+            {% for message in messages %}
+                <div
+                    class="account-message account-message-{{ message.tags }}"
+                    role="alert"
+                >
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="account-layout">
+
+        <aside class="account-profile-card">
+
+            <div class="account-avatar">
+                {% if profile.profile_picture.name != "profile_pictures/default.png" %}
+                <img
+                    src="{{ profile.profile_picture.url }}"
+                    alt="Profile picture of {{ user_obj.username }}"
                         >
                     {% else %}
-                        <div
-                            class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto mb-3"
-                            style="width: 150px; height: 150px; font-size: 3rem;"
-                        >
-                            {{ user_obj.username|first|upper }}
-                        </div>
+                    {{ user_obj.username|first|upper }}
                     {% endif %}
+            </div>
 
-                    <h2 class="h4 mb-1">
-                        {% if user_obj.get_full_name %}
-                            {{ user_obj.get_full_name }}
-                        {% else %}
-                            {{ user_obj.username }}
-                        {% endif %}
-                    </h2>
+            <h2>
+                {% if user_obj.get_full_name %}
+                    {{ user_obj.get_full_name }}
+                {% else %}
+                    {{ user_obj.username }}
+                {% endif %}
+            </h2>
 
-                    <p class="text-muted mb-3">
-                        @{{ user_obj.username }}
-                    </p>
+            <p class="account-username">
+                @{{ user_obj.username }}
+            </p>
 
-                    <span class="badge text-bg-primary">
-                        Expense Tracker User
+            <span class="account-status">
+                <i class="fa-solid fa-circle"></i>
+                Active account
+            </span>
+
+            <div class="account-actions">
+
+                <a
+                    href="{% url 'accounts:edit_profile' %}"
+                    class="button button-primary"
+                >
+                    <i class="fa-solid fa-user-pen"></i>
+                    Edit profile
+                </a>
+
+                <a
+                    href="{% url 'accounts:password_change' %}"
+                    class="button button-secondary"
+                >
+                    <i class="fa-solid fa-lock"></i>
+                    Change password
+                </a>
+
+            </div>
+
+        </aside>
+
+        <div class="account-content">
+
+            <section class="account-section-card">
+
+                <div class="account-section-heading">
+                    <span class="section-kicker">
+                        Account details
                     </span>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white py-3">
-                    <h2 class="h5 mb-0">Account Information</h2>
+                    <h2>Personal information</h2>
                 </div>
 
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">
-                                Username
-                            </small>
-                            <span class="fw-semibold">
-                                {{ user_obj.username }}
-                            </span>
-                        </div>
+                <div class="account-info-grid">
 
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">
-                                Email
-                            </small>
-                            <span class="fw-semibold">
-                                {{ user_obj.email|default:"Not provided" }}
-                            </span>
-                        </div>
+                    <div class="account-info-item">
+                        <span>
+                            <i class="fa-solid fa-user"></i>
+                            Username
+                        </span>
 
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">
-                                First Name
-                            </small>
-                            <span class="fw-semibold">
-                                {{ user_obj.first_name|default:"Not provided" }}
-                            </span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">
-                                Last Name
-                            </small>
-                            <span class="fw-semibold">
-                                {{ user_obj.last_name|default:"Not provided" }}
-                            </span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">
-                                Date Joined
-                            </small>
-                            <span class="fw-semibold">
-                                {{ user_obj.date_joined|date:"d M Y" }}
-                            </span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">
-                                Last Login
-                            </small>
-                            <span class="fw-semibold">
-                                {% if user_obj.last_login %}
-                                    {{ user_obj.last_login|date:"d M Y, h:i A" }}
-                                {% else %}
-                                    Not available
-                                {% endif %}
-                            </span>
-                        </div>
+                        <strong>
+                            {{ user_obj.username }}
+                        </strong>
                     </div>
-                </div>
-            </div>
 
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white py-3">
-                    <h2 class="h5 mb-0">Profile Preferences</h2>
-                </div>
+                    <div class="account-info-item">
+                        <span>
+                            <i class="fa-solid fa-envelope"></i>
+                            Email address
+                        </span>
 
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">
-                                Phone Number
-                            </small>
-                            <span class="fw-semibold">
-                                {{ profile.phone_number|default:"Not provided" }}
-                            </span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">
-                                Country
-                            </small>
-                            <span class="fw-semibold">
-                                {{ profile.country|default:"Not provided" }}
-                            </span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">
-                                Currency
-                            </small>
-                            <span class="fw-semibold">
-                                {{ profile.get_currency_display }}
-                            </span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">
-                                Theme
-                            </small>
-                            <span class="fw-semibold">
-                                {{ profile.get_theme_display }}
-                            </span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">
-                                Profile Created
-                            </small>
-                            <span class="fw-semibold">
-                                {{ profile.created_at|date:"d M Y" }}
-                            </span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">
-                                Last Updated
-                            </small>
-                            <span class="fw-semibold">
-                                {{ profile.updated_at|date:"d M Y, h:i A" }}
-                            </span>
-                        </div>
+                        <strong>
+                            {{ user_obj.email|default:"Not provided" }}
+                        </strong>
                     </div>
-                </div>
-            </div>
 
-            <div class="d-flex flex-wrap gap-2">
+                    <div class="account-info-item">
+                        <span>
+                            <i class="fa-solid fa-id-card"></i>
+                            First name
+                        </span>
+
+                        <strong>
+                            {{ user_obj.first_name|default:"Not provided" }}
+                        </strong>
+                    </div>
+
+                    <div class="account-info-item">
+                        <span>
+                            <i class="fa-solid fa-id-card"></i>
+                            Last name
+                        </span>
+
+                        <strong>
+                            {{ user_obj.last_name|default:"Not provided" }}
+                        </strong>
+                    </div>
+
+                    <div class="account-info-item">
+                        <span>
+                            <i class="fa-solid fa-calendar-plus"></i>
+                            Date joined
+                        </span>
+
+                        <strong>
+                            {{ user_obj.date_joined|date:"d M Y" }}
+                        </strong>
+                    </div>
+
+                    <div class="account-info-item">
+                        <span>
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            Last login
+                        </span>
+
+                        <strong>
+                            {% if user_obj.last_login %}
+                                {{ user_obj.last_login|date:"d M Y, h:i A" }}
+                            {% else %}
+                                Not available
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="account-section-card">
+
+                <div class="account-section-heading">
+                    <span class="section-kicker">
+                        Profile preferences
+                    </span>
+
+                    <h2>Your preferences</h2>
+                </div>
+
+                <div class="account-info-grid">
+
+                    <div class="account-info-item">
+                        <span>
+                            <i class="fa-solid fa-phone"></i>
+                            Phone number
+                        </span>
+
+                        <strong>
+                            {{ profile.phone_number|default:"Not provided" }}
+                        </strong>
+                    </div>
+
+                    <div class="account-info-item">
+                        <span>
+                            <i class="fa-solid fa-location-dot"></i>
+                            Country
+                        </span>
+
+                        <strong>
+                            {{ profile.country|default:"Not provided" }}
+                        </strong>
+                    </div>
+
+                    <div class="account-info-item">
+                        <span>
+                            <i class="fa-solid fa-coins"></i>
+                            Currency
+                        </span>
+
+                        <strong>
+                            {{ profile.get_currency_display }}
+                        </strong>
+                    </div>
+
+                    <div class="account-info-item">
+                        <span>
+                            <i class="fa-solid fa-palette"></i>
+                            Theme
+                        </span>
+
+                        <strong>
+                            {{ profile.get_theme_display }}
+                        </strong>
+                    </div>
+
+                    <div class="account-info-item">
+                        <span>
+                            <i class="fa-solid fa-calendar-check"></i>
+                            Profile created
+                        </span>
+
+                        <strong>
+                            {{ profile.created_at|date:"d M Y" }}
+                        </strong>
+                    </div>
+
+                    <div class="account-info-item">
+                        <span>
+                            <i class="fa-solid fa-rotate"></i>
+                            Last updated
+                        </span>
+
+                        <strong>
+                            {{ profile.updated_at|date:"d M Y, h:i A" }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <div class="account-bottom-actions">
+
                 <a
                     href="{% url 'dashboard:dashboard' %}"
-                    class="btn btn-outline-secondary"
+                    class="button button-secondary"
                 >
-                    Back to Dashboard
+                    <i class="fa-solid fa-table-cells-large"></i>
+                    Back to dashboard
+                </a>
+
+                <a
+                    href="{% url 'accounts:settings' %}"
+                    class="button button-secondary"
+                >
+                    <i class="fa-solid fa-sliders"></i>
+                    Open settings
                 </a>
 
                 <form
                     method="post"
                     action="{% url 'accounts:logout' %}"
-                    class="d-inline"
                 >
                     {% csrf_token %}
+
                     <button
                         type="submit"
-                        class="btn btn-outline-danger"
+                        class="button account-logout-button"
                     >
-                        Log Out
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        Log out
                     </button>
                 </form>
+
             </div>
+
         </div>
+
     </div>
-</div>
+
+</section>
+
 {% endblock %}

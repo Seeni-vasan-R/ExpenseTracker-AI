@@ -4,6 +4,7 @@
     aria-label="Main sidebar"
 >
     <div class="sidebar-brand">
+
         <a
             href="{% url 'dashboard:dashboard' %}"
             class="brand-link"
@@ -26,6 +27,7 @@
         >
             <i class="fa-solid fa-chevron-left"></i>
         </button>
+
     </div>
 
     <nav
@@ -94,7 +96,7 @@
 
         <a
             href="{% url 'accounts:profile' %}"
-            class="nav-link {% if request.resolver_match.namespace == 'accounts' %}active{% endif %}"
+            class="nav-link {% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'edit_profile' or request.resolver_match.url_name == 'password_change' %}active{% endif %}"
             title="Accounts"
         >
             <i
@@ -124,6 +126,7 @@
     </nav>
 
     <div class="sidebar-bottom">
+
         <div class="habit-card">
             <i
                 class="fa-regular fa-lightbulb"
@@ -156,5 +159,6 @@
                 <span>Logout</span>
             </button>
         </form>
+
     </div>
 </aside>

@@ -1,0 +1,127 @@
+{% extends "dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Delete Category | Expense Tracker
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'transactions/css/transactions.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<section class="page-wrapper category-delete-page">
+
+    <header class="module-header">
+        <div>
+            <span class="section-kicker">
+                Financial organization
+            </span>
+
+            <h1>Delete category</h1>
+
+            <p>
+                Review this action before permanently deleting your category.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'transactions:category_list' %}"
+            class="button button-secondary"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to categories
+        </a>
+    </header>
+
+    <section class="category-delete-card">
+
+        <div class="category-delete-icon">
+            <i class="fa-solid fa-trash-can"></i>
+        </div>
+
+        <div class="category-delete-heading">
+            <span class="section-kicker">
+                Confirmation required
+            </span>
+
+            <h2>
+                Delete “{{ object.name }}”?
+            </h2>
+
+            <p>
+                This will permanently remove your personal category. This
+                action cannot be undone.
+            </p>
+        </div>
+
+        <div class="category-delete-details">
+
+            <div class="category-delete-detail">
+                <span>Category name</span>
+
+                <strong>
+                    {{ object.name }}
+                </strong>
+            </div>
+
+            <div class="category-delete-detail">
+                <span>Category type</span>
+
+                <strong>
+                    {{ object.category_type }}
+                </strong>
+            </div>
+
+            <div class="category-delete-detail">
+                <span>Category owner</span>
+
+                <strong>
+                    Personal category
+                </strong>
+            </div>
+
+        </div>
+
+        <div class="category-delete-warning">
+            <i class="fa-solid fa-circle-exclamation"></i>
+
+            <p>
+                Categories that are already used by transactions cannot be
+                deleted. You must keep the category or update those transactions
+                first.
+            </p>
+        </div>
+
+        <form
+            method="post"
+            class="category-delete-actions"
+        >
+            {% csrf_token %}
+
+            <a
+                href="{% url 'transactions:category_list' %}"
+                class="button button-secondary"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="button category-confirm-delete-button"
+            >
+                <i class="fa-solid fa-trash-can"></i>
+                Delete category
+            </button>
+        </form>
+
+    </section>
+
+</section>
+
+{% endblock %}

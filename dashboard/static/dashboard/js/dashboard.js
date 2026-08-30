@@ -1,17 +1,42 @@
+(function applyStoredTheme() {
+    const savedTheme = localStorage.getItem(
+        "expenseTrackerTheme"
+    );
+
+    if (
+        savedTheme === "light" ||
+        savedTheme === "dark"
+    ) {
+        document.documentElement.dataset.theme = savedTheme;
+    }
+})();
+
+
 document.addEventListener("DOMContentLoaded", () => {
     const sidebar = document.getElementById("sidebar");
     const sidebarToggle = document.getElementById("sidebarToggle");
-    const mobileMenuButton = document.getElementById("mobileMenuButton");
-    const mobileOverlay = document.getElementById("mobileOverlay");
+    const mobileMenuButton = document.getElementById(
+        "mobileMenuButton"
+    );
+    const mobileOverlay = document.getElementById(
+        "mobileOverlay"
+    );
     const themeToggle = document.getElementById("themeToggle");
 
-    const desktopMediaQuery = window.matchMedia("(min-width: 769px)");
+    const desktopMediaQuery = window.matchMedia(
+        "(min-width: 769px)"
+    );
+
 
     /* Sidebar desktop state */
 
+
     function applySidebarState() {
         if (!desktopMediaQuery.matches) {
-            document.body.classList.remove("sidebar-collapsed");
+            document.body.classList.remove(
+                "sidebar-collapsed"
+            );
+
             return;
         }
 
@@ -20,24 +45,33 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         if (savedState === "expanded") {
-            document.body.classList.remove("sidebar-collapsed");
+            document.body.classList.remove(
+                "sidebar-collapsed"
+            );
         } else {
-            document.body.classList.add("sidebar-collapsed");
+            document.body.classList.add(
+                "sidebar-collapsed"
+            );
         }
     }
 
+
     applySidebarState();
+
 
     sidebarToggle?.addEventListener("click", () => {
         if (!desktopMediaQuery.matches) {
             return;
         }
 
-        document.body.classList.toggle("sidebar-collapsed");
-
-        const isCollapsed = document.body.classList.contains(
+        document.body.classList.toggle(
             "sidebar-collapsed"
         );
+
+        const isCollapsed =
+            document.body.classList.contains(
+                "sidebar-collapsed"
+            );
 
         localStorage.setItem(
             "expenseTrackerSidebar",
@@ -45,53 +79,81 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     });
 
-    desktopMediaQuery.addEventListener("change", () => {
-        applySidebarState();
-        closeMobileSidebar();
-    });
+
+    desktopMediaQuery.addEventListener(
+        "change",
+        () => {
+            applySidebarState();
+            closeMobileSidebar();
+        }
+    );
+
 
     /* Mobile sidebar */
+
 
     function closeMobileSidebar() {
         sidebar?.classList.remove("mobile-open");
         mobileOverlay?.classList.remove("visible");
-        document.body.classList.remove("sidebar-is-open");
+        document.body.classList.remove(
+            "sidebar-is-open"
+        );
     }
 
-    mobileMenuButton?.addEventListener("click", () => {
-        sidebar?.classList.add("mobile-open");
-        mobileOverlay?.classList.add("visible");
-        document.body.classList.add("sidebar-is-open");
-    });
+
+    mobileMenuButton?.addEventListener(
+        "click",
+        () => {
+            sidebar?.classList.add("mobile-open");
+            mobileOverlay?.classList.add("visible");
+            document.body.classList.add(
+                "sidebar-is-open"
+            );
+        }
+    );
+
 
     mobileOverlay?.addEventListener(
         "click",
         closeMobileSidebar
     );
 
-    sidebar?.querySelectorAll(".nav-link").forEach((link) => {
-        link.addEventListener("click", closeMobileSidebar);
-    });
+
+    sidebar?.querySelectorAll(".nav-link").forEach(
+        (link) => {
+            link.addEventListener(
+                "click",
+                closeMobileSidebar
+            );
+        }
+    );
+
 
     /* Theme */
 
-    const savedTheme = localStorage.getItem(
-        "expenseTrackerTheme"
-    );
 
-    const currentTheme = savedTheme || "light";
+    const currentTheme =
+        document.documentElement.dataset.theme ||
+        "light";
 
-    document.documentElement.dataset.theme = currentTheme;
+    document.documentElement.dataset.theme =
+        currentTheme;
+
     updateThemeIcon(currentTheme);
+
 
     themeToggle?.addEventListener("click", () => {
         const activeTheme =
-            document.documentElement.dataset.theme || "light";
+            document.documentElement.dataset.theme ||
+            "light";
 
         const nextTheme =
-            activeTheme === "light" ? "dark" : "light";
+            activeTheme === "light"
+                ? "dark"
+                : "light";
 
-        document.documentElement.dataset.theme = nextTheme;
+        document.documentElement.dataset.theme =
+            nextTheme;
 
         localStorage.setItem(
             "expenseTrackerTheme",
@@ -100,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateThemeIcon(nextTheme);
     });
+
 
     function updateThemeIcon(theme) {
         const icon = themeToggle?.querySelector("i");
@@ -114,7 +177,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 : "fa-regular fa-moon";
     }
 
+
     /* Monthly expense chart */
+
 
     const trendElement = document.getElementById(
         "monthly-trend-data"
@@ -132,6 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+
     let trendData = [];
 
     try {
@@ -147,13 +213,16 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+
     if (!Array.isArray(trendData)) {
         return;
     }
 
+
     const labels = trendData.map((item) => {
         return item.month || item.label || "";
     });
+
 
     const values = trendData.map((item) => {
         return Number(
@@ -163,6 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
             0
         );
     });
+
 
     const styles = getComputedStyle(
         document.documentElement
@@ -176,11 +246,13 @@ document.addEventListener("DOMContentLoaded", () => {
         .getPropertyValue("--text-soft")
         .trim();
 
+
     new Chart(chartCanvas, {
         type: "bar",
 
         data: {
             labels,
+
             datasets: [
                 {
                     label: "Expenses",
@@ -221,6 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     ticks: {
                         color: mutedColor,
+
                         font: {
                             family: "Manrope",
                             size: 10,
@@ -238,6 +311,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     ticks: {
                         color: mutedColor,
+
                         font: {
                             family: "Manrope",
                             size: 10,

@@ -1,0 +1,198 @@
+{% extends "dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    {% if object %}
+        Edit Category | Expense Tracker
+    {% else %}
+        Add Category | Expense Tracker
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'transactions/css/transactions.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<section class="page-wrapper category-form-page">
+
+    <header class="module-header">
+        <div>
+            <span class="section-kicker">
+                Financial organization
+            </span>
+
+            <h1>
+                {% if object %}
+                    Edit category
+                {% else %}
+                    Add category
+                {% endif %}
+            </h1>
+
+            <p>
+                {% if object %}
+                    Update the name or type of your personal category.
+                {% else %}
+                    Create a personal category for your transactions.
+                {% endif %}
+            </p>
+        </div>
+
+        <a
+            href="{% url 'transactions:category_list' %}"
+            class="button button-secondary"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to categories
+        </a>
+    </header>
+
+    {% if messages %}
+        <div class="transaction-messages">
+            {% for message in messages %}
+                <div
+                    class="transaction-message transaction-message-{{ message.tags }}"
+                    role="alert"
+                >
+                    {% if message.tags == "success" %}
+                        <i class="fa-solid fa-circle-check"></i>
+                    {% elif message.tags == "error" %}
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    {% else %}
+                        <i class="fa-solid fa-circle-info"></i>
+                    {% endif %}
+
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <section class="category-form-card">
+
+        <div class="category-form-intro">
+
+            <div class="category-form-intro-icon">
+                <i class="fa-solid fa-folder-plus"></i>
+            </div>
+
+            <div>
+                <span class="section-kicker">
+                    Personal category
+                </span>
+
+                <h2>
+                    {% if object %}
+                        Update category details
+                    {% else %}
+                        Create a new category
+                    {% endif %}
+                </h2>
+
+                <p>
+                    Choose a clear name and assign the category to the type
+                    that best describes it.
+                </p>
+            </div>
+
+        </div>
+
+        {% if form.non_field_errors %}
+            <div class="transaction-form-error-summary">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="category-form-fields">
+
+                <div class="category-form-field">
+                    <label for="{{ form.name.id_for_label }}">
+                        Category name
+                    </label>
+
+                    {{ form.name }}
+
+                    <small>
+                        Use a short and recognizable name, such as
+                        Groceries, Freelance, or Subscriptions.
+                    </small>
+
+                    {% for error in form.name.errors %}
+                        <span class="category-form-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="category-form-field">
+                    <label for="{{ form.category_type.id_for_label }}">
+                        Category type
+                    </label>
+
+                    {{ form.category_type }}
+
+                    <small>
+                        Income categories can only be used for income
+                        transactions.
+                    </small>
+
+                    {% for error in form.category_type.errors %}
+                        <span class="category-form-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+            <div class="category-form-note">
+                <i class="fa-solid fa-circle-info"></i>
+
+                <p>
+                    Personal categories are visible only to you. Default
+                    categories cannot be edited or deleted.
+                </p>
+            </div>
+
+            <div class="category-form-actions">
+
+                <a
+                    href="{% url 'transactions:category_list' %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="button button-primary"
+                >
+                    {% if object %}
+                        <i class="fa-solid fa-check"></i>
+                        Save category
+                    {% else %}
+                        <i class="fa-solid fa-plus"></i>
+                        Create category
+                    {% endif %}
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</section>
+
+{% endblock %}

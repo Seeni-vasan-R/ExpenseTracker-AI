@@ -36,7 +36,13 @@ urlpatterns = [
         views.edit_profile_view,
         name="edit_profile",
     ),
-    
+
+    path(
+        "password/change/",
+        views.CustomPasswordChangeView.as_view(),
+        name="password_change",
+    ),
+
     path(
         "settings/",
         views.settings_view,

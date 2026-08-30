@@ -1,27 +1,27 @@
 from typing import TYPE_CHECKING, Any
 
 from django import forms
-from django.contrib.auth import authenticate, get_user_model
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import (
+    AuthenticationForm,
+    UserCreationForm,
+)
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
-
-if TYPE_CHECKING:
-    from django.contrib.auth.models import AbstractUser
 
 from PIL import Image, UnidentifiedImageError
 
 from .models import UserProfile
 
 
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractUser
+
+
 User = get_user_model()
 
 
 class RegisterForm(UserCreationForm):
-    """
-    Form for creating a new user account.
-    """
-
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(
@@ -39,7 +39,7 @@ class RegisterForm(UserCreationForm):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "First Name",
+                "placeholder": "First name",
                 "autocomplete": "given-name",
             }
         ),
@@ -51,7 +51,7 @@ class RegisterForm(UserCreationForm):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Last Name",
+                "placeholder": "Last name",
                 "autocomplete": "family-name",
             }
         ),
@@ -90,16 +90,15 @@ class RegisterForm(UserCreationForm):
         self.fields["password2"].widget.attrs.update(
             {
                 "class": "form-control",
-                "placeholder": "Confirm Password",
+                "placeholder": "Confirm password",
                 "autocomplete": "new-password",
             }
         )
 
     def clean_email(self) -> str:
-        """
-        Normalize and validate the email address.
-        """
-        email = (self.cleaned_data.get("email") or "").strip().lower()
+        email = (
+            self.cleaned_data.get("email") or ""
+        ).strip().lower()
 
         if User.objects.filter(email__iexact=email).exists():
             raise ValidationError(
@@ -109,12 +108,13 @@ class RegisterForm(UserCreationForm):
         return email
 
     def clean_username(self) -> str:
-        """
-        Normalize and validate username case-insensitively.
-        """
-        username = (self.cleaned_data.get("username") or "").strip()
+        username = (
+            self.cleaned_data.get("username") or ""
+        ).strip()
 
-        if User.objects.filter(username__iexact=username).exists():
+        if User.objects.filter(
+            username__iexact=username
+        ).exists():
             raise ValidationError(
                 "This username is already taken."
             )
@@ -122,33 +122,33 @@ class RegisterForm(UserCreationForm):
         return username
 
     def clean_first_name(self) -> str:
-        """
-        Remove unnecessary whitespace from the first name.
-        """
-        first_name = (self.cleaned_data.get("first_name") or "").strip()
+        first_name = (
+            self.cleaned_data.get("first_name") or ""
+        ).strip()
 
         if not first_name:
-            raise ValidationError("First name is required.")
+            raise ValidationError(
+                "First name is required."
+            )
 
         return first_name
 
     def clean_last_name(self) -> str:
-        """
-        Remove unnecessary whitespace from the last name.
-        """
-        last_name = (self.cleaned_data.get("last_name") or "").strip()
+        last_name = (
+            self.cleaned_data.get("last_name") or ""
+        ).strip()
 
         if not last_name:
-            raise ValidationError("Last name is required.")
+            raise ValidationError(
+                "Last name is required."
+            )
 
         return last_name
 
-    def save(self, commit: bool = True) -> "AbstractUser":
-        """
-        Save the user with normalized profile information.
-
-        UserCreationForm handles password hashing through set_password().
-        """
+    def save(
+        self,
+        commit: bool = True,
+    ) -> "AbstractUser":
         user = super().save(commit=False)
 
         user.email = self.cleaned_data["email"]
@@ -162,20 +162,12 @@ class RegisterForm(UserCreationForm):
 
 
 class LoginForm(AuthenticationForm):
-    """
-    Login form supporting either username or email address.
-
-    The default Django authentication backend still authenticates using
-    the username field. When an email is entered, this form resolves the
-    matching user's username before AuthenticationForm performs authentication.
-    """
-
     username = forms.CharField(
         label="Username or email",
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Username or Email",
+                "placeholder": "Username or email",
                 "autocomplete": "username",
                 "autofocus": True,
             }
@@ -203,10 +195,6 @@ class LoginForm(AuthenticationForm):
     )
 
     def clean(self) -> dict[str, Any]:
-        """
-        Resolve email login to a username before calling Django's
-        standard AuthenticationForm validation.
-        """
         username_value = self.cleaned_data.get("username")
 
         if username_value:
@@ -225,6 +213,7 @@ class LoginForm(AuthenticationForm):
 
                 if email_matches.count() == 1:
                     user = email_matches.first()
+
                 elif email_matches.count() > 1:
                     raise ValidationError(
                         "Multiple accounts use this email address. "
@@ -232,16 +221,14 @@ class LoginForm(AuthenticationForm):
                     )
 
             if user is not None:
-                self.cleaned_data["username"] = user.get_username()
+                self.cleaned_data["username"] = (
+                    user.get_username()
+                )
 
         return super().clean()
 
 
 class UserUpdateForm(forms.ModelForm):
-    """
-    Form for updating basic user information.
-    """
-
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(
@@ -275,22 +262,19 @@ class UserUpdateForm(forms.ModelForm):
         }
 
     def clean_first_name(self) -> str:
-        """
-        Normalize the first name.
-        """
-        return (self.cleaned_data.get("first_name") or "").strip()
+        return (
+            self.cleaned_data.get("first_name") or ""
+        ).strip()
 
     def clean_last_name(self) -> str:
-        """
-        Normalize the last name.
-        """
-        return (self.cleaned_data.get("last_name") or "").strip()
+        return (
+            self.cleaned_data.get("last_name") or ""
+        ).strip()
 
     def clean_email(self) -> str:
-        """
-        Normalize email and prevent duplicate email addresses.
-        """
-        email = (self.cleaned_data.get("email") or "").strip().lower()
+        email = (
+            self.cleaned_data.get("email") or ""
+        ).strip().lower()
 
         queryset = (
             User.objects
@@ -308,7 +292,10 @@ class UserUpdateForm(forms.ModelForm):
 
 class UserProfileForm(forms.ModelForm):
     """
-    Form for updating profile preferences and profile picture.
+    Form for personal profile information only.
+
+    Currency and theme are intentionally managed by
+    UserSettingsForm on the Settings page.
     """
 
     class Meta:
@@ -317,8 +304,6 @@ class UserProfileForm(forms.ModelForm):
             "profile_picture",
             "phone_number",
             "country",
-            "currency",
-            "theme",
         ]
         widgets = {
             "profile_picture": forms.ClearableFileInput(
@@ -341,31 +326,17 @@ class UserProfileForm(forms.ModelForm):
                     "autocomplete": "country-name",
                 }
             ),
-            "currency": forms.Select(
-                attrs={
-                    "class": "form-select",
-                }
-            ),
-            "theme": forms.Select(
-                attrs={
-                    "class": "form-select",
-                }
-            ),
         }
 
     def clean_phone_number(self) -> str:
-        """
-        Normalize whitespace around the phone number.
-
-        The model validator performs the actual format validation.
-        """
-        return (self.cleaned_data.get("phone_number") or "").strip()
+        return (
+            self.cleaned_data.get("phone_number") or ""
+        ).strip()
 
     def clean_country(self) -> str:
-        """
-        Normalize whitespace around the country.
-        """
-        return (self.cleaned_data.get("country") or "").strip()
+        return (
+            self.cleaned_data.get("country") or ""
+        ).strip()
 
     def clean_profile_picture(self):
         picture = self.cleaned_data.get("profile_picture")
@@ -373,17 +344,21 @@ class UserProfileForm(forms.ModelForm):
         if not picture:
             return picture
 
-        # Existing stored image: do not validate it as a new upload.
         if not isinstance(picture, UploadedFile):
             return picture
 
-        allowed_formats = {"JPEG", "PNG", "WEBP"}
-        max_size_bytes = 2 * 1024 * 1024
-
-        if picture.size > max_size_bytes:
+        if picture.size > 2 * 1024 * 1024:
             raise ValidationError(
                 "Image size must not exceed 2 MB."
             )
+
+        allowed_formats = {
+            "JPEG",
+            "PNG",
+            "WEBP",
+        }
+
+        image_format = None
 
         try:
             picture.seek(0)
@@ -392,7 +367,11 @@ class UserProfileForm(forms.ModelForm):
                 image.verify()
                 image_format = image.format
 
-        except (UnidentifiedImageError, OSError, ValueError) as error:
+        except (
+            UnidentifiedImageError,
+            OSError,
+            ValueError,
+        ) as error:
             raise ValidationError(
                 "Upload a valid JPEG, PNG, or WEBP image."
             ) from error
@@ -406,3 +385,29 @@ class UserProfileForm(forms.ModelForm):
             )
 
         return picture
+
+
+class UserSettingsForm(forms.ModelForm):
+    """
+    Form for application preferences only.
+    """
+
+    class Meta:
+        model = UserProfile
+        fields = [
+            "currency",
+            "theme",
+        ]
+        widgets = {
+            "currency": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+            "theme": forms.Select(
+                attrs={
+                    "class": "form-select",
+                    "id": "settings-theme-select",
+                }
+            ),
+        }
