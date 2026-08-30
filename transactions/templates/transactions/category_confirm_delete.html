@@ -26,7 +26,7 @@
             <h1>Delete category</h1>
 
             <p>
-                Review this action before permanently deleting your category.
+                Review this action before permanently removing the category.
             </p>
         </div>
 
@@ -50,13 +50,11 @@
                 Confirmation required
             </span>
 
-            <h2>
-                Delete “{{ object.name }}”?
-            </h2>
+            <h2>Delete “{{ object.name }}”?</h2>
 
             <p>
-                This will permanently remove your personal category. This
-                action cannot be undone.
+                This will permanently delete your personal category. The action
+                cannot be undone.
             </p>
         </div>
 
@@ -65,25 +63,19 @@
             <div class="category-delete-detail">
                 <span>Category name</span>
 
-                <strong>
-                    {{ object.name }}
-                </strong>
+                <strong>{{ object.name }}</strong>
             </div>
 
             <div class="category-delete-detail">
                 <span>Category type</span>
 
-                <strong>
-                    {{ object.category_type }}
-                </strong>
+                <strong>{{ object.category_type }}</strong>
             </div>
 
             <div class="category-delete-detail">
                 <span>Category owner</span>
 
-                <strong>
-                    Personal category
-                </strong>
+                <strong>Personal category</strong>
             </div>
 
         </div>
@@ -92,9 +84,8 @@
             <i class="fa-solid fa-circle-exclamation"></i>
 
             <p>
-                Categories that are already used by transactions cannot be
-                deleted. You must keep the category or update those transactions
-                first.
+                A category currently used by a transaction cannot be deleted.
+                The application will protect those transactions.
             </p>
         </div>
 

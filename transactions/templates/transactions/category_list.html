@@ -26,17 +26,17 @@
             <h1>Categories</h1>
 
             <p>
-                Organize your transactions with default and personal categories.
+                Organize your income and expenses with categories.
             </p>
         </div>
 
         <div class="category-header-actions">
             <a
-                href="{% url 'transactions:transaction_list' %}"
+                href="{% url 'accounts:settings' %}"
                 class="button button-secondary"
             >
                 <i class="fa-solid fa-arrow-left"></i>
-                Back to transactions
+                Back to settings
             </a>
 
             <a
@@ -44,7 +44,7 @@
                 class="button button-primary"
             >
                 <i class="fa-solid fa-plus"></i>
-                Add category
+                Create category
             </a>
         </div>
     </header>
@@ -70,164 +70,198 @@
         </div>
     {% endif %}
 
-    <section class="category-summary-card">
+    <section class="category-intro-card">
 
-        <div class="category-summary-icon">
+        <div class="category-intro-icon">
             <i class="fa-solid fa-folder-tree"></i>
         </div>
 
         <div>
             <span class="section-kicker">
-                Your categories
+                Category library
             </span>
 
-            <h2>
-                Keep your transactions organized
-            </h2>
+            <h2>Make your transactions easier to understand</h2>
 
             <p>
-                Default categories are available automatically. You can create
-                personal categories for your own spending and income patterns.
+                Default categories are always available. Personal categories
+                belong only to your account and can be edited whenever you need.
             </p>
         </div>
 
     </section>
 
-    {% if categories %}
+    <section class="category-panel">
 
-        <section class="category-list-panel">
-
-            <div class="category-list-heading">
-                <div>
-                    <span class="section-kicker">
-                        Category library
-                    </span>
-
-                    <h2>Available categories</h2>
-                </div>
-
-                <span class="category-count">
-                    {{ categories|length }} categor{{ categories|length|pluralize:"y,ies" }}
+        <div class="category-panel-heading">
+            <div>
+                <span class="section-kicker">
+                    Available categories
                 </span>
+
+                <h2>All categories</h2>
             </div>
 
-            <div class="category-grid">
+            <span class="category-count">
+                {{ categories|length }}
+                categor{{ categories|length|pluralize:"y,ies" }}
+            </span>
+        </div>
 
-                {% for category in categories %}
+        {% if categories %}
 
-                    <article class="category-card">
+            <div class="category-groups">
 
-                        <div class="category-card-top">
+                {% regroup categories by category_type as category_groups %}
 
-                            <div class="category-card-icon
-                                {% if category.category_type == 'Income' %}
+                {% for group in category_groups %}
+
+                    <section class="category-group">
+
+                        <div class="category-group-heading">
+                            <div class="category-group-icon
+                                {% if group.grouper == 'Income' %}
                                     category-icon-income
-                                {% elif category.category_type == 'Savings' %}
+                                {% elif group.grouper == 'Savings' %}
                                     category-icon-savings
-                                {% elif category.category_type == 'Want' %}
+                                {% elif group.grouper == 'Want' %}
                                     category-icon-want
                                 {% else %}
                                     category-icon-need
                                 {% endif %}
                             ">
-                                {% if category.category_type == "Income" %}
+                                {% if group.grouper == "Income" %}
                                     <i class="fa-solid fa-arrow-trend-up"></i>
-                                {% elif category.category_type == "Savings" %}
+                                {% elif group.grouper == "Savings" %}
                                     <i class="fa-solid fa-piggy-bank"></i>
-                                {% elif category.category_type == "Want" %}
+                                {% elif group.grouper == "Want" %}
                                     <i class="fa-solid fa-bag-shopping"></i>
                                 {% else %}
                                     <i class="fa-solid fa-house"></i>
                                 {% endif %}
                             </div>
 
-                            <div class="category-card-actions">
+                            <div>
+                                <h3>{{ group.grouper }}</h3>
 
-                                {% if not category.is_default %}
-                                    <a
-                                        href="{% url 'transactions:category_edit' category.pk %}"
-                                        class="category-action"
-                                        title="Edit {{ category.name }}"
-                                        aria-label="Edit {{ category.name }}"
-                                    >
-                                        <i class="fa-solid fa-pen"></i>
-                                    </a>
-
-                                    <a
-                                        href="{% url 'transactions:category_delete' category.pk %}"
-                                        class="category-action category-action-danger"
-                                        title="Delete {{ category.name }}"
-                                        aria-label="Delete {{ category.name }}"
-                                    >
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </a>
-                                {% endif %}
-
+                                <p>
+                                    {% if group.grouper == "Income" %}
+                                        Money received or earned.
+                                    {% elif group.grouper == "Savings" %}
+                                        Money reserved for future goals.
+                                    {% elif group.grouper == "Want" %}
+                                        Optional purchases and lifestyle spending.
+                                    {% else %}
+                                        Essential expenses and regular needs.
+                                    {% endif %}
+                                </p>
                             </div>
+                        </div>
+
+                        <div class="category-grid">
+
+                            {% for category in group.list %}
+
+                                <article class="category-card">
+
+                                    <div class="category-card-main">
+
+                                        <div class="category-card-icon
+                                            {% if category.category_type == 'Income' %}
+                                                category-icon-income
+                                            {% elif category.category_type == 'Savings' %}
+                                                category-icon-savings
+                                            {% elif category.category_type == 'Want' %}
+                                                category-icon-want
+                                            {% else %}
+                                                category-icon-need
+                                            {% endif %}
+                                        ">
+                                            <i class="fa-solid fa-folder"></i>
+                                        </div>
+
+                                        <div class="category-card-content">
+                                            <h4>{{ category.name }}</h4>
+
+                                            {% if category.is_default %}
+                                                <span class="category-owner-label">
+                                                    <i class="fa-solid fa-lock"></i>
+                                                    Default category
+                                                </span>
+                                            {% else %}
+                                                <span class="category-owner-label">
+                                                    <i class="fa-solid fa-user"></i>
+                                                    Personal category
+                                                </span>
+                                            {% endif %}
+                                        </div>
+
+                                    </div>
+
+                                    {% if not category.is_default %}
+                                        <div class="category-card-actions">
+
+                                            <a
+                                                href="{% url 'transactions:category_edit' category.pk %}"
+                                                class="category-action"
+                                                title="Edit {{ category.name }}"
+                                                aria-label="Edit {{ category.name }}"
+                                            >
+                                                <i class="fa-solid fa-pen"></i>
+                                            </a>
+
+                                            <a
+                                                href="{% url 'transactions:category_delete' category.pk %}"
+                                                class="category-action category-action-danger"
+                                                title="Delete {{ category.name }}"
+                                                aria-label="Delete {{ category.name }}"
+                                            >
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </a>
+
+                                        </div>
+                                    {% endif %}
+
+                                </article>
+
+                            {% endfor %}
 
                         </div>
 
-                        <div class="category-card-content">
-
-                            <h3>
-                                {{ category.name }}
-                            </h3>
-
-                            <div class="category-card-meta">
-
-                                <span class="category-type-pill">
-                                    {{ category.category_type }}
-                                </span>
-
-                                {% if category.is_default %}
-                                    <span class="category-owner-label">
-                                        <i class="fa-solid fa-lock"></i>
-                                        Default
-                                    </span>
-                                {% else %}
-                                    <span class="category-owner-label">
-                                        <i class="fa-solid fa-user"></i>
-                                        Personal
-                                    </span>
-                                {% endif %}
-
-                            </div>
-
-                        </div>
-
-                    </article>
+                    </section>
 
                 {% endfor %}
 
             </div>
 
-        </section>
+        {% else %}
 
-    {% else %}
+            <div class="category-empty-state">
 
-        <section class="category-empty-state">
+                <div class="category-empty-icon">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
 
-            <div class="category-empty-icon">
-                <i class="fa-solid fa-folder-open"></i>
+                <h3>No categories available</h3>
+
+                <p>
+                    Create your first personal category to begin organizing
+                    your transactions.
+                </p>
+
+                <a
+                    href="{% url 'transactions:category_add' %}"
+                    class="button button-primary"
+                >
+                    <i class="fa-solid fa-plus"></i>
+                    Create category
+                </a>
+
             </div>
 
-            <h2>No categories available</h2>
+        {% endif %}
 
-            <p>
-                Create your first personal category to organize transactions.
-            </p>
-
-            <a
-                href="{% url 'transactions:category_add' %}"
-                class="button button-primary"
-            >
-                <i class="fa-solid fa-plus"></i>
-                Create category
-            </a>
-
-        </section>
-
-    {% endif %}
+    </section>
 
 </section>
 

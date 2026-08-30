@@ -1,6 +1,7 @@
 {% extends "dashboard/base.html" %}
 
 {% load static %}
+{% load expense_tracker_tags %}
 
 {% block title %}
     Transaction Details | Expense Tracker
@@ -18,6 +19,7 @@
 <section class="page-wrapper transaction-detail-page">
 
     <header class="module-header transaction-detail-header">
+
         <div>
             <span class="section-kicker">
                 Financial activity
@@ -37,6 +39,7 @@
             <i class="fa-solid fa-arrow-left"></i>
             Back to transactions
         </a>
+
     </header>
 
     <section class="transaction-detail-card">
@@ -44,14 +47,17 @@
         <div class="transaction-detail-hero">
 
             <div class="transaction-detail-hero-icon">
+
                 {% if transaction.transaction_type == "Income" %}
                     <i class="fa-solid fa-arrow-trend-up"></i>
                 {% else %}
                     <i class="fa-solid fa-arrow-trend-down"></i>
                 {% endif %}
+
             </div>
 
             <div class="transaction-detail-main">
+
                 <span
                     class="type-badge {% if transaction.transaction_type == 'Income' %}type-income{% else %}type-expense{% endif %}"
                 >
@@ -71,20 +77,23 @@
                 <p>
                     Transaction ID #{{ transaction.id }}
                 </p>
+
             </div>
 
             <div class="transaction-detail-amount-box">
+
                 <span>Amount</span>
 
                 <strong
                     class="{% if transaction.transaction_type == 'Income' %}amount-income{% else %}amount-expense{% endif %}"
                 >
                     {% if transaction.transaction_type == "Income" %}
-                        +₹{{ transaction.amount }}
+                        +{% currency_symbol %}{{ transaction.amount|currency_value }}
                     {% else %}
-                        -₹{{ transaction.amount }}
+                        -{% currency_symbol %}{{ transaction.amount|currency_value }}
                     {% endif %}
                 </strong>
+
             </div>
 
         </div>
@@ -92,6 +101,7 @@
         <div class="transaction-detail-grid">
 
             <div class="transaction-detail-item">
+
                 <span>
                     <i class="fa-solid fa-calendar-days"></i>
                     Date
@@ -100,9 +110,11 @@
                 <strong>
                     {{ transaction.transaction_date|date:"d M Y" }}
                 </strong>
+
             </div>
 
             <div class="transaction-detail-item">
+
                 <span>
                     <i class="fa-regular fa-clock"></i>
                     Time
@@ -115,9 +127,11 @@
                         Not recorded
                     {% endif %}
                 </strong>
+
             </div>
 
             <div class="transaction-detail-item">
+
                 <span>
                     <i class="fa-solid fa-folder"></i>
                     Category
@@ -130,9 +144,11 @@
                         Uncategorized
                     {% endif %}
                 </strong>
+
             </div>
 
             <div class="transaction-detail-item">
+
                 <span>
                     <i class="fa-solid fa-credit-card"></i>
                     Payment method
@@ -141,9 +157,11 @@
                 <strong>
                     {{ transaction.payment_method }}
                 </strong>
+
             </div>
 
             <div class="transaction-detail-item">
+
                 <span>
                     <i class="fa-solid fa-circle-info"></i>
                     Transaction type
@@ -152,9 +170,11 @@
                 <strong>
                     {{ transaction.transaction_type }}
                 </strong>
+
             </div>
 
             <div class="transaction-detail-item">
+
                 <span>
                     <i class="fa-regular fa-calendar-plus"></i>
                     Added on
@@ -163,12 +183,15 @@
                 <strong>
                     {{ transaction.created_at|date:"d M Y, H:i" }}
                 </strong>
+
             </div>
 
         </div>
 
         {% if transaction.description %}
+
             <div class="transaction-detail-description">
+
                 <span class="section-kicker">
                     Description
                 </span>
@@ -176,12 +199,17 @@
                 <p>
                     {{ transaction.description }}
                 </p>
+
             </div>
+
         {% endif %}
 
         {% if transaction.receipt %}
+
             <div class="transaction-detail-receipt">
+
                 <div>
+
                     <span class="section-kicker">
                         Attached receipt
                     </span>
@@ -189,6 +217,7 @@
                     <p>
                         A receipt file is available for this transaction.
                     </p>
+
                 </div>
 
                 <a
@@ -200,7 +229,9 @@
                     <i class="fa-solid fa-paperclip"></i>
                     Open receipt
                 </a>
+
             </div>
+
         {% endif %}
 
         <div class="transaction-detail-footer">

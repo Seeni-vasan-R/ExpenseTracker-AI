@@ -1,6 +1,7 @@
 {% extends "dashboard/base.html" %}
 
 {% load static %}
+{% load expense_tracker_tags %}
 
 {% block title %}
     Transactions | Expense Tracker
@@ -45,7 +46,7 @@
             <span>Total income</span>
 
             <strong class="income-text">
-                ₹{{ total_income|default:"0.00" }}
+                {% currency_symbol %}{{ total_income|default:"0.00"|currency_value }}
             </strong>
 
             <small>Current filtered results</small>
@@ -55,7 +56,7 @@
             <span>Total expenses</span>
 
             <strong class="expense-text">
-                ₹{{ total_expense|default:"0.00" }}
+                {% currency_symbol %}{{ total_expense|default:"0.00"|currency_value }}
             </strong>
 
             <small>Current filtered results</small>
@@ -65,7 +66,11 @@
             <span>Balance</span>
 
             <strong>
-                ₹{{ balance|default:"0.00" }}
+                {% if balance < 0 %}
+                    -{% currency_symbol %}{{ balance|stringformat:"s"|cut:"-"|currency_value }}
+                {% else %}
+                    {% currency_symbol %}{{ balance|default:"0.00"|currency_value }}
+                {% endif %}
             </strong>
 
             <small>Income minus expenses</small>
@@ -278,7 +283,7 @@
                         value="{{ selected_min_amount }}"
                         min="0"
                         step="0.01"
-                        placeholder="₹ 0.00"
+                        placeholder="0.00"
                         class="filter-input"
                         aria-label="Minimum amount"
                     >
@@ -296,7 +301,7 @@
                         value="{{ selected_max_amount }}"
                         min="0"
                         step="0.01"
-                        placeholder="₹ 0.00"
+                        placeholder="0.00"
                         class="filter-input"
                         aria-label="Maximum amount"
                     >
@@ -327,6 +332,7 @@
         {% if transactions %}
 
             <div class="transaction-table-wrapper">
+
                 <table class="transaction-table">
 
                     <thead>
@@ -342,11 +348,14 @@
                     </thead>
 
                     <tbody>
+
                         {% for transaction in transactions %}
+
                             <tr>
 
                                 <td data-label="Date and time">
                                     <div class="transaction-date-time">
+
                                         <span class="date-value">
                                             {{ transaction.transaction_date|date:"d M Y" }}
                                         </span>
@@ -362,16 +371,19 @@
                                                 Time not recorded
                                             </small>
                                         {% endif %}
+
                                     </div>
                                 </td>
 
                                 <td data-label="Description">
                                     <div class="table-description">
+
                                         <span class="table-transaction-icon">
                                             <i class="fa-solid fa-receipt"></i>
                                         </span>
 
                                         <div>
+
                                             <strong>
                                                 {% if transaction.description %}
                                                     {{ transaction.description|truncatechars:34 }}
@@ -388,7 +400,9 @@
                                                     Receipt attached
                                                 </small>
                                             {% endif %}
+
                                         </div>
+
                                     </div>
                                 </td>
 
@@ -421,18 +435,21 @@
                                 </td>
 
                                 <td data-label="Amount">
+
                                     {% if transaction.transaction_type == "Income" %}
                                         <strong class="amount-income">
-                                            +₹{{ transaction.amount }}
+                                            +{% currency_symbol %}{{ transaction.amount|currency_value }}
                                         </strong>
                                     {% else %}
                                         <strong class="amount-expense">
-                                            -₹{{ transaction.amount }}
+                                            -{% currency_symbol %}{{ transaction.amount|currency_value }}
                                         </strong>
                                     {% endif %}
+
                                 </td>
 
                                 <td data-label="Actions">
+
                                     <div class="table-actions">
 
                                         <a
@@ -470,20 +487,26 @@
                                         </button>
 
                                     </div>
+
                                 </td>
 
                             </tr>
+
                         {% endfor %}
+
                     </tbody>
 
                 </table>
+
             </div>
 
             {% if is_paginated %}
+
                 <nav
                     class="pagination"
                     aria-label="Transaction pages"
                 >
+
                     {% if page_obj.has_previous %}
                         <a
                             href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search|urlencode }}{% endif %}{% if selected_type %}&type={{ selected_type|urlencode }}{% endif %}{% if selected_category %}&category={{ selected_category|urlencode }}{% endif %}{% if selected_payment_method %}&payment_method={{ selected_payment_method|urlencode }}{% endif %}{% if selected_date_from %}&date_from={{ selected_date_from|urlencode }}{% endif %}{% if selected_date_to %}&date_to={{ selected_date_to|urlencode }}{% endif %}{% if selected_min_amount %}&min_amount={{ selected_min_amount|urlencode }}{% endif %}{% if selected_max_amount %}&max_amount={{ selected_max_amount|urlencode }}{% endif %}"
@@ -509,12 +532,15 @@
                             <i class="fa-solid fa-chevron-right"></i>
                         </a>
                     {% endif %}
+
                 </nav>
+
             {% endif %}
 
         {% else %}
 
             <div class="transaction-empty-state">
+
                 <div class="empty-state-icon">
                     <i class="fa-regular fa-file-lines"></i>
                 </div>
@@ -552,6 +578,7 @@
                     </a>
 
                 {% endif %}
+
             </div>
 
         {% endif %}
@@ -559,6 +586,7 @@
     </section>
 
 </section>
+
 
 <dialog
     id="deleteTransactionDialog"
@@ -568,6 +596,7 @@
     <div class="delete-modal-content">
 
         <div class="delete-modal-header">
+
             <div class="delete-modal-warning-icon">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
@@ -580,9 +609,11 @@
             >
                 <i class="fa-solid fa-xmark"></i>
             </button>
+
         </div>
 
         <div class="delete-modal-heading">
+
             <span class="section-kicker">
                 Confirmation required
             </span>
@@ -595,11 +626,13 @@
                 This transaction will be removed from your active list.
                 You can restore it later if needed.
             </p>
+
         </div>
 
         <div class="delete-modal-transaction">
 
             <div class="delete-modal-description">
+
                 <span class="delete-modal-label">
                     Transaction
                 </span>
@@ -607,6 +640,7 @@
                 <strong id="delete-modal-description">
                     Transaction
                 </strong>
+
             </div>
 
             <div class="delete-modal-details">
@@ -644,6 +678,7 @@
                 </div>
 
             </div>
+
         </div>
 
         <form
@@ -668,6 +703,7 @@
                 <i class="fa-solid fa-trash-can"></i>
                 Delete transaction
             </button>
+
         </form>
 
     </div>
@@ -676,7 +712,9 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script
-        src="{% static 'transactions/js/transactions.js' %}"
-    ></script>
+
+<script
+    src="{% static 'transactions/js/transactions.js' %}"
+></script>
+
 {% endblock %}

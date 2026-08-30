@@ -1,6 +1,7 @@
 {% extends "dashboard/base.html" %}
 
 {% load static %}
+{% load expense_tracker_tags %}
 
 {% block title %}
     Dashboard | Expense Tracker
@@ -18,7 +19,9 @@
 <section class="page-wrapper">
 
     <header class="topbar">
+
         <div class="topbar-left">
+
             <button
                 type="button"
                 class="mobile-menu-button"
@@ -38,9 +41,11 @@
                     {{ request.user.first_name|default:request.user.username }}
                 </h1>
             </div>
+
         </div>
 
         <div class="topbar-right">
+
             <button
                 type="button"
                 class="theme-button"
@@ -62,26 +67,37 @@
                     {{ request.user.first_name|default:request.user.username }}
                 </span>
             </a>
+
         </div>
+
     </header>
 
+
     <section class="balance-hero">
+
         <div class="hero-copy">
+
             <span class="section-kicker">
                 Current balance
             </span>
 
             <h2 class="balance-value">
-                ₹{{ balance|default:"0.00" }}
+                {% if balance < 0 %}
+                    -{% currency_symbol %}{{ balance|stringformat:"s"|cut:"-"|currency_value }}
+                {% else %}
+                    {% currency_symbol %}{{ balance|default:"0.00"|currency_value }}
+                {% endif %}
             </h2>
 
             <p>
                 Here is your financial activity for
                 {{ current_month }}/{{ current_year }}.
             </p>
+
         </div>
 
         <div class="hero-actions">
+
             <a
                 href="{% url 'transactions:transaction_add' %}"
                 class="button button-primary"
@@ -97,67 +113,90 @@
                 <i class="fa-solid fa-bullseye"></i>
                 Create budget
             </a>
+
         </div>
+
     </section>
 
+
     <section class="summary-grid">
+
         <article class="summary-card">
+
             <div class="summary-card-header">
                 <span>Total income</span>
+
                 <i class="fa-solid fa-arrow-trend-up income-icon"></i>
             </div>
 
             <strong>
-                ₹{{ income|default:"0.00" }}
+                {% currency_symbol %}{{ income|default:"0.00"|currency_value }}
             </strong>
 
             <small>This month</small>
+
         </article>
 
+
         <article class="summary-card">
+
             <div class="summary-card-header">
                 <span>Total expenses</span>
+
                 <i class="fa-solid fa-arrow-trend-down expense-icon"></i>
             </div>
 
             <strong>
-                ₹{{ expense|default:"0.00" }}
+                {% currency_symbol %}{{ expense|default:"0.00"|currency_value }}
             </strong>
 
             <small>This month</small>
+
         </article>
 
+
         <article class="summary-card">
+
             <div class="summary-card-header">
                 <span>Savings</span>
+
                 <i class="fa-solid fa-seedling savings-icon"></i>
             </div>
 
             <strong>
-                ₹{{ savings|default:"0.00" }}
+                {% currency_symbol %}{{ savings|default:"0.00"|currency_value }}
             </strong>
 
             <small>After expenses</small>
+
         </article>
 
+
         <article class="summary-card">
+
             <div class="summary-card-header">
                 <span>Budget status</span>
+
                 <i class="fa-solid fa-chart-simple budget-icon"></i>
             </div>
 
             <strong>
-                ₹{{ budget_remaining|default:"0.00" }}
+                {% currency_symbol %}{{ budget_remaining|default:"0.00"|currency_value }}
             </strong>
 
             <small>Remaining</small>
+
         </article>
+
     </section>
+
 
     <section class="dashboard-grid">
 
         <article class="content-card budget-section">
+
             <div class="card-heading">
+
                 <div>
                     <span class="section-kicker">
                         Monthly planning
@@ -173,16 +212,21 @@
                     View all
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 </a>
+
             </div>
 
             {% if budgets %}
 
                 <div class="budget-list">
+
                     {% for budget in budgets %}
+
                         <div class="budget-item">
 
                             <div class="budget-item-top">
+
                                 <div>
+
                                     <strong>
                                         {% if budget.category %}
                                             {{ budget.category }}
@@ -192,33 +236,40 @@
                                     </strong>
 
                                     <span>
-                                        ₹{{ budget.spent|default:"0.00" }}
+                                        {% currency_symbol %}{{ budget.spent|default:"0.00"|currency_value }}
                                         of
-                                        ₹{{ budget.limit|default:"0.00" }}
+                                        {% currency_symbol %}{{ budget.limit|default:"0.00"|currency_value }}
                                     </span>
+
                                 </div>
 
                                 <strong>
                                     {{ budget.percentage|default:"0" }}%
                                 </strong>
+
                             </div>
 
                             <div class="progress-track">
+
                                 <span
                                     class="progress-value {{ budget.status_class|default:'on-track' }}"
                                     data-percentage="{{ budget.percentage|default:'0' }}"
                                 ></span>
+
                             </div>
 
                             <div class="budget-item-bottom">
+
                                 <span>
+
                                     {% if budget.remaining >= 0 %}
-                                        ₹{{ budget.remaining|floatformat:2 }}
+                                        {% currency_symbol %}{{ budget.remaining|floatformat:2|currency_value }}
                                         remaining
                                     {% else %}
-                                        ₹{{ budget.remaining|stringformat:"s"|cut:"-" }}
+                                        {% currency_symbol %}{{ budget.remaining|stringformat:"s"|cut:"-"|currency_value }}
                                         over budget
                                     {% endif %}
+
                                 </span>
 
                                 <span
@@ -226,15 +277,19 @@
                                 >
                                     {{ budget.status|default:"On track" }}
                                 </span>
+
                             </div>
 
                         </div>
+
                     {% endfor %}
+
                 </div>
 
             {% else %}
 
                 <div class="empty-state">
+
                     <i class="fa-regular fa-folder-open"></i>
 
                     <h3>No budgets yet</h3>
@@ -249,13 +304,18 @@
                     >
                         Create budget
                     </a>
+
                 </div>
 
             {% endif %}
+
         </article>
 
+
         <article class="content-card chart-section">
+
             <div class="card-heading">
+
                 <div>
                     <span class="section-kicker">
                         Spending movement
@@ -267,19 +327,24 @@
                 <span class="card-period">
                     Last 6 months
                 </span>
+
             </div>
 
             <div class="chart-wrapper">
                 <canvas id="monthlyExpenseChart"></canvas>
             </div>
+
         </article>
 
     </section>
 
+
     <section class="dashboard-grid lower-grid">
 
         <article class="content-card transactions-section">
+
             <div class="card-heading">
+
                 <div>
                     <span class="section-kicker">
                         Latest activity
@@ -295,18 +360,23 @@
                     View all
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 </a>
+
             </div>
 
             {% if recent_transactions %}
 
                 <div class="transaction-list">
+
                     {% for transaction in recent_transactions %}
+
                         <div class="transaction-item">
+
                             <div class="transaction-icon">
                                 <i class="fa-solid fa-receipt"></i>
                             </div>
 
                             <div class="transaction-details">
+
                                 <strong>
                                     {% if transaction.category %}
                                         {{ transaction.category.name|default:transaction.category }}
@@ -318,9 +388,11 @@
                                 <span>
                                     {{ transaction.description|default:"No description" }}
                                 </span>
+
                             </div>
 
                             <div class="transaction-meta">
+
                                 <strong
                                     class="{% if transaction.transaction_type == 'Income' %}amount-income{% else %}amount-expense{% endif %}"
                                 >
@@ -329,20 +401,26 @@
                                     {% else %}
                                         -
                                     {% endif %}
-                                    ₹{{ transaction.amount }}
+
+                                    {% currency_symbol %}{{ transaction.amount|currency_value }}
                                 </strong>
 
                                 <span>
                                     {{ transaction.transaction_date|date:"d M Y" }}
                                 </span>
+
                             </div>
+
                         </div>
+
                     {% endfor %}
+
                 </div>
 
             {% else %}
 
                 <div class="empty-state">
+
                     <i class="fa-regular fa-file-lines"></i>
 
                     <h3>No transactions yet</h3>
@@ -357,13 +435,18 @@
                     >
                         Add transaction
                     </a>
+
                 </div>
 
             {% endif %}
+
         </article>
 
+
         <article class="content-card insight-section">
+
             <div class="card-heading">
+
                 <div>
                     <span class="section-kicker">
                         Personal insight
@@ -373,24 +456,36 @@
                 </div>
 
                 <i class="fa-regular fa-lightbulb insight-icon"></i>
+
             </div>
 
             {% if patterns %}
+
                 {% for pattern in patterns|slice:":2" %}
+
                     <div class="insight-item">
+
                         <span class="insight-marker"></span>
+
                         <p>
                             {{ pattern }}
                         </p>
+
                     </div>
+
                 {% endfor %}
+
             {% else %}
+
                 <div class="insight-placeholder">
+
                     <p>
                         Keep recording your expenses. Once more activity is
                         available, your spending patterns will appear here.
                     </p>
+
                 </div>
+
             {% endif %}
 
             <a
@@ -399,12 +494,16 @@
             >
                 Open AI Summary
             </a>
+
         </article>
 
     </section>
 
+
     <section class="dashboard-navigation-card">
+
         <div class="card-heading">
+
             <div>
                 <span class="section-kicker">
                     Explore
@@ -412,9 +511,11 @@
 
                 <h2>Manage your finances</h2>
             </div>
+
         </div>
 
         <div class="quick-links">
+
             <a
                 href="{% url 'analytics:dashboard' %}"
                 class="quick-link"
@@ -456,16 +557,25 @@
 
                 <i class="fa-solid fa-arrow-right"></i>
             </a>
+
         </div>
+
     </section>
 
 </section>
 
+
 {{ monthly_trend|json_script:"monthly-trend-data" }}
+
 
 <script>
     document.querySelectorAll("[data-percentage]").forEach((progress) => {
-        progress.style.width = `${progress.dataset.percentage}%`;
+        const percentage = Number(progress.dataset.percentage || 0);
+
+        progress.style.width = `${Math.min(
+            Math.max(percentage, 0),
+            100
+        )}%`;
     });
 </script>
 

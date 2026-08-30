@@ -14,21 +14,22 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     const sidebar = document.getElementById("sidebar");
-    const sidebarToggle = document.getElementById("sidebarToggle");
+    const sidebarToggle = document.getElementById(
+        "sidebarToggle"
+    );
     const mobileMenuButton = document.getElementById(
         "mobileMenuButton"
     );
     const mobileOverlay = document.getElementById(
         "mobileOverlay"
     );
-    const themeToggle = document.getElementById("themeToggle");
+    const themeToggle = document.getElementById(
+        "themeToggle"
+    );
 
     const desktopMediaQuery = window.matchMedia(
         "(min-width: 769px)"
     );
-
-
-    /* Sidebar desktop state */
 
 
     function applySidebarState() {
@@ -75,7 +76,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         localStorage.setItem(
             "expenseTrackerSidebar",
-            isCollapsed ? "collapsed" : "expanded"
+            isCollapsed
+                ? "collapsed"
+                : "expanded"
         );
     });
 
@@ -87,9 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
             closeMobileSidebar();
         }
     );
-
-
-    /* Mobile sidebar */
 
 
     function closeMobileSidebar() {
@@ -127,9 +127,6 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         }
     );
-
-
-    /* Theme */
 
 
     const currentTheme =
@@ -176,9 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? "fa-regular fa-sun"
                 : "fa-regular fa-moon";
     }
-
-
-    /* Monthly expense chart */
 
 
     const trendElement = document.getElementById(
@@ -234,6 +228,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
+    const currencySymbols = {
+        INR: "₹",
+        USD: "$",
+        EUR: "€",
+        GBP: "£",
+    };
+
+
+    const currencyCode =
+        document.documentElement.dataset.currency ||
+        "INR";
+
+    const currencySymbol =
+        currencySymbols[currencyCode] ||
+        "₹";
+
+
     const styles = getComputedStyle(
         document.documentElement
     );
@@ -277,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 tooltip: {
                     callbacks: {
                         label: (context) => {
-                            return ` ₹${Number(
+                            return ` ${currencySymbol}${Number(
                                 context.raw
                             ).toLocaleString("en-IN")}`;
                         },
@@ -318,7 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         },
 
                         callback: (value) => {
-                            return `₹${Number(
+                            return `${currencySymbol}${Number(
                                 value
                             ).toLocaleString("en-IN")}`;
                         },

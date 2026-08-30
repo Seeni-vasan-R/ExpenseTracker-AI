@@ -1,6 +1,7 @@
 {% extends "dashboard/base.html" %}
 
 {% load static %}
+{% load expense_tracker_tags %}
 
 {% block title %}
     Budgets | Expense Tracker
@@ -18,6 +19,7 @@
 <section class="page-wrapper budgets-page">
 
     <header class="module-header budget-header">
+
         <div>
             <span class="section-kicker">
                 Financial planning
@@ -37,11 +39,13 @@
             <i class="fa-solid fa-plus"></i>
             Create budget
         </a>
+
     </header>
 
     <section class="budget-summary-grid">
 
         <article class="budget-summary-card">
+
             <div class="summary-card-top">
                 <span>Total budget</span>
 
@@ -51,15 +55,17 @@
             </div>
 
             <strong>
-                ₹{{ total_budget|default:"0.00"|floatformat:2 }}
+                {% currency_symbol %}{{ total_budget|default:"0.00"|currency_value }}
             </strong>
 
             <small>
                 All your budgets
             </small>
+
         </article>
 
         <article class="budget-summary-card">
+
             <div class="summary-card-top">
                 <span>Active budget</span>
 
@@ -69,15 +75,17 @@
             </div>
 
             <strong>
-                ₹{{ active_budget|default:"0.00"|floatformat:2 }}
+                {% currency_symbol %}{{ active_budget|default:"0.00"|currency_value }}
             </strong>
 
             <small>
                 Currently active limits
             </small>
+
         </article>
 
         <article class="budget-summary-card">
+
             <div class="summary-card-top">
                 <span>Total used</span>
 
@@ -87,15 +95,17 @@
             </div>
 
             <strong>
-                ₹{{ total_used|default:"0.00"|floatformat:2 }}
+                {% currency_symbol %}{{ total_used|default:"0.00"|currency_value }}
             </strong>
 
             <small>
                 From matching expenses
             </small>
+
         </article>
 
         <article class="budget-summary-card">
+
             <div class="summary-card-top">
                 <span>Budget slots</span>
 
@@ -106,6 +116,7 @@
 
             <strong>
                 {{ active_budget_count|default:"0" }}
+
                 <small class="limit-value">
                     / {{ budget_limit_per_month|default:"5" }}
                 </small>
@@ -114,6 +125,7 @@
             <small>
                 Active budgets this month
             </small>
+
         </article>
 
     </section>
@@ -121,6 +133,7 @@
     <section class="budget-panel">
 
         <div class="budget-panel-heading">
+
             <div>
                 <span class="section-kicker">
                     Monthly overview
@@ -131,9 +144,11 @@
 
             <span class="budget-limit-note">
                 <i class="fa-solid fa-circle-info"></i>
+
                 Maximum {{ budget_limit_per_month|default:"5" }}
                 active budgets per month
             </span>
+
         </div>
 
         {% if budgets %}
@@ -145,8 +160,11 @@
                     <article
                         class="budget-card {{ budget.status_class }}"
                     >
+
                         <div class="budget-card-header">
+
                             <div class="budget-card-title">
+
                                 <span class="budget-category-icon">
                                     {% if budget.category %}
                                         <i class="fa-solid fa-tag"></i>
@@ -156,6 +174,7 @@
                                 </span>
 
                                 <div>
+
                                     <h3>
                                         {% if budget.category %}
                                             {{ budget.category.name }}
@@ -169,10 +188,13 @@
                                         –
                                         {{ budget.end_date|date:"d M Y" }}
                                     </p>
+
                                 </div>
+
                             </div>
 
                             <div class="budget-card-menu">
+
                                 {% if budget.is_active %}
                                     <span class="active-badge">
                                         Active
@@ -182,14 +204,17 @@
                                         Inactive
                                     </span>
                                 {% endif %}
+
                             </div>
+
                         </div>
 
                         <div class="budget-status-row">
+
                             <span
-                                class="budget-status
-                                {{ budget.status_class }}"
+                                class="budget-status {{ budget.status_class }}"
                             >
+
                                 {% if budget.status_class == "over-budget" %}
                                     <i class="fa-solid fa-circle-exclamation"></i>
                                 {% elif budget.status_class == "almost-reached" %}
@@ -199,75 +224,93 @@
                                 {% endif %}
 
                                 {{ budget.status }}
+
                             </span>
 
                             <span class="budget-percentage">
                                 {{ budget.progress_percentage|floatformat:0 }}%
                             </span>
+
                         </div>
 
                         <div class="budget-progress-track">
+
                             <div
-                                class="budget-progress-bar
-                                {{ budget.status_class }}"
+                                class="budget-progress-bar {{ budget.status_class }}"
                                 data-progress="{{ budget.progress_percentage }}"
                             ></div>
+
                         </div>
 
                         <div class="budget-amount-grid">
+
                             <div class="budget-amount-item">
+
                                 <span>Used</span>
 
                                 <strong>
-                                    ₹{{ budget.used_amount|floatformat:2 }}
+                                    {% currency_symbol %}{{ budget.used_amount|default:"0.00"|currency_value }}
                                 </strong>
+
                             </div>
 
                             <div class="budget-amount-item">
+
                                 <span>Budget</span>
 
                                 <strong>
-                                    ₹{{ budget.budget_limit|floatformat:2 }}
+                                    {% currency_symbol %}{{ budget.budget_limit|default:"0.00"|currency_value }}
                                 </strong>
+
                             </div>
 
                             <div class="budget-amount-item">
+
                                 <span>Remaining</span>
 
                                 <strong
-                                    class="
-                                    {% if budget.remaining_amount < 0 %}
-                                        negative-amount
-                                    {% else %}
-                                        positive-amount
-                                    {% endif %}
-                                    "
+                                    class="{% if budget.remaining_amount < 0 %}negative-amount{% else %}positive-amount{% endif %}"
                                 >
-                                    ₹{{ budget.remaining_amount|floatformat:2 }}
+                                    {% if budget.remaining_amount < 0 %}
+                                        -{% currency_symbol %}{{ budget.remaining_amount|stringformat:"s"|cut:"-"|currency_value }}
+                                    {% else %}
+                                        {% currency_symbol %}{{ budget.remaining_amount|default:"0.00"|currency_value }}
+                                    {% endif %}
                                 </strong>
+
                             </div>
+
                         </div>
 
                         {% if budget.remaining_amount < 0 %}
+
                             <div class="budget-alert budget-alert-danger">
+
                                 <i class="fa-solid fa-circle-exclamation"></i>
 
                                 <span>
                                     You have exceeded this budget by
-                                    ₹{{ budget.remaining_amount|stringformat:"s"|cut:"-" }}
+                                    {% currency_symbol %}{{ budget.remaining_amount|stringformat:"s"|cut:"-"|currency_value }}
                                 </span>
+
                             </div>
+
                         {% elif budget.status_class == "almost-reached" %}
+
                             <div class="budget-alert budget-alert-warning">
+
                                 <i class="fa-solid fa-triangle-exclamation"></i>
 
                                 <span>
                                     You are close to reaching this budget.
                                 </span>
+
                             </div>
+
                         {% endif %}
 
                         <div class="budget-card-footer">
+
                             <a
                                 href="{% url 'budget:budget_update' budget.pk %}"
                                 class="budget-action"
@@ -283,7 +326,9 @@
                                 <i class="fa-regular fa-trash-can"></i>
                                 Delete
                             </a>
+
                         </div>
+
                     </article>
 
                 {% endfor %}
@@ -293,6 +338,7 @@
         {% else %}
 
             <div class="budget-empty-state">
+
                 <div class="empty-state-icon">
                     <i class="fa-solid fa-bullseye"></i>
                 </div>
@@ -300,8 +346,7 @@
                 <h2>No budgets yet</h2>
 
                 <p>
-                    Create a monthly budget to start monitoring
-                    your spending.
+                    Create a monthly budget to start monitoring your spending.
                 </p>
 
                 <a
@@ -311,6 +356,7 @@
                     <i class="fa-solid fa-plus"></i>
                     Create your first budget
                 </a>
+
             </div>
 
         {% endif %}
@@ -322,7 +368,9 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script
-        src="{% static 'budgets/js/budgets.js' %}"
-    ></script>
+
+<script
+    src="{% static 'budgets/js/budgets.js' %}"
+></script>
+
 {% endblock %}

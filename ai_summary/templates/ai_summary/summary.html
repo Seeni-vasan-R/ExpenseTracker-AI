@@ -1,6 +1,7 @@
 {% extends "dashboard/base.html" %}
 
 {% load static %}
+{% load expense_tracker_tags %}
 
 {% block title %}
     AI Summary | Expense Tracker
@@ -11,7 +12,9 @@
 <section class="page-wrapper ai-summary-page ai-vertical-layout">
 
     <header class="topbar">
+
         <div class="topbar-left">
+
             <button
                 type="button"
                 class="mobile-menu-button"
@@ -22,15 +25,19 @@
             </button>
 
             <div>
+
                 <span class="eyebrow">
                     Explainable financial guidance
                 </span>
 
                 <h1>AI Summary</h1>
+
             </div>
+
         </div>
 
         <div class="topbar-right">
+
             <span
                 id="summary-updated"
                 class="ai-summary-updated"
@@ -45,11 +52,15 @@
                 <i class="fa-solid fa-chart-line"></i>
                 Analytics
             </a>
+
         </div>
+
     </header>
 
     <section class="ai-vertical-section ai-period-card">
+
         <div class="ai-section-heading">
+
             <div>
                 <span class="section-kicker">
                     Personal financial guidance
@@ -68,10 +79,13 @@
             <span class="ai-sparkle">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
             </span>
+
         </div>
 
         <div class="ai-period-controls">
+
             <div class="ai-filter-field">
+
                 <label for="month-select">
                     Month
                 </label>
@@ -90,14 +104,17 @@
                     <option value="11">November</option>
                     <option value="12">December</option>
                 </select>
+
             </div>
 
             <div class="ai-filter-field">
+
                 <label for="year-select">
                     Year
                 </label>
 
                 <select id="year-select"></select>
+
             </div>
 
             <button
@@ -108,7 +125,9 @@
                 <i class="fa-solid fa-arrows-rotate"></i>
                 Generate summary
             </button>
+
         </div>
+
     </section>
 
     <div
@@ -118,11 +137,13 @@
     ></div>
 
     <section class="ai-vertical-section ai-overview-card">
+
         <div class="ai-overview-icon">
             <i class="fa-solid fa-lightbulb"></i>
         </div>
 
         <div>
+
             <span class="section-kicker">
                 Generated overview
             </span>
@@ -134,11 +155,15 @@
             <p id="summary-text">
                 Preparing your financial summary...
             </p>
+
         </div>
+
     </section>
 
     <section class="ai-vertical-section">
+
         <div class="ai-section-heading">
+
             <div>
                 <span class="section-kicker">
                     Monthly snapshot
@@ -148,47 +173,59 @@
                     Key financial metrics
                 </h2>
             </div>
+
         </div>
 
         <div class="ai-metric-row">
 
             <article class="ai-metric-card ai-metric-income">
+
                 <span>Income</span>
 
                 <strong id="metric-income">
-                    ₹{{ total_income|default:"0.00" }}
+                    {% currency_symbol %}{{ total_income|default:"0.00"|currency_value }}
                 </strong>
 
                 <small>
                     Recorded this month
                 </small>
+
             </article>
 
             <article class="ai-metric-card ai-metric-expense">
+
                 <span>Expenses</span>
 
                 <strong id="metric-expense">
-                    ₹{{ total_expense|default:"0.00" }}
+                    {% currency_symbol %}{{ total_expense|default:"0.00"|currency_value }}
                 </strong>
 
                 <small>
                     Active expenses
                 </small>
+
             </article>
 
             <article class="ai-metric-card ai-metric-balance">
+
                 <span>Balance</span>
 
                 <strong id="metric-balance">
-                    ₹{{ balance|default:"0.00" }}
+                    {% if balance < 0 %}
+                        -{% currency_symbol %}{{ balance|stringformat:"s"|cut:"-"|currency_value }}
+                    {% else %}
+                        {% currency_symbol %}{{ balance|default:"0.00"|currency_value }}
+                    {% endif %}
                 </strong>
 
                 <small>
                     Income after expenses
                 </small>
+
             </article>
 
             <article class="ai-metric-card ai-metric-savings">
+
                 <span>Savings rate</span>
 
                 <strong id="metric-savings-rate">
@@ -198,13 +235,17 @@
                 <small>
                     Based on recorded income
                 </small>
+
             </article>
 
         </div>
+
     </section>
 
     <section class="ai-vertical-section">
+
         <div class="ai-section-heading">
+
             <div>
                 <span class="section-kicker">
                     Explainable financial guidance
@@ -215,11 +256,11 @@
                 </h2>
 
                 <p>
-                    Review your spending behaviour, key insights,
-                    unusual patterns, budget position, and suggested
-                    actions in one place.
+                    Review your spending behaviour, key insights, unusual
+                    patterns, budget position, and suggested actions in one place.
                 </p>
             </div>
+
         </div>
 
         <div class="ai-summary-four-boxes">
@@ -227,7 +268,9 @@
             <article
                 class="ai-summary-box ai-behaviour-summary-box"
             >
+
                 <div class="ai-summary-box-heading">
+
                     <div>
                         <span class="section-kicker">
                             Behaviour overview
@@ -241,6 +284,7 @@
                     <span class="ai-summary-box-icon">
                         <i class="fa-solid fa-chart-simple"></i>
                     </span>
+
                 </div>
 
                 <div
@@ -251,12 +295,15 @@
                         Loading behaviour summary...
                     </p>
                 </div>
+
             </article>
 
             <article
                 class="ai-summary-box ai-insight-summary-box"
             >
+
                 <div class="ai-summary-box-heading">
+
                     <div>
                         <span class="section-kicker">
                             Explainable signals
@@ -270,6 +317,7 @@
                     <span class="ai-summary-box-icon">
                         <i class="fa-solid fa-lightbulb"></i>
                     </span>
+
                 </div>
 
                 <div
@@ -280,12 +328,15 @@
                         Loading insight card...
                     </p>
                 </div>
+
             </article>
 
             <article
                 class="ai-summary-box ai-pattern-summary-box"
             >
+
                 <div class="ai-summary-box-heading">
+
                     <div>
                         <span class="section-kicker">
                             Spending behaviour
@@ -299,6 +350,7 @@
                     <span class="ai-summary-box-icon">
                         <i class="fa-solid fa-wave-square"></i>
                     </span>
+
                 </div>
 
                 <div
@@ -309,12 +361,15 @@
                         Loading patterns and anomalies...
                     </p>
                 </div>
+
             </article>
 
             <article
                 class="ai-summary-box ai-budget-summary-box"
             >
+
                 <div class="ai-summary-box-heading">
+
                     <div>
                         <span class="section-kicker">
                             Budget awareness
@@ -328,6 +383,7 @@
                     <span class="ai-summary-box-icon">
                         <i class="fa-solid fa-wallet"></i>
                     </span>
+
                 </div>
 
                 <div
@@ -338,13 +394,17 @@
                         Loading budgets and recommendations...
                     </p>
                 </div>
+
             </article>
 
         </div>
+
     </section>
 
     <section class="ai-vertical-section ai-panel">
+
         <div class="ai-section-heading">
+
             <div>
                 <span class="section-kicker">
                     Spending classification
@@ -354,49 +414,57 @@
                     Needs, wants and savings
                 </h2>
             </div>
+
         </div>
 
         <div class="ai-classification-list">
 
             <div class="ai-classification-row">
+
                 <span>Needs</span>
 
                 <strong id="classification-need">
-                    ₹0.00
+                    {% currency_symbol %}0.00
                 </strong>
 
                 <small id="classification-need-percent">
                     0.00%
                 </small>
+
             </div>
 
             <div class="ai-classification-row">
+
                 <span>Wants</span>
 
                 <strong id="classification-want">
-                    ₹0.00
+                    {% currency_symbol %}0.00
                 </strong>
 
                 <small id="classification-want-percent">
                     0.00%
                 </small>
+
             </div>
 
             <div class="ai-classification-row">
+
                 <span>Savings</span>
 
                 <strong id="classification-saving">
-                    ₹0.00
+                    {% currency_symbol %}0.00
                 </strong>
 
                 <small id="classification-saving-percent">
                     0.00%
                 </small>
+
             </div>
 
         </div>
 
         <div class="ai-classification-bar">
+
             <span
                 id="classification-need-bar"
                 class="ai-classification-segment ai-need-segment"
@@ -411,11 +479,15 @@
                 id="classification-saving-bar"
                 class="ai-classification-segment ai-saving-segment"
             ></span>
+
         </div>
+
     </section>
 
     <section class="ai-vertical-section ai-panel">
+
         <div class="ai-section-heading">
+
             <div>
                 <span class="section-kicker">
                     Forward view
@@ -425,31 +497,39 @@
                     Expense forecast
                 </h2>
             </div>
+
         </div>
 
         <div class="ai-forecast-content">
+
             <div class="ai-forecast-value">
+
                 <span>
                     Estimated average monthly expense
                 </span>
 
                 <strong id="forecast-value">
-                    ₹0.00
+                    {% currency_symbol %}0.00
                 </strong>
 
                 <small id="forecast-confidence">
                     Waiting for forecast data
                 </small>
+
             </div>
 
             <div class="ai-forecast-note">
+
                 <p>
                     This is a historical baseline, not a guarantee.
                     Continue recording transactions for more reliable
                     future analysis.
                 </p>
+
             </div>
+
         </div>
+
     </section>
 
 </section>
@@ -457,7 +537,9 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script
-        src="{% static 'ai_summary/js/summary.js' %}"
-    ></script>
+
+<script
+    src="{% static 'ai_summary/js/summary.js' %}"
+></script>
+
 {% endblock %}

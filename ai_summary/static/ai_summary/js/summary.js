@@ -1,11 +1,32 @@
 "use strict";
 
 
+const supportedCurrencies = {
+    INR: "INR",
+    USD: "USD",
+    EUR: "EUR",
+    GBP: "GBP",
+};
+
+
+const savedCurrency = (
+    document.documentElement.dataset.currency
+    || "INR"
+).toUpperCase();
+
+
+const activeCurrency = (
+    supportedCurrencies[savedCurrency]
+    || "INR"
+);
+
+
 const currencyFormatter = new Intl.NumberFormat(
     "en-IN",
     {
         style: "currency",
-        currency: "INR",
+        currency: activeCurrency,
+        currencyDisplay: "symbol",
         maximumFractionDigits: 2,
     }
 );
@@ -49,7 +70,7 @@ function decimalValue(value) {
 
     const normalized = String(value)
         .replaceAll(",", "")
-        .replace(/[₹%\s]/g, "");
+        .replace(/[₹$€£%\s]/g, "");
 
     const parsed = Number.parseFloat(normalized);
 
@@ -63,6 +84,17 @@ function formatCurrency(value) {
     return currencyFormatter.format(
         decimalValue(value)
     );
+}
+
+
+function formatSignedCurrency(value) {
+    const amount = decimalValue(value);
+
+    if (amount < 0) {
+        return `-${formatCurrency(Math.abs(amount))}`;
+    }
+
+    return formatCurrency(amount);
 }
 
 
@@ -499,33 +531,35 @@ function renderInitialMetrics() {
         "metric-savings-rate"
     );
 
-    if (
-        income
-        && !income.textContent.trim()
-    ) {
-        income.textContent = formatCurrency(0);
+    if (income) {
+        income.textContent = formatCurrency(
+            decimalValue(
+                income.dataset.value || 0
+            )
+        );
     }
 
-    if (
-        expense
-        && !expense.textContent.trim()
-    ) {
-        expense.textContent = formatCurrency(0);
+    if (expense) {
+        expense.textContent = formatCurrency(
+            decimalValue(
+                expense.dataset.value || 0
+            )
+        );
     }
 
-    if (
-        balance
-        && !balance.textContent.trim()
-    ) {
-        balance.textContent = formatCurrency(0);
+    if (balance) {
+        balance.textContent = formatSignedCurrency(
+            decimalValue(
+                balance.dataset.value || 0
+            )
+        );
     }
 
-    if (
-        savingsRate
-        && !savingsRate.textContent.trim()
-    ) {
+    if (savingsRate) {
         savingsRate.textContent =
-            formatPercentage(0);
+            formatPercentage(
+                savingsRate.dataset.value || 0
+            );
     }
 }
 
@@ -662,7 +696,7 @@ function renderMetrics(payload) {
 
     setText(
         "metric-balance",
-        formatCurrency(balance)
+        formatSignedCurrency(balance)
     );
 
     setText(
@@ -815,6 +849,7 @@ function renderClassification(needWant) {
         needBar.style.width = "0%";
         wantBar.style.width = "0%";
         savingBar.style.width = "0%";
+
         return;
     }
 
@@ -983,8 +1018,8 @@ function renderInsightSummaryBox(payload) {
     if (!insights.length) {
         container.innerHTML =
             '<p class="ai-summary-empty">'
-            + 'No insights are available for this period.'
-            + '</p>';
+            + "No insights are available for this period."
+            + "</p>";
 
         return;
     }
@@ -1008,21 +1043,21 @@ function renderInsightSummaryBox(payload) {
         additionalText =
             '<small class="ai-summary-additional-count">'
             + escapeHtml(extraInsightCount)
-            + ' additional signal'
+            + " additional signal"
             + (
                 extraInsightCount === 1
                     ? ""
                     : "s"
             )
-            + ' detected'
-            + '</small>';
+            + " detected"
+            + "</small>";
     }
 
     container.innerHTML =
         '<article class="ai-summary-highlight '
         + insightType
         + '">'
-        + '<h3>'
+        + "<h3>"
         + escapeHtml(
             getObjectValue(
                 mainInsight,
@@ -1030,8 +1065,8 @@ function renderInsightSummaryBox(payload) {
                 "Financial insight"
             )
         )
-        + '</h3>'
-        + '<p>'
+        + "</h3>"
+        + "<p>"
         + escapeHtml(
             getObjectValue(
                 mainInsight,
@@ -1039,9 +1074,9 @@ function renderInsightSummaryBox(payload) {
                 "No insight message is available."
             )
         )
-        + '</p>'
+        + "</p>"
         + additionalText
-        + '</article>';
+        + "</article>";
 }
 
 
@@ -1235,10 +1270,10 @@ function renderPatternSummaryBox(payload) {
                 + insightType
                 + '">'
                 + '<i class="fa-solid fa-circle"></i>'
-                + '<span>'
+                + "<span>"
                 + escapeHtml(pattern.message)
-                + '</span>'
-                + '</div>'
+                + "</span>"
+                + "</div>"
             );
         })
         .join("");
@@ -1319,30 +1354,30 @@ function renderBudgetSummaryBox(payload) {
 
                 return (
                     '<div class="ai-summary-budget-row">'
-                    + '<div>'
-                    + '<span>'
+                    + "<div>"
+                    + "<span>"
                     + escapeHtml(category)
-                    + '</span>'
-                    + '<small>'
+                    + "</span>"
+                    + "<small>"
                     + spent
-                    + ' of '
+                    + " of "
                     + budgetLimit
-                    + '</small>'
-                    + '</div>'
+                    + "</small>"
+                    + "</div>"
                     + '<strong class="'
                     + details.cssClass
                     + '">'
                     + details.label
-                    + '</strong>'
-                    + '</div>'
+                    + "</strong>"
+                    + "</div>"
                 );
             })
             .join("");
     } else {
         budgetHtml =
             '<p class="ai-summary-empty">'
-            + 'No active budgets for this period.'
-            + '</p>';
+            + "No active budgets for this period."
+            + "</p>";
     }
 
     let recommendationHtml = "";
@@ -1364,9 +1399,9 @@ function renderBudgetSummaryBox(payload) {
             + priority
             + '">'
             + '<span class="ai-summary-recommendation-label">'
-            + 'Suggested action'
-            + '</span>'
-            + '<strong>'
+            + "Suggested action"
+            + "</span>"
+            + "<strong>"
             + escapeHtml(
                 getObjectValue(
                     recommendation,
@@ -1374,8 +1409,8 @@ function renderBudgetSummaryBox(payload) {
                     "Continue tracking your finances"
                 )
             )
-            + '</strong>'
-            + '<p>'
+            + "</strong>"
+            + "<p>"
             + escapeHtml(
                 getObjectValue(
                     recommendation,
@@ -1383,30 +1418,27 @@ function renderBudgetSummaryBox(payload) {
                     "No recommendation message is available."
                 )
             )
-            + '</p>'
-            + '</div>';
+            + "</p>"
+            + "</div>";
     } else {
         recommendationHtml =
             '<p class="ai-summary-empty">'
-            + 'No recommendations are available.'
-            + '</p>';
+            + "No recommendations are available."
+            + "</p>";
     }
 
     container.innerHTML =
         '<div class="ai-summary-budget-list">'
         + budgetHtml
-        + '</div>'
+        + "</div>"
         + recommendationHtml;
 }
 
 
 function renderFourSummaryBoxes(payload) {
     renderBehaviourSummaryBox(payload);
-
     renderInsightSummaryBox(payload);
-
     renderPatternSummaryBox(payload);
-
     renderBudgetSummaryBox(payload);
 }
 
@@ -1511,7 +1543,6 @@ function setButtonLoading(isLoading) {
 
 async function loadSummary() {
     hideError();
-
     setButtonLoading(true);
 
     try {
@@ -1519,9 +1550,7 @@ async function loadSummary() {
             await fetchSummary();
 
         renderSummaryText(summaryPayload);
-
         renderMetrics(summaryPayload);
-
         renderFourSummaryBoxes(summaryPayload);
 
         let forecastPayload = {};
@@ -1576,13 +1605,9 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
         populateYears();
-
         initializePeriod();
-
         renderInitialMetrics();
-
         bindEvents();
-
         loadSummary();
     }
 );

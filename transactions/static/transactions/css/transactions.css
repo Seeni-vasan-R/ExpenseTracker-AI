@@ -1713,3 +1713,719 @@ input[type="file"].form-control {
         width: 100%;
     }
 }
+
+
+/* Category management */
+
+.category-page,
+.category-form-page,
+.category-delete-page {
+    width: min(calc(100% - 60px), 1120px);
+    margin: 0 auto;
+    padding: 34px 0 52px;
+}
+
+.category-page-header {
+    align-items: center;
+}
+
+.category-header-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.category-intro-card {
+    margin-bottom: 22px;
+    padding: 24px;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+
+    background:
+        radial-gradient(
+            circle at 90% 10%,
+            var(--accent-soft),
+            transparent 38%
+        ),
+        var(--surface);
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+}
+
+.category-intro-icon,
+.category-form-icon {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    border-radius: 12px;
+}
+
+.category-intro-card h2,
+.category-form-heading h2 {
+    margin: 5px 0 7px;
+
+    color: var(--text);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.75rem;
+    line-height: 1.05;
+}
+
+.category-intro-card p,
+.category-form-heading p {
+    max-width: 700px;
+    margin: 0;
+
+    color: var(--text-soft);
+    font-size: 0.72rem;
+    line-height: 1.65;
+}
+
+.category-panel {
+    padding: 25px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+}
+
+.category-panel-heading {
+    margin-bottom: 24px;
+    padding-bottom: 17px;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.category-panel-heading h2 {
+    margin: 5px 0 0;
+
+    color: var(--text);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.75rem;
+}
+
+.category-count {
+    padding: 7px 10px;
+
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    border-radius: 999px;
+
+    font-size: 0.63rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.category-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.category-group {
+    min-width: 0;
+}
+
+.category-group-heading {
+    margin-bottom: 13px;
+
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.category-group-icon {
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 9px;
+    font-size: 0.76rem;
+}
+
+.category-group-heading h3 {
+    margin: 0;
+
+    color: var(--text);
+    font-size: 0.86rem;
+    font-weight: 800;
+}
+
+.category-group-heading p {
+    margin: 3px 0 0;
+
+    color: var(--text-soft);
+    font-size: 0.63rem;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.category-card {
+    min-width: 0;
+    min-height: 84px;
+    padding: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition);
+}
+
+.category-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-2px);
+}
+
+.category-card-main {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.category-card-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 9px;
+    font-size: 0.72rem;
+}
+
+.category-card-content {
+    min-width: 0;
+}
+
+.category-card-content h4 {
+    margin: 0 0 5px;
+
+    overflow: hidden;
+
+    color: var(--text);
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.category-owner-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    color: var(--text-soft);
+    font-size: 0.59rem;
+}
+
+.category-owner-label i {
+    font-size: 0.55rem;
+}
+
+.category-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.category-action {
+    width: 28px;
+    height: 28px;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--text-soft);
+    border-radius: 7px;
+
+    transition:
+        color var(--transition),
+        background-color var(--transition);
+}
+
+.category-action:hover {
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+}
+
+.category-action-danger:hover {
+    color: var(--expense);
+    background: color-mix(
+        in srgb,
+        var(--expense) 12%,
+        var(--surface)
+    );
+}
+
+.category-icon-income {
+    color: var(--income);
+    background: color-mix(
+        in srgb,
+        var(--income) 13%,
+        var(--surface)
+    );
+}
+
+.category-icon-savings {
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+}
+
+.category-icon-want {
+    color: var(--warning);
+    background: color-mix(
+        in srgb,
+        var(--warning) 13%,
+        var(--surface)
+    );
+}
+
+.category-icon-need {
+    color: var(--expense);
+    background: color-mix(
+        in srgb,
+        var(--expense) 12%,
+        var(--surface)
+    );
+}
+
+.category-empty-state {
+    min-height: 300px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 9px;
+
+    text-align: center;
+}
+
+.category-empty-icon {
+    width: 54px;
+    height: 54px;
+    margin-bottom: 5px;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    border-radius: 15px;
+
+    font-size: 1.25rem;
+}
+
+.category-empty-state h3 {
+    margin: 0;
+
+    color: var(--text);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.55rem;
+}
+
+.category-empty-state p {
+    max-width: 330px;
+    margin: 0 0 8px;
+
+    color: var(--text-soft);
+    font-size: 0.7rem;
+    line-height: 1.55;
+}
+
+
+/* Category form */
+
+.category-form-card {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 28px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+}
+
+.category-form-heading {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.category-form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.category-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.category-form-field label {
+    color: var(--text);
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.category-form-field input,
+.category-form-field select {
+    width: 100%;
+    min-height: 43px;
+    padding: 10px 12px;
+
+    color: var(--text);
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 0.75rem;
+}
+
+.category-form-field input:focus,
+.category-form-field select:focus {
+    outline: 2px solid rgba(182, 129, 85, 0.35);
+    border-color: var(--accent);
+}
+
+.category-form-field small {
+    color: var(--text-soft);
+    font-size: 0.62rem;
+    line-height: 1.5;
+}
+
+.category-form-error {
+    color: var(--expense);
+    font-size: 0.64rem;
+}
+
+.transaction-form-error-summary {
+    margin-bottom: 20px;
+    padding: 13px 15px;
+
+    color: var(--expense);
+    background: color-mix(
+        in srgb,
+        var(--expense) 11%,
+        var(--surface)
+    );
+    border: 1px solid color-mix(
+        in srgb,
+        var(--expense) 25%,
+        var(--border)
+    );
+    border-radius: 9px;
+
+    font-size: 0.7rem;
+}
+
+.transaction-form-error-summary p {
+    margin: 0;
+}
+
+.transaction-form-error-summary p + p {
+    margin-top: 5px;
+}
+
+.category-form-note {
+    margin-top: 21px;
+    padding: 13px 14px;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+
+    color: var(--text-soft);
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+.category-form-note i {
+    padding-top: 2px;
+    color: var(--accent-dark);
+}
+
+.category-form-note p {
+    margin: 0;
+
+    font-size: 0.65rem;
+    line-height: 1.55;
+}
+
+.category-form-actions {
+    margin-top: 25px;
+    padding-top: 20px;
+
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    border-top: 1px solid var(--border);
+}
+
+
+/* Category delete confirmation */
+
+.category-delete-card {
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 30px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+}
+
+.category-delete-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 18px;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--expense);
+    background: color-mix(
+        in srgb,
+        var(--expense) 14%,
+        var(--surface)
+    );
+    border-radius: 13px;
+}
+
+.category-delete-heading {
+    margin-bottom: 24px;
+}
+
+.category-delete-heading h2 {
+    margin: 6px 0 8px;
+
+    color: var(--text);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.95rem;
+    line-height: 1;
+}
+
+.category-delete-heading p {
+    margin: 0;
+
+    color: var(--text-soft);
+    font-size: 0.73rem;
+    line-height: 1.65;
+}
+
+.category-delete-details {
+    margin-bottom: 20px;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+}
+
+.category-delete-detail {
+    min-height: 78px;
+    padding: 15px;
+
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 7px;
+
+    background: var(--surface-raised);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.category-delete-detail:last-child {
+    grid-column: 1 / -1;
+}
+
+.category-delete-detail span {
+    color: var(--text-soft);
+    font-size: 0.62rem;
+    font-weight: 800;
+}
+
+.category-delete-detail strong {
+    overflow-wrap: anywhere;
+
+    color: var(--text);
+    font-size: 0.75rem;
+}
+
+.category-delete-warning {
+    margin-bottom: 22px;
+    padding: 13px 14px;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+
+    color: var(--warning);
+    background: color-mix(
+        in srgb,
+        var(--warning) 12%,
+        var(--surface)
+    );
+    border: 1px solid color-mix(
+        in srgb,
+        var(--warning) 24%,
+        var(--border)
+    );
+    border-radius: 9px;
+}
+
+.category-delete-warning i {
+    padding-top: 2px;
+}
+
+.category-delete-warning p {
+    margin: 0;
+
+    color: var(--text-soft);
+    font-size: 0.65rem;
+    line-height: 1.55;
+}
+
+.category-delete-actions {
+    padding-top: 20px;
+
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    border-top: 1px solid var(--border);
+}
+
+.category-confirm-delete-button {
+    color: #fffaf2;
+    background: var(--expense);
+    border-color: var(--expense);
+}
+
+.category-confirm-delete-button:hover {
+    background: color-mix(
+        in srgb,
+        var(--expense) 88%,
+        #000
+    );
+}
+
+
+/* Category responsive layout */
+
+@media (max-width: 900px) {
+    .category-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .category-page,
+    .category-form-page,
+    .category-delete-page {
+        width: calc(100% - 28px);
+        padding-top: 22px;
+    }
+
+    .category-header-actions {
+        width: 100%;
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .category-header-actions .button {
+        width: 100%;
+    }
+
+    .category-intro-card,
+    .category-form-heading {
+        flex-direction: column;
+    }
+
+    .category-panel,
+    .category-form-card,
+    .category-delete-card {
+        padding: 20px;
+    }
+
+    .category-panel-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .category-count {
+        align-self: flex-start;
+    }
+
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .category-delete-details {
+        grid-template-columns: 1fr;
+    }
+
+    .category-delete-detail:last-child {
+        grid-column: auto;
+    }
+
+    .category-form-actions,
+    .category-delete-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .category-form-actions .button,
+    .category-delete-actions .button {
+        width: 100%;
+    }
+}

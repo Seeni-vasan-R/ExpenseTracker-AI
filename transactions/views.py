@@ -16,21 +16,13 @@ from django.views.generic import (
     UpdateView,
 )
 
-from .forms import (
-    CategoryForm,
-    TransactionForm,
-)
-from .models import (
-    Category,
-    Transaction,
-)
+from .forms import CategoryForm, TransactionForm
+from .models import Category, Transaction
 
 
 class TransactionListView(LoginRequiredMixin, ListView):
     model = Transaction
-    template_name = (
-        "transactions/transaction_list.html"
-    )
+    template_name = "transactions/transaction_list.html"
     context_object_name = "transactions"
     paginate_by = 10
     login_url = "accounts:login"
@@ -96,10 +88,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
                 | Q(transaction_type__icontains=search)
             )
 
-        if transaction_type in {
-            "Income",
-            "Expense",
-        }:
+        if transaction_type in {"Income", "Expense"}:
             queryset = queryset.filter(
                 transaction_type=transaction_type,
             )
@@ -172,24 +161,16 @@ class TransactionListView(LoginRequiredMixin, ListView):
 
         total_income = (
             filtered_transactions
-            .filter(
-                transaction_type="Income",
-            )
-            .aggregate(
-                total=Sum("amount"),
-            )
+            .filter(transaction_type="Income")
+            .aggregate(total=Sum("amount"))
             .get("total")
             or Decimal("0.00")
         )
 
         total_expense = (
             filtered_transactions
-            .filter(
-                transaction_type="Expense",
-            )
-            .aggregate(
-                total=Sum("amount"),
-            )
+            .filter(transaction_type="Expense")
+            .aggregate(total=Sum("amount"))
             .get("total")
             or Decimal("0.00")
         )
@@ -214,17 +195,13 @@ class TransactionListView(LoginRequiredMixin, ListView):
                     "search",
                     "",
                 ),
-                "selected_type": (
-                    self.request.GET.get(
-                        "type",
-                        "",
-                    )
+                "selected_type": self.request.GET.get(
+                    "type",
+                    "",
                 ),
-                "selected_category": (
-                    self.request.GET.get(
-                        "category",
-                        "",
-                    )
+                "selected_category": self.request.GET.get(
+                    "category",
+                    "",
                 ),
                 "selected_payment_method": (
                     self.request.GET.get(
@@ -238,11 +215,9 @@ class TransactionListView(LoginRequiredMixin, ListView):
                         "",
                     )
                 ),
-                "selected_date_to": (
-                    self.request.GET.get(
-                        "date_to",
-                        "",
-                    )
+                "selected_date_to": self.request.GET.get(
+                    "date_to",
+                    "",
                 ),
                 "selected_min_amount": (
                     self.request.GET.get(
@@ -257,14 +232,10 @@ class TransactionListView(LoginRequiredMixin, ListView):
                     )
                 ),
                 "categories": categories,
-                "payment_methods": (
-                    Transaction.PAYMENT_METHODS
-                ),
+                "payment_methods": Transaction.PAYMENT_METHODS,
                 "total_income": total_income,
                 "total_expense": total_expense,
-                "balance": (
-                    total_income - total_expense
-                ),
+                "balance": total_income - total_expense,
                 "transaction_count": (
                     filtered_transactions.count()
                 ),
@@ -280,9 +251,7 @@ class TransactionCreateView(
 ):
     model = Transaction
     form_class = TransactionForm
-    template_name = (
-        "transactions/transaction_form.html"
-    )
+    template_name = "transactions/transaction_form.html"
     success_url = reverse_lazy(
         "transactions:transaction_list",
     )
@@ -321,9 +290,7 @@ class TransactionUpdateView(
 ):
     model = Transaction
     form_class = TransactionForm
-    template_name = (
-        "transactions/transaction_form.html"
-    )
+    template_name = "transactions/transaction_form.html"
     success_url = reverse_lazy(
         "transactions:transaction_list",
     )
@@ -369,9 +336,7 @@ class TransactionDetailView(
     DetailView,
 ):
     model = Transaction
-    template_name = (
-        "transactions/transaction_detail.html"
-    )
+    template_name = "transactions/transaction_detail.html"
     context_object_name = "transaction"
     login_url = "accounts:login"
 
@@ -450,9 +415,7 @@ class CategoryListView(
     ListView,
 ):
     model = Category
-    template_name = (
-        "transactions/category_list.html"
-    )
+    template_name = "transactions/category_list.html"
     context_object_name = "categories"
     login_url = "accounts:login"
 
@@ -478,9 +441,7 @@ class CategoryCreateView(
 ):
     model = Category
     form_class = CategoryForm
-    template_name = (
-        "transactions/category_form.html"
-    )
+    template_name = "transactions/category_form.html"
     success_url = reverse_lazy(
         "transactions:category_list",
     )
@@ -492,10 +453,7 @@ class CategoryCreateView(
         return kwargs
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
-
-        with db_transaction.atomic():
-            response = super().form_valid(form)
+        response = super().form_valid(form)
 
         messages.success(
             self.request,
@@ -505,6 +463,8 @@ class CategoryCreateView(
         return response
 
     def form_invalid(self, form):
+        print("CATEGORY FORM ERRORS:", form.errors)
+
         messages.error(
             self.request,
             "Please correct the errors below.",
@@ -519,9 +479,7 @@ class CategoryUpdateView(
 ):
     model = Category
     form_class = CategoryForm
-    template_name = (
-        "transactions/category_form.html"
-    )
+    template_name = "transactions/category_form.html"
     success_url = reverse_lazy(
         "transactions:category_list",
     )
@@ -539,10 +497,7 @@ class CategoryUpdateView(
         return kwargs
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
-
-        with db_transaction.atomic():
-            response = super().form_valid(form)
+        response = super().form_valid(form)
 
         messages.success(
             self.request,
@@ -552,6 +507,8 @@ class CategoryUpdateView(
         return response
 
     def form_invalid(self, form):
+        print("CATEGORY FORM ERRORS:", form.errors)
+
         messages.error(
             self.request,
             "Please correct the errors below.",
@@ -590,9 +547,8 @@ class CategoryDeleteView(
             messages.error(
                 request,
                 (
-                    "This category cannot be deleted "
-                    "because it is currently used "
-                    "by a transaction."
+                    "This category cannot be deleted because "
+                    "it is currently used by a transaction."
                 ),
             )
 

@@ -8,11 +8,32 @@ const analyticsState = {
 };
 
 
+const supportedCurrencies = {
+    INR: "INR",
+    USD: "USD",
+    EUR: "EUR",
+    GBP: "GBP",
+};
+
+
+const currencyCode = (
+    document.documentElement.dataset.currency
+    || "INR"
+).toUpperCase();
+
+
+const activeCurrency = (
+    supportedCurrencies[currencyCode]
+    || "INR"
+);
+
+
 const currencyFormatter = new Intl.NumberFormat(
     "en-IN",
     {
         style: "currency",
-        currency: "INR",
+        currency: activeCurrency,
+        currencyDisplay: "symbol",
         maximumFractionDigits: 2,
     }
 );
@@ -63,7 +84,7 @@ function decimalValue(value) {
     const parsed = Number.parseFloat(
         String(value)
             .replaceAll(",", "")
-            .replace(/[₹%\s]/g, "")
+            .replace(/[₹$€£%\s]/g, "")
     );
 
     return Number.isFinite(parsed)
@@ -386,7 +407,9 @@ function createCategoryChart(data) {
         analyticsState.categoryChart
     );
 
-    const legend = getElement("category-legend");
+    const legend = getElement(
+        "category-legend"
+    );
 
     if (!labels.length || !values.length) {
         if (legend) {
@@ -403,8 +426,10 @@ function createCategoryChart(data) {
         canvas,
         {
             type: "doughnut",
+
             data: {
                 labels: labels,
+
                 datasets: [
                     {
                         data: values,
@@ -415,14 +440,17 @@ function createCategoryChart(data) {
                     },
                 ],
             },
+
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: "68%",
+
                 plugins: {
                     legend: {
                         display: false,
                     },
+
                     tooltip: {
                         callbacks: {
                             label: function (context) {
@@ -530,8 +558,10 @@ function createTimelineChart(data) {
         canvas,
         {
             type: "line",
+
             data: {
                 labels: labels,
+
                 datasets: [
                     {
                         label: "Income",
@@ -545,6 +575,7 @@ function createTimelineChart(data) {
                         pointRadius: 2,
                         pointHoverRadius: 5,
                     },
+
                     {
                         label: "Expenses",
                         data: expense,
@@ -559,25 +590,31 @@ function createTimelineChart(data) {
                     },
                 ],
             },
+
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+
                 interaction: {
                     mode: "index",
                     intersect: false,
                 },
+
                 plugins: {
                     legend: {
                         display: true,
+
                         labels: {
                             color: styles.textSoft,
                             boxWidth: 11,
+
                             font: {
                                 family: "Manrope",
                                 size: 10,
                             },
                         },
                     },
+
                     tooltip: {
                         callbacks: {
                             label: function (context) {
@@ -593,31 +630,39 @@ function createTimelineChart(data) {
                         },
                     },
                 },
+
                 scales: {
                     x: {
                         grid: {
                             display: false,
                         },
+
                         ticks: {
                             color: styles.textSoft,
                             maxTicksLimit: 10,
+
                             font: {
                                 family: "Manrope",
                                 size: 10,
                             },
                         },
                     },
+
                     y: {
                         beginAtZero: true,
+
                         grid: {
                             color: styles.border,
                         },
+
                         ticks: {
                             color: styles.textSoft,
+
                             font: {
                                 family: "Manrope",
                                 size: 10,
                             },
+
                             callback: function (value) {
                                 return formatCurrency(value);
                             },
@@ -668,8 +713,10 @@ function createMonthViewChart(data) {
         canvas,
         {
             type: "bar",
+
             data: {
                 labels: labels,
+
                 datasets: [
                     {
                         label: "Income",
@@ -679,6 +726,7 @@ function createMonthViewChart(data) {
                         borderSkipped: false,
                         maxBarThickness: 32,
                     },
+
                     {
                         label: "Expenses",
                         data: expense,
@@ -687,6 +735,7 @@ function createMonthViewChart(data) {
                         borderSkipped: false,
                         maxBarThickness: 32,
                     },
+
                     {
                         label: "Balance",
                         data: balance,
@@ -700,25 +749,31 @@ function createMonthViewChart(data) {
                     },
                 ],
             },
+
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+
                 interaction: {
                     mode: "index",
                     intersect: false,
                 },
+
                 plugins: {
                     legend: {
                         display: true,
+
                         labels: {
                             color: styles.textSoft,
                             boxWidth: 11,
+
                             font: {
                                 family: "Manrope",
                                 size: 10,
                             },
                         },
                     },
+
                     tooltip: {
                         callbacks: {
                             label: function (context) {
@@ -734,30 +789,38 @@ function createMonthViewChart(data) {
                         },
                     },
                 },
+
                 scales: {
                     x: {
                         grid: {
                             display: false,
                         },
+
                         ticks: {
                             color: styles.textSoft,
+
                             font: {
                                 family: "Manrope",
                                 size: 10,
                             },
                         },
                     },
+
                     y: {
                         beginAtZero: true,
+
                         grid: {
                             color: styles.border,
                         },
+
                         ticks: {
                             color: styles.textSoft,
+
                             font: {
                                 family: "Manrope",
                                 size: 10,
                             },
+
                             callback: function (value) {
                                 return formatCurrency(value);
                             },
@@ -770,8 +833,14 @@ function createMonthViewChart(data) {
 }
 
 
-function getCalendarLevel(amount, maximumAmount) {
-    if (amount <= 0 || maximumAmount <= 0) {
+function getCalendarLevel(
+    amount,
+    maximumAmount
+) {
+    if (
+        amount <= 0
+        || maximumAmount <= 0
+    ) {
         return 0;
     }
 
@@ -875,7 +944,8 @@ function renderExpenseCalendar(data) {
         index < mondayFirstOffset;
         index += 1
     ) {
-        html += '<div class="analytics-calendar-empty"></div>';
+        html +=
+            '<div class="analytics-calendar-empty"></div>';
     }
 
     html += days
@@ -1085,11 +1155,8 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
         populateYearSelect();
-
         initializeMonthSelect();
-
         bindEvents();
-
         refreshAnalytics();
     }
 );

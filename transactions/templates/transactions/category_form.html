@@ -6,7 +6,7 @@
     {% if object %}
         Edit Category | Expense Tracker
     {% else %}
-        Add Category | Expense Tracker
+        Create Category | Expense Tracker
     {% endif %}
 {% endblock %}
 
@@ -31,15 +31,15 @@
                 {% if object %}
                     Edit category
                 {% else %}
-                    Add category
+                    Create category
                 {% endif %}
             </h1>
 
             <p>
                 {% if object %}
-                    Update the name or type of your personal category.
+                    Update your personal category details.
                 {% else %}
-                    Create a personal category for your transactions.
+                    Add a personal category for your transactions.
                 {% endif %}
             </p>
         </div>
@@ -76,9 +76,9 @@
 
     <section class="category-form-card">
 
-        <div class="category-form-intro">
+        <div class="category-form-heading">
 
-            <div class="category-form-intro-icon">
+            <div class="category-form-icon">
                 <i class="fa-solid fa-folder-plus"></i>
             </div>
 
@@ -89,15 +89,14 @@
 
                 <h2>
                     {% if object %}
-                        Update category details
+                        Update category
                     {% else %}
-                        Create a new category
+                        Add a new category
                     {% endif %}
                 </h2>
 
                 <p>
-                    Choose a clear name and assign the category to the type
-                    that best describes it.
+                    Personal categories are visible only to your account.
                 </p>
             </div>
 
@@ -111,57 +110,54 @@
             </div>
         {% endif %}
 
-        <form method="post">
+        <form
+            method="post"
+            class="category-form"
+        >
             {% csrf_token %}
 
-            <div class="category-form-fields">
+            <div class="category-form-field">
+                <label for="{{ form.name.id_for_label }}">
+                    Category name
+                </label>
 
-                <div class="category-form-field">
-                    <label for="{{ form.name.id_for_label }}">
-                        Category name
-                    </label>
+                {{ form.name }}
 
-                    {{ form.name }}
+                <small>
+                    Example: Groceries, Rent, Freelance, or Subscriptions.
+                </small>
 
-                    <small>
-                        Use a short and recognizable name, such as
-                        Groceries, Freelance, or Subscriptions.
-                    </small>
+                {% for error in form.name.errors %}
+                    <span class="category-form-error">
+                        {{ error }}
+                    </span>
+                {% endfor %}
+            </div>
 
-                    {% for error in form.name.errors %}
-                        <span class="category-form-error">
-                            {{ error }}
-                        </span>
-                    {% endfor %}
-                </div>
+            <div class="category-form-field">
+                <label for="{{ form.category_type.id_for_label }}">
+                    Category type
+                </label>
 
-                <div class="category-form-field">
-                    <label for="{{ form.category_type.id_for_label }}">
-                        Category type
-                    </label>
+                {{ form.category_type }}
 
-                    {{ form.category_type }}
+                <small>
+                    Income categories can only be used with income transactions.
+                </small>
 
-                    <small>
-                        Income categories can only be used for income
-                        transactions.
-                    </small>
-
-                    {% for error in form.category_type.errors %}
-                        <span class="category-form-error">
-                            {{ error }}
-                        </span>
-                    {% endfor %}
-                </div>
-
+                {% for error in form.category_type.errors %}
+                    <span class="category-form-error">
+                        {{ error }}
+                    </span>
+                {% endfor %}
             </div>
 
             <div class="category-form-note">
                 <i class="fa-solid fa-circle-info"></i>
 
                 <p>
-                    Personal categories are visible only to you. Default
-                    categories cannot be edited or deleted.
+                    After submitting, your category will appear in the category
+                    library and become available in the transaction form.
                 </p>
             </div>
 
